@@ -525,6 +525,13 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
   private final URI privacyUrl = PrivacyParameters.DEFAULT_ENCLAVE_URL;
 
   @Option(
+      names = {"--privacy-signer-url"},
+      description =
+          "The URL on which EthSigner is running. "
+              + "If none is provided Privacy Marker Transaction will be signed with the default node key.")
+  private final URI privacySignerURL = null;
+
+  @Option(
       names = {"--privacy-precompiled-address"},
       description =
           "The address to which the privacy pre-compiled contract will be mapped to (default: ${DEFAULT-VALUE})")
@@ -1015,6 +1022,7 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
     if (isPrivacyEnabled) {
       privacyParametersBuilder.setEnabled(true);
       privacyParametersBuilder.setEnclaveUrl(privacyUrl);
+      privacyParametersBuilder.setSignerURL(privacySignerURL);
       if (privacyPublicKeyFile() != null) {
         privacyParametersBuilder.setEnclavePublicKeyUsingFile(privacyPublicKeyFile());
       } else {

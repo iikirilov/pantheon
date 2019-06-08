@@ -91,6 +91,9 @@ import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.permissioning.Per
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy.EeaGetTransactionCount;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy.EeaGetTransactionReceipt;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy.EeaSendRawTransaction;
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy.EthSigner;
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy.NodeKeySigner;
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy.Signer;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.parameters.JsonRpcParameter;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.processor.BlockReplay;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.processor.BlockTracer;
@@ -110,6 +113,7 @@ import tech.pegasys.pantheon.ethereum.worldstate.WorldStateArchive;
 import tech.pegasys.pantheon.metrics.MetricsSystem;
 import tech.pegasys.pantheon.metrics.prometheus.MetricsConfiguration;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -323,11 +327,23 @@ public class JsonRpcMethodsFactory {
           new EeaSendRawTransaction(
               blockchainQueries,
               new PrivateTransactionHandler(privacyParameters),
-              transactionPool,
+              resolveSigner(privacyParameters, transactionPool),
               parameter),
           new EeaGetTransactionCount(parameter, privacyParameters));
     }
     return enabledMethods;
+  }
+
+  private Signer resolveSigner(
+      final PrivacyParameters privacyParameters, final TransactionPool transactionPool) {
+    if (privacyParameters.getSignerUrl() != null) {
+      try {
+        return new EthSigner(privacyParameters);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return new NodeKeySigner(privacyParameters, transactionPool);
   }
 
   private void addMethods(

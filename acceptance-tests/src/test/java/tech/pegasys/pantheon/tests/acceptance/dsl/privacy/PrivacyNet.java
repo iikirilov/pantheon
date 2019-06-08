@@ -12,6 +12,8 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
+import tech.pegasys.ethsigner.testutil.EthSignerTestHarness;
+import tech.pegasys.ethsigner.testutil.EthSignerTestHarnessFactory;
 import tech.pegasys.orion.testutil.OrionTestHarness;
 import tech.pegasys.orion.testutil.OrionTestHarnessFactory;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
@@ -178,6 +180,10 @@ public class PrivacyNet {
       return addNode(name, true);
     }
 
+    public Builder addMinerNodeWithEthSigner(final String name) throws IOException {
+      return addNode(name, false, Optional.empty(), true);
+    }
+
     public Builder addNode(final String name) throws IOException {
       return addNode(name, false);
     }
@@ -193,7 +199,11 @@ public class PrivacyNet {
     public Builder addNode(
         final String name, final boolean isMiningEnabled, final Optional<String> keyPath)
         throws IOException {
-      final PrivacyNode node = makeNode(name, isMiningEnabled, otherOrionNode, keyPath);
+      return addNode(name, isMiningEnabled, keyPath, false);
+    }
+
+    private Builder addNode(String name, boolean isMiningEnabled, Optional<String> keyPath, boolean useEthSigner) throws IOException {
+      final PrivacyNode node = makeNode(name, isMiningEnabled, otherOrionNode, keyPath, useEthSigner);
       if (nodes == null) {
         nodes = new HashMap<>();
         otherOrionNode = node.orion.nodeUrl(); // All nodes use first added node for discovery
@@ -203,10 +213,10 @@ public class PrivacyNet {
     }
 
     public PrivacyNode makeNode(
-        final String name,
-        final boolean isMiningEnabled,
-        final String otherOrionNodes,
-        final Optional<String> orionKeyPath)
+            final String name,
+            final boolean isMiningEnabled,
+            final String otherOrionNodes,
+            final Optional<String> orionKeyPath, boolean useEthSigner)
         throws IOException {
 
       final OrionTestHarness orion;
@@ -219,10 +229,15 @@ public class PrivacyNet {
 
       final PrivacyNode node;
       final String keyFilePath = KNOWN_PANTHEON_KEYPAIRS.get(name);
-      if (isMiningEnabled && !ibft) {
+      if (isMiningEnabled && !ibft && !useEthSigner) {
         node =
             pantheonNodeFactory.createPrivateTransactionEnabledMinerNode(
                 name, generatePrivacyParameters(orion), keyFilePath, orion);
+      } else if (!isMiningEnabled && !ibft && useEthSigner) {
+
+        node =
+                pantheonNodeFactory.createPrivateTransactionEnabledMinerNodeWithEthSigner(
+                        name, generatePrivacyParametersWithEthSigner(orion, createEthSigner(temporaryFolder, orionKeyPath)), keyFilePath, orion);
       } else if (!isMiningEnabled && !ibft) {
         node =
             pantheonNodeFactory.createPrivateTransactionEnabledNode(
@@ -234,6 +249,10 @@ public class PrivacyNet {
       }
 
       return node;
+    }
+
+    private EthSignerTestHarness createEthSigner(final TemporaryFolder temporaryFolder, final Optional<String> keyPath) throws IOException {
+      return EthSignerTestHarnessFactory.create(temporaryFolder.newFolder().toPath(), keyPath.orElse(""), 0,0, 2018);
     }
 
     protected OrionTestHarness createEnclave(
@@ -269,6 +288,17 @@ public class PrivacyNet {
           .setEnclavePublicKeyUsingFile(testHarness.getConfig().publicKeys().get(0).toFile())
           .setDataDir(temporaryFolder.newFolder().toPath())
           .build();
+    }
+
+    private PrivacyParameters generatePrivacyParametersWithEthSigner(final OrionTestHarness enclaveTestHarness, final EthSignerTestHarness ethSignerTestHarness)
+            throws IOException {
+      return new PrivacyParameters.Builder()
+              .setEnabled(true)
+              .setEnclaveUrl(enclaveTestHarness.clientUrl())
+              .setEnclavePublicKeyUsingFile(enclaveTestHarness.getConfig().publicKeys().get(0).toFile())
+              .setDataDir(temporaryFolder.newFolder().toPath())
+              .setSignerURL(ethSignerTestHarness.getHttpListeningUrl())
+              .build();
     }
 
     public PrivacyNet build() {

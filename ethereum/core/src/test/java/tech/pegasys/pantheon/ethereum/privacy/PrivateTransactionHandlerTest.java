@@ -31,7 +31,6 @@ import tech.pegasys.pantheon.ethereum.core.Account;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.Hash;
 import tech.pegasys.pantheon.ethereum.core.MutableWorldState;
-import tech.pegasys.pantheon.ethereum.core.Transaction;
 import tech.pegasys.pantheon.ethereum.core.Wei;
 import tech.pegasys.pantheon.ethereum.mainnet.TransactionValidator.TransactionInvalidReason;
 import tech.pegasys.pantheon.ethereum.mainnet.ValidationResult;
@@ -42,7 +41,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Optional;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,18 +59,6 @@ public class PrivateTransactionHandlerTest {
 
   PrivateTransactionHandler privateTransactionHandler;
   PrivateTransactionHandler brokenPrivateTransactionHandler;
-
-  private static final Transaction PUBLIC_TRANSACTION =
-      Transaction.builder()
-          .nonce(0)
-          .gasPrice(Wei.of(1000))
-          .gasLimit(3000000)
-          .to(Address.fromHexString("0x627306090abab3a6e1400e9345bc60c78a8bef57"))
-          .value(Wei.ZERO)
-          .payload(BytesValue.wrap(TRANSACTION_KEY.getBytes(Charsets.UTF_8)))
-          .sender(Address.fromHexString("0xfe3b557e8fb62b89f4916b721be55ceb828dbd73"))
-          .chainId(BigInteger.valueOf(2018))
-          .signAndBuild(KEY_PAIR);
 
   Enclave mockEnclave() throws IOException {
     Enclave mockEnclave = mock(Enclave.class);
@@ -103,19 +89,9 @@ public class PrivateTransactionHandlerTest {
     when(mutableWorldState.get(any(Address.class))).thenReturn(account);
 
     privateTransactionHandler =
-        new PrivateTransactionHandler(
-            mockEnclave(),
-            Address.DEFAULT_PRIVACY,
-            KEY_PAIR,
-            privateStateStorage,
-            worldStateArchive);
+        new PrivateTransactionHandler(mockEnclave(), privateStateStorage, worldStateArchive);
     brokenPrivateTransactionHandler =
-        new PrivateTransactionHandler(
-            brokenMockEnclave(),
-            Address.DEFAULT_PRIVACY,
-            KEY_PAIR,
-            privateStateStorage,
-            worldStateArchive);
+        new PrivateTransactionHandler(brokenMockEnclave(), privateStateStorage, worldStateArchive);
   }
 
   @Test
@@ -131,15 +107,7 @@ public class PrivateTransactionHandlerTest {
     final ValidationResult<TransactionInvalidReason> validationResult =
         privateTransactionHandler.validatePrivateTransaction(transaction, privacyGroupId);
 
-    final Transaction markerTransaction =
-        privateTransactionHandler.createPrivacyMarkerTransaction(enclaveKey, transaction, 0L);
-
     assertThat(validationResult).isEqualTo(ValidationResult.valid());
-    assertThat(markerTransaction.contractAddress()).isEqualTo(PUBLIC_TRANSACTION.contractAddress());
-    assertThat(markerTransaction.getPayload()).isEqualTo(PUBLIC_TRANSACTION.getPayload());
-    assertThat(markerTransaction.getNonce()).isEqualTo(PUBLIC_TRANSACTION.getNonce());
-    assertThat(markerTransaction.getSender()).isEqualTo(PUBLIC_TRANSACTION.getSender());
-    assertThat(markerTransaction.getValue()).isEqualTo(PUBLIC_TRANSACTION.getValue());
   }
 
   @Test(expected = IOException.class)

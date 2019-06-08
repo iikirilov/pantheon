@@ -20,6 +20,7 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.genesis.Gen
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 
 import java.io.IOException;
+import java.net.URI;
 
 public class PrivacyPantheonNodeFactory {
 
@@ -109,5 +110,25 @@ public class PrivacyPantheonNodeFactory {
                     .build())
             .setOrion(orionTestHarness)
             .build());
+  }
+
+  public PrivacyNode createPrivateTransactionEnabledMinerNodeWithEthSigner(String name, PrivacyParameters privacyParameters, String keyFilePath, OrionTestHarness orionTestHarness) throws IOException {
+    return create(
+            new PrivacyPantheonFactoryConfigurationBuilder()
+                    .setConfig(
+                            new PantheonFactoryConfigurationBuilder()
+                                    .name(name)
+                                    .miningEnabled()
+                                    .jsonRpcConfiguration(node.createJsonRpcWithIbft2EnabledConfig())
+                                    .webSocketConfiguration(node.createWebSocketEnabledConfig())
+                                    .devMode(false)
+                                    .genesisConfigProvider(genesis::createIbft2GenesisConfig)
+                                    .keyFilePath(keyFilePath)
+                                    .enablePrivateTransactions(privacyParameters)
+                                    //FIXME: figure this out
+                                    .enableEthSigner(URI.create(""))
+                                    .build())
+                    .setOrion(orionTestHarness)
+                    .build());
   }
 }

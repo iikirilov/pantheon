@@ -23,7 +23,9 @@ import tech.pegasys.pantheon.ethereum.jsonrpc.websocket.WebSocketConfiguration;
 import tech.pegasys.pantheon.ethereum.permissioning.PermissioningConfiguration;
 import tech.pegasys.pantheon.metrics.prometheus.MetricsConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.genesis.GenesisConfigurationProvider;
+import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyPantheonFactoryConfigurationBuilder;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -79,6 +81,11 @@ public class PantheonFactoryConfigurationBuilder {
     this.jsonRpcConfiguration.addRpcApi(RpcApis.EEA);
     this.privacyParameters = privacyParameters;
     this.privacyParameters.setEnabled(true);
+    return this;
+  }
+
+  public PantheonFactoryConfigurationBuilder enableEthSigner(final URI ethSignUrl) {
+    this.privacyParameters.setSignerUrl(ethSignUrl);
     return this;
   }
 

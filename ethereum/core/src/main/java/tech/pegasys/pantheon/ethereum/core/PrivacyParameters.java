@@ -34,6 +34,7 @@ import com.google.common.io.Files;
 
 public class PrivacyParameters {
   public static final URI DEFAULT_ENCLAVE_URL = URI.create("http://localhost:8888");
+  public static final URI DEFAULT_SIGNER_URL = URI.create("http://localhost:8545");
   public static final PrivacyParameters DEFAULT = new PrivacyParameters();
 
   private Integer privacyAddress = Address.PRIVACY;
@@ -41,10 +42,12 @@ public class PrivacyParameters {
   private URI enclaveUri;
   private String enclavePublicKey;
   private File enclavePublicKeyFile;
+
+  private URI signerUrl;
   private SECP256K1.KeyPair signingKeyPair;
+
   private WorldStateArchive privateWorldStateArchive;
   private StorageProvider privateStorageProvider;
-
   private PrivateTransactionStorage privateTransactionStorage;
   private PrivateStateStorage privateStateStorage;
 
@@ -96,6 +99,14 @@ public class PrivacyParameters {
     this.signingKeyPair = signingKeyPair;
   }
 
+  public void setSignerUrl(final URI signerUrl) {
+    this.signerUrl = signerUrl;
+  }
+
+  public URI getSignerUrl() {
+    return signerUrl;
+  }
+
   public WorldStateArchive getPrivateWorldStateArchive() {
     return privateWorldStateArchive;
   }
@@ -139,6 +150,7 @@ public class PrivacyParameters {
 
     private boolean enabled;
     private URI enclaveUrl;
+    private URI signerUrl;
     private Integer privacyAddress = Address.PRIVACY;
     private MetricsSystem metricsSystem = new NoOpMetricsSystem();
     private Path dataDir;
@@ -152,6 +164,11 @@ public class PrivacyParameters {
 
     public Builder setEnclaveUrl(final URI enclaveUrl) {
       this.enclaveUrl = enclaveUrl;
+      return this;
+    }
+
+    public Builder setSignerURL(final URI privacySignerURL) {
+      this.signerUrl = privacySignerURL;
       return this;
     }
 
@@ -171,7 +188,7 @@ public class PrivacyParameters {
     }
 
     public PrivacyParameters build() throws IOException {
-      PrivacyParameters config = new PrivacyParameters();
+      final PrivacyParameters config = new PrivacyParameters();
       if (enabled) {
         Path privateDbPath = dataDir.resolve(PRIVATE_DATABASE_PATH);
         StorageProvider privateStorageProvider =
@@ -200,6 +217,7 @@ public class PrivacyParameters {
       }
       config.setEnabled(enabled);
       config.setEnclaveUri(enclaveUrl);
+      config.setSignerUrl(signerUrl);
       config.setPrivacyAddress(privacyAddress);
       return config;
     }

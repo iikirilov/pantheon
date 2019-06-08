@@ -15,8 +15,6 @@ package tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy;
 import static tech.pegasys.pantheon.ethereum.jsonrpc.JsonRpcErrorConverter.convertTransactionInvalidReason;
 
 import tech.pegasys.pantheon.ethereum.core.Address;
-import tech.pegasys.pantheon.ethereum.core.Transaction;
-import tech.pegasys.pantheon.ethereum.eth.transactions.TransactionPool;
 import tech.pegasys.pantheon.ethereum.jsonrpc.RpcMethod;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.JsonRpcRequest;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.exception.InvalidJsonRpcRequestException;
@@ -45,17 +43,17 @@ public class EeaSendRawTransaction implements JsonRpcMethod {
 
   private final BlockchainQueries blockchain;
   private final PrivateTransactionHandler privateTransactionHandler;
-  private final TransactionPool transactionPool;
+  private final Signer signer;
   private final JsonRpcParameter parameters;
 
   public EeaSendRawTransaction(
       final BlockchainQueries blockchain,
       final PrivateTransactionHandler privateTransactionHandler,
-      final TransactionPool transactionPool,
+      final Signer signer,
       final JsonRpcParameter parameters) {
     this.blockchain = blockchain;
     this.privateTransactionHandler = privateTransactionHandler;
-    this.transactionPool = transactionPool;
+    this.signer = signer;
     this.parameters = parameters;
   }
 
@@ -106,20 +104,11 @@ public class EeaSendRawTransaction implements JsonRpcMethod {
     return privateTransactionHandler
         .validatePrivateTransaction(privateTransaction, privacyGroupId)
         .either(
-            () -> {
-              final Transaction privacyMarkerTransaction =
-                  privateTransactionHandler.createPrivacyMarkerTransaction(
-                      enclaveKey, privateTransaction, getNonce(privateTransaction.getSender()));
-              return transactionPool
-                  .addLocalTransaction(privacyMarkerTransaction)
-                  .either(
-                      () ->
-                          new JsonRpcSuccessResponse(
-                              request.getId(), privacyMarkerTransaction.hash().toString()),
-                      errorReason ->
-                          new JsonRpcErrorResponse(
-                              request.getId(), convertTransactionInvalidReason(errorReason)));
-            },
+            () ->
+                new JsonRpcSuccessResponse(
+                    request.getId(),
+                    signer.signAndSend(
+                        enclaveKey, privateTransaction, getNonce(privateTransaction.getSender()))),
             (errorReason) ->
                 new JsonRpcErrorResponse(
                     request.getId(), convertTransactionInvalidReason(errorReason)));

@@ -15,16 +15,13 @@ package tech.pegasys.pantheon.ethereum.privacy;
 import static tech.pegasys.pantheon.ethereum.mainnet.TransactionValidator.TransactionInvalidReason.INCORRECT_PRIVATE_NONCE;
 import static tech.pegasys.pantheon.ethereum.mainnet.TransactionValidator.TransactionInvalidReason.PRIVATE_NONCE_TOO_LOW;
 
-import tech.pegasys.pantheon.crypto.SECP256K1;
 import tech.pegasys.pantheon.enclave.Enclave;
 import tech.pegasys.pantheon.enclave.types.ReceiveRequest;
 import tech.pegasys.pantheon.enclave.types.ReceiveResponse;
 import tech.pegasys.pantheon.enclave.types.SendRequest;
 import tech.pegasys.pantheon.enclave.types.SendResponse;
 import tech.pegasys.pantheon.ethereum.core.Account;
-import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
-import tech.pegasys.pantheon.ethereum.core.Transaction;
 import tech.pegasys.pantheon.ethereum.mainnet.TransactionValidator.TransactionInvalidReason;
 import tech.pegasys.pantheon.ethereum.mainnet.ValidationResult;
 import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPOutput;
@@ -46,29 +43,21 @@ public class PrivateTransactionHandler {
   private static final Logger LOG = LogManager.getLogger();
 
   private final Enclave enclave;
-  private final Address privacyPrecompileAddress;
-  private final SECP256K1.KeyPair nodeKeyPair;
   private final PrivateStateStorage privateStateStorage;
   private final WorldStateArchive privateWorldStateArchive;
 
   public PrivateTransactionHandler(final PrivacyParameters privacyParameters) {
     this(
         new Enclave(privacyParameters.getEnclaveUri()),
-        Address.privacyPrecompiled(privacyParameters.getPrivacyAddress()),
-        privacyParameters.getSigningKeyPair(),
         privacyParameters.getPrivateStateStorage(),
         privacyParameters.getPrivateWorldStateArchive());
   }
 
   public PrivateTransactionHandler(
       final Enclave enclave,
-      final Address privacyPrecompileAddress,
-      final SECP256K1.KeyPair nodeKeyPair,
       final PrivateStateStorage privateStateStorage,
       final WorldStateArchive privateWorldStateArchive) {
     this.enclave = enclave;
-    this.privacyPrecompileAddress = privacyPrecompileAddress;
-    this.nodeKeyPair = nodeKeyPair;
     this.privateStateStorage = privateStateStorage;
     this.privateWorldStateArchive = privateWorldStateArchive;
   }
@@ -99,22 +88,6 @@ public class PrivateTransactionHandler {
       LOG.error("Failed to retrieve private transaction in enclave", e);
       throw e;
     }
-  }
-
-  public Transaction createPrivacyMarkerTransaction(
-      final String transactionEnclaveKey,
-      final PrivateTransaction privateTransaction,
-      final Long nonce) {
-
-    return Transaction.builder()
-        .nonce(nonce)
-        .gasPrice(privateTransaction.getGasPrice())
-        .gasLimit(privateTransaction.getGasLimit())
-        .to(privacyPrecompileAddress)
-        .value(privateTransaction.getValue())
-        .payload(BytesValue.wrap(transactionEnclaveKey.getBytes(Charsets.UTF_8)))
-        .sender(privateTransaction.getSender())
-        .signAndBuild(nodeKeyPair);
   }
 
   public ValidationResult<TransactionInvalidReason> validatePrivateTransaction(
