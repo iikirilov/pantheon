@@ -12,6 +12,8 @@
  */
 package tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateTransaction;
@@ -23,6 +25,8 @@ import java.math.BigInteger;
 public class EthSigner implements Signer {
   private EthSignerClient client;
   private Address privacyPrecompileAddress;
+  private static final Logger LOG = LogManager.getLogger();
+
 
   public EthSigner(final PrivacyParameters privacyParameters) throws IOException {
     this(
@@ -39,11 +43,15 @@ public class EthSigner implements Signer {
   public Object signAndSend(
       final String enclaveKey, final PrivateTransaction privateTransaction, final long nonce) {
     try {
+
+      LOG.info("------------------");
+      LOG.info("GOT HERE");
+      LOG.info("------------------");
       return client.ethSendTransaction(
           privacyPrecompileAddress.toString(),
           BigInteger.valueOf(privateTransaction.getGasLimit()),
-          new BigInteger(privateTransaction.getGasPrice().toShortHexString(), 16),
-          new BigInteger(privateTransaction.getValue().toShortHexString()),
+          new BigInteger(privateTransaction.getGasPrice().toUnprefixedHexString(), 16),
+          new BigInteger(privateTransaction.getValue().toUnprefixedHexString()),
           enclaveKey,
           BigInteger.valueOf(nonce));
     } catch (IOException e) {

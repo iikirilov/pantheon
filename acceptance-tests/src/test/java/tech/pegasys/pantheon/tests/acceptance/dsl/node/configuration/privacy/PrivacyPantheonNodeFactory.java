@@ -12,15 +12,16 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy;
 
+import tech.pegasys.ethsigner.testutil.EthSignerTestHarness;
 import tech.pegasys.orion.testutil.OrionTestHarness;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
+import tech.pegasys.pantheon.ethereum.jsonrpc.JsonRpcConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.NodeConfigurationFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfigurationBuilder;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.genesis.GenesisConfigurationFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 
 import java.io.IOException;
-import java.net.URI;
 
 public class PrivacyPantheonNodeFactory {
 
@@ -45,7 +46,8 @@ public class PrivacyPantheonNodeFactory {
         config.isBootnodeEligible(),
         config.getPlugins(),
         config.getExtraCLIOptions(),
-        config.getOrion());
+        config.getOrion(),
+        config.getEthSigner());
   }
 
   public PrivacyNode createPrivateTransactionEnabledMinerNode(
@@ -112,23 +114,27 @@ public class PrivacyPantheonNodeFactory {
             .build());
   }
 
-  public PrivacyNode createPrivateTransactionEnabledMinerNodeWithEthSigner(String name, PrivacyParameters privacyParameters, String keyFilePath, OrionTestHarness orionTestHarness) throws IOException {
+  public PrivacyNode createPrivateTransactionEnabledMinerNodeWithEthSigner(
+      final String name,
+      final JsonRpcConfiguration jsonRpcConfiguration,
+      final PrivacyParameters privacyParameters,
+      final String keyFilePath,
+      final OrionTestHarness orionTestHarness,
+      final EthSignerTestHarness ethSignerTestHarness)
+      throws IOException {
+    privacyParameters.setSignerUrl(ethSignerTestHarness.getHttpListeningUrl());
     return create(
-            new PrivacyPantheonFactoryConfigurationBuilder()
-                    .setConfig(
-                            new PantheonFactoryConfigurationBuilder()
-                                    .name(name)
-                                    .miningEnabled()
-                                    .jsonRpcConfiguration(node.createJsonRpcWithIbft2EnabledConfig())
-                                    .webSocketConfiguration(node.createWebSocketEnabledConfig())
-                                    .devMode(false)
-                                    .genesisConfigProvider(genesis::createIbft2GenesisConfig)
-                                    .keyFilePath(keyFilePath)
-                                    .enablePrivateTransactions(privacyParameters)
-                                    //FIXME: figure this out
-                                    .enableEthSigner(URI.create(""))
-                                    .build())
-                    .setOrion(orionTestHarness)
-                    .build());
+        new PrivacyPantheonFactoryConfigurationBuilder()
+            .setConfig(
+                new PantheonFactoryConfigurationBuilder()
+                    .name(name)
+                    .jsonRpcConfiguration(jsonRpcConfiguration)
+                    .keyFilePath(keyFilePath)
+                    .enablePrivateTransactions(privacyParameters)
+                    .webSocketEnabled()
+                    .build())
+            .setOrion(orionTestHarness)
+            .setEthSigner(ethSignerTestHarness)
+            .build());
   }
 }

@@ -88,6 +88,10 @@ public class Runner implements AutoCloseable {
       websocketRpc.ifPresent(service -> waitForServiceToStop("websocketRpc", service.start()));
       metrics.ifPresent(service -> waitForServiceToStart("metrics", service.start()));
       LOG.info("Ethereum main loop is up.");
+
+      LOG.info("-----------------------");
+      LOG.info(getJsonRpcPort().get());
+      LOG.info("-----------------------");
       writePantheonPortsToFile();
     } catch (final Exception ex) {
       LOG.error("Startup failed", ex);

@@ -124,7 +124,7 @@ public class EthSignerTestHarnessFactory {
         new tech.pegasys.ethsigner.core.EthSigner(config, new RunnerBuilder());
     ethSigner.run();
 
-    //FIXME: Figure out how to start ethsigner synchronously.
+    // FIXME: Figure out how to start ethsigner synchronously.
     try {
       TimeUnit.SECONDS.sleep(3);
     } catch (InterruptedException e) {

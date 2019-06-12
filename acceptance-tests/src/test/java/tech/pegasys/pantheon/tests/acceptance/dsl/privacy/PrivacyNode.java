@@ -15,6 +15,7 @@ package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static tech.pegasys.pantheon.tests.acceptance.dsl.WaitUtils.waitFor;
 
+import tech.pegasys.ethsigner.testutil.EthSignerTestHarness;
 import tech.pegasys.orion.testutil.OrionTestHarness;
 import tech.pegasys.pantheon.enclave.Enclave;
 import tech.pegasys.pantheon.enclave.types.SendRequest;
@@ -41,6 +42,7 @@ public class PrivacyNode extends PantheonNode {
   private static final Logger LOG = LogManager.getLogger();
 
   public OrionTestHarness orion;
+  public Optional<EthSignerTestHarness> ethSigner;
 
   public PrivacyNode(
       final String name,
@@ -58,7 +60,8 @@ public class PrivacyNode extends PantheonNode {
       final boolean bootnodeEligible,
       final List<String> plugins,
       final List<String> extraCLIOptions,
-      final OrionTestHarness orion)
+      final OrionTestHarness orion,
+      final Optional<EthSignerTestHarness> ethSigner)
       throws IOException {
     super(
         name,
@@ -77,6 +80,7 @@ public class PrivacyNode extends PantheonNode {
         plugins,
         extraCLIOptions);
     this.orion = orion;
+    this.ethSigner = ethSigner;
   }
 
   public BytesValue getOrionPubKeyBytes() {

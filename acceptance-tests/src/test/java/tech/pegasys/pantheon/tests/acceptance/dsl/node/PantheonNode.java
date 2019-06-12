@@ -239,6 +239,18 @@ public class PantheonNode implements NodeConfiguration, RunnableNode, AutoClosea
     }
   }
 
+  protected Optional<String> jsonRpcBaseHttpUrl() {
+    if (isJsonRpcEnabled()) {
+      return Optional.of(
+          "http://"
+              + jsonRpcConfiguration.getHost()
+              + ":"
+              + portsProperties.getProperty("json-rpc"));
+    } else {
+      return Optional.empty();
+    }
+  }
+
   @Override
   public String getHostName() {
     return LOCALHOST;
@@ -395,7 +407,7 @@ public class PantheonNode implements NodeConfiguration, RunnableNode, AutoClosea
     }
   }
 
-  private void loadPortsFile() {
+  protected void loadPortsFile() {
     try (final FileInputStream fis =
         new FileInputStream(new File(homeDirectory.toFile(), "pantheon.ports"))) {
       portsProperties.load(fis);
@@ -430,7 +442,7 @@ public class PantheonNode implements NodeConfiguration, RunnableNode, AutoClosea
     }
   }
 
-  Optional<Integer> jsonRpcListenPort() {
+  protected Optional<Integer> jsonRpcListenPort() {
     if (isJsonRpcEnabled()) {
       return Optional.of(jsonRpcConfiguration().getPort());
     } else {

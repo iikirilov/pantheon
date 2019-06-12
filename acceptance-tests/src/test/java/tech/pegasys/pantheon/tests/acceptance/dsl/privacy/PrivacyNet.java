@@ -12,16 +12,20 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
+import static java.util.Collections.singletonList;
+
 import tech.pegasys.ethsigner.testutil.EthSignerTestHarness;
 import tech.pegasys.ethsigner.testutil.EthSignerTestHarnessFactory;
 import tech.pegasys.orion.testutil.OrionTestHarness;
 import tech.pegasys.orion.testutil.OrionTestHarnessFactory;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
+import tech.pegasys.pantheon.ethereum.jsonrpc.JsonRpcConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.cluster.Cluster;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyPantheonNodeFactory;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.HashMap;
@@ -202,8 +206,11 @@ public class PrivacyNet {
       return addNode(name, isMiningEnabled, keyPath, false);
     }
 
-    private Builder addNode(String name, boolean isMiningEnabled, Optional<String> keyPath, boolean useEthSigner) throws IOException {
-      final PrivacyNode node = makeNode(name, isMiningEnabled, otherOrionNode, keyPath, useEthSigner);
+    private Builder addNode(
+        String name, boolean isMiningEnabled, Optional<String> keyPath, boolean useEthSigner)
+        throws IOException {
+      final PrivacyNode node =
+          makeNode(name, isMiningEnabled, otherOrionNode, keyPath, useEthSigner);
       if (nodes == null) {
         nodes = new HashMap<>();
         otherOrionNode = node.orion.nodeUrl(); // All nodes use first added node for discovery
@@ -213,10 +220,11 @@ public class PrivacyNet {
     }
 
     public PrivacyNode makeNode(
-            final String name,
-            final boolean isMiningEnabled,
-            final String otherOrionNodes,
-            final Optional<String> orionKeyPath, boolean useEthSigner)
+        final String name,
+        final boolean isMiningEnabled,
+        final String otherOrionNodes,
+        final Optional<String> orionKeyPath,
+        boolean useEthSigner)
         throws IOException {
 
       final OrionTestHarness orion;
@@ -234,10 +242,21 @@ public class PrivacyNet {
             pantheonNodeFactory.createPrivateTransactionEnabledMinerNode(
                 name, generatePrivacyParameters(orion), keyFilePath, orion);
       } else if (!isMiningEnabled && !ibft && useEthSigner) {
-
+        final Integer pantheonJsonRpcPort = resolveFreePort();
+        final JsonRpcConfiguration jsonRpcConfiguration = JsonRpcConfiguration.createDefault();
+        jsonRpcConfiguration.setEnabled(true);
+        jsonRpcConfiguration.setPort(pantheonJsonRpcPort);
+        jsonRpcConfiguration.setHostsWhitelist(singletonList("*"));
+        final EthSignerTestHarness ethSigner =
+            createEthSigner(temporaryFolder, Optional.empty(), jsonRpcConfiguration.getPort());
         node =
-                pantheonNodeFactory.createPrivateTransactionEnabledMinerNodeWithEthSigner(
-                        name, generatePrivacyParametersWithEthSigner(orion, createEthSigner(temporaryFolder, orionKeyPath)), keyFilePath, orion);
+            pantheonNodeFactory.createPrivateTransactionEnabledMinerNodeWithEthSigner(
+                name,
+                jsonRpcConfiguration,
+                generatePrivacyParameters(orion),
+                keyFilePath,
+                orion,
+                ethSigner);
       } else if (!isMiningEnabled && !ibft) {
         node =
             pantheonNodeFactory.createPrivateTransactionEnabledNode(
@@ -249,10 +268,6 @@ public class PrivacyNet {
       }
 
       return node;
-    }
-
-    private EthSignerTestHarness createEthSigner(final TemporaryFolder temporaryFolder, final Optional<String> keyPath) throws IOException {
-      return EthSignerTestHarnessFactory.create(temporaryFolder.newFolder().toPath(), keyPath.orElse(""), 0,0, 2018);
     }
 
     protected OrionTestHarness createEnclave(
@@ -290,15 +305,26 @@ public class PrivacyNet {
           .build();
     }
 
-    private PrivacyParameters generatePrivacyParametersWithEthSigner(final OrionTestHarness enclaveTestHarness, final EthSignerTestHarness ethSignerTestHarness)
-            throws IOException {
-      return new PrivacyParameters.Builder()
-              .setEnabled(true)
-              .setEnclaveUrl(enclaveTestHarness.clientUrl())
-              .setEnclavePublicKeyUsingFile(enclaveTestHarness.getConfig().publicKeys().get(0).toFile())
-              .setDataDir(temporaryFolder.newFolder().toPath())
-              .setSignerURL(ethSignerTestHarness.getHttpListeningUrl())
-              .build();
+    private EthSignerTestHarness createEthSigner(
+        final TemporaryFolder temporaryFolder,
+        final Optional<String> keyPath,
+        final Integer pantheonPort)
+        throws IOException {
+      return EthSignerTestHarnessFactory.create(
+          temporaryFolder.newFolder().toPath(),
+          keyPath.orElse("ethSignerKey--fe3b557e8fb62b89f4916b721be55ceb828dbd73.json"),
+          pantheonPort,
+          resolveFreePort(),
+          2018);
+    }
+
+    private Integer resolveFreePort() {
+      try (ServerSocket socket = new ServerSocket(0)) {
+        return socket.getLocalPort();
+      } catch (IOException e) {
+        e.printStackTrace();
+        return 0;
+      }
     }
 
     public PrivacyNet build() {

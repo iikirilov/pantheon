@@ -12,6 +12,7 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy;
 
+import tech.pegasys.ethsigner.testutil.EthSignerTestHarness;
 import tech.pegasys.orion.testutil.OrionTestHarness;
 import tech.pegasys.pantheon.ethereum.core.MiningParameters;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
@@ -28,6 +29,7 @@ import java.util.Optional;
 public class PrivacyPantheonFactoryConfiguration extends PantheonFactoryConfiguration {
 
   private final OrionTestHarness orion;
+  private final Optional<EthSignerTestHarness> ethSigner;
 
   PrivacyPantheonFactoryConfiguration(
       final String name,
@@ -45,7 +47,8 @@ public class PrivacyPantheonFactoryConfiguration extends PantheonFactoryConfigur
       final boolean bootnodeEligible,
       final List<String> plugins,
       final List<String> extraCLIOptions,
-      final OrionTestHarness orion) {
+      final OrionTestHarness orion,
+      final Optional<EthSignerTestHarness> ethSigner) {
     super(
         name,
         miningParameters,
@@ -63,9 +66,14 @@ public class PrivacyPantheonFactoryConfiguration extends PantheonFactoryConfigur
         plugins,
         extraCLIOptions);
     this.orion = orion;
+    this.ethSigner = ethSigner;
   }
 
   public OrionTestHarness getOrion() {
     return orion;
+  }
+
+  public Optional<EthSignerTestHarness> getEthSigner() {
+    return ethSigner;
   }
 }

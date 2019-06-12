@@ -12,13 +12,17 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy;
 
+import tech.pegasys.ethsigner.testutil.EthSignerTestHarness;
 import tech.pegasys.orion.testutil.OrionTestHarness;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfiguration;
+
+import java.util.Optional;
 
 public class PrivacyPantheonFactoryConfigurationBuilder {
 
   protected PantheonFactoryConfiguration config;
   protected OrionTestHarness orion;
+  private Optional<EthSignerTestHarness> ethSigner = Optional.empty();
 
   public PrivacyPantheonFactoryConfigurationBuilder setConfig(
       final PantheonFactoryConfiguration config) {
@@ -28,6 +32,12 @@ public class PrivacyPantheonFactoryConfigurationBuilder {
 
   public PrivacyPantheonFactoryConfigurationBuilder setOrion(final OrionTestHarness orion) {
     this.orion = orion;
+    return this;
+  }
+
+  public PrivacyPantheonFactoryConfigurationBuilder setEthSigner(
+      final EthSignerTestHarness ethSigner) {
+    this.ethSigner = Optional.of(ethSigner);
     return this;
   }
 
@@ -48,6 +58,7 @@ public class PrivacyPantheonFactoryConfigurationBuilder {
         config.isBootnodeEligible(),
         config.getPlugins(),
         config.getExtraCLIOptions(),
-        orion);
+        orion,
+        ethSigner);
   }
 }

@@ -34,7 +34,6 @@ import com.google.common.io.Files;
 
 public class PrivacyParameters {
   public static final URI DEFAULT_ENCLAVE_URL = URI.create("http://localhost:8888");
-  public static final URI DEFAULT_SIGNER_URL = URI.create("http://localhost:8545");
   public static final PrivacyParameters DEFAULT = new PrivacyParameters();
 
   private Integer privacyAddress = Address.PRIVACY;
