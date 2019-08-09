@@ -16,10 +16,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.NodeRequests;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.EeaRequestFactory.PrivateTransactionReceipt;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.EeaRequestFactory.PrivateTransactionReceiptResponse;
 
 import java.io.IOException;
+
+import org.web3j.protocol.eea.response.EeaGetTransactionReceipt;
+import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
 
 public class EeaGetTransactionReceiptTransaction implements Transaction<PrivateTransactionReceipt> {
 
@@ -32,8 +33,8 @@ public class EeaGetTransactionReceiptTransaction implements Transaction<PrivateT
   @Override
   public PrivateTransactionReceipt execute(final NodeRequests node) {
     try {
-      final PrivateTransactionReceiptResponse result =
-          node.eea().eeaGetTransactionReceipt(txHash).send();
+      final EeaGetTransactionReceipt result =
+          node.privacy().getPantheonClient().eeaGetTransactionReceipt(txHash).send();
       assertThat(result).isNotNull();
       assertThat(result.hasError()).isFalse();
       return result.getResult();

@@ -12,14 +12,13 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
+import tech.pegasys.orion.testutil.OrionFactoryConfiguration;
 import tech.pegasys.orion.testutil.OrionTestHarness;
-import tech.pegasys.orion.testutil.OrionTestHarnessFactory;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.cluster.Cluster;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyPantheonNodeFactory;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -136,8 +135,11 @@ public class PrivacyNet {
       sb.append(String.format("Pantheon Node Name   = %s\n", privacyNode.getName()));
       sb.append(String.format("Pantheon Address     = %s\n", privacyNode.getAddress()));
       sb.append(
-          String.format("Pantheon Private Key = %s\n", privacyNode.keyPair().getPrivateKey()));
-      sb.append(String.format("Pantheon Public  Key = %s\n", privacyNode.keyPair().getPublicKey()));
+          String.format(
+              "Pantheon Private Key = %s\n", privacyNode.pantheon.keyPair().getPrivateKey()));
+      sb.append(
+          String.format(
+              "Pantheon Public  Key = %s\n", privacyNode.pantheon.keyPair().getPublicKey()));
       sb.append(String.format("Orion Pub Key        = %s\n", privacyNode.getOrionPubKeyBytes()));
       sb.append(
           String.format(
@@ -208,12 +210,12 @@ public class PrivacyNet {
         final Optional<String> orionKeyPath)
         throws IOException {
 
-      final OrionTestHarness orion;
+      final OrionFactoryConfiguration orion;
       if (otherOrionNodes == null) {
         // Need conditional because createEnclave will choke if passing in null
-        orion = createEnclave(temporaryFolder, orionKeyPath);
+        orion = createEnclave(orionKeyPath);
       } else {
-        orion = createEnclave(temporaryFolder, orionKeyPath, otherOrionNodes);
+        orion = createEnclave(orionKeyPath, otherOrionNodes);
       }
 
       final PrivacyNode node;
@@ -235,16 +237,12 @@ public class PrivacyNet {
       return node;
     }
 
-    protected OrionTestHarness createEnclave(
-        final TemporaryFolder temporaryFolder,
-        final Optional<String> pubKeyPath,
-        final String... othernode)
-        throws IOException {
-      final Path tmpPath = temporaryFolder.newFolder().toPath();
+    protected OrionFactoryConfiguration createEnclave(
+        final Optional<String> pubKeyPath, final String... otherNodes) throws IOException {
       final String orionPublicKeyFileName = pubKeyPath.orElse(provideNextKnownOrionKey());
       final String orionPrivateKeyFileName = privaKeyPathFromPubKeyPath(orionPublicKeyFileName);
-      return OrionTestHarnessFactory.create(
-          tmpPath, orionPublicKeyFileName, orionPrivateKeyFileName, othernode);
+      return new OrionFactoryConfiguration(
+          orionPublicKeyFileName, orionPrivateKeyFileName, otherNodes);
     }
 
     private String privaKeyPathFromPubKeyPath(final String orionPublicKeyFileName) {
@@ -260,14 +258,9 @@ public class PrivacyNet {
       throw new RuntimeException("Limit of known nodes reached");
     }
 
-    private PrivacyParameters generatePrivacyParameters(final OrionTestHarness testHarness)
+    private PrivacyParameters generatePrivacyParameters(final OrionFactoryConfiguration testHarness)
         throws IOException {
-      return new PrivacyParameters.Builder()
-          .setEnabled(true)
-          .setEnclaveUrl(testHarness.clientUrl())
-          .setEnclavePublicKeyUsingFile(testHarness.getConfig().publicKeys().get(0).toFile())
-          .setDataDir(temporaryFolder.newFolder().toPath())
-          .build();
+      return new PrivacyParameters.Builder().build();
     }
 
     public PrivacyNet build() {

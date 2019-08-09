@@ -19,11 +19,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
 import com.google.common.io.CharSink;
 import com.google.common.io.Files;
-import net.consensys.orion.cmd.Orion;
 import net.consensys.orion.config.Config;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -74,14 +75,23 @@ public class OrionTestHarnessFactory {
     final Path privKeyFile = tempDir.resolve(privKeyPath);
     final CharSink privKeySink = Files.asCharSink(privKeyFile.toFile(), UTF_8);
     privKeySink.write(Base64.getEncoder().encodeToString(encodedPrivKey));
-    return create(tempDir, pubKeyFile, privKeyFile, othernodes);
+    return create(tempDir, pubKeyFile, privKeyFile, Arrays.asList(othernodes));
+  }
+
+  public static OrionTestHarness create(final OrionFactoryConfiguration orionConfig)
+      throws IOException {
+    return create(
+        java.nio.file.Files.createTempDirectory("acctest-orion"),
+        orionConfig.getPubKeyPath(),
+        orionConfig.getPrivKeyPath(),
+        orionConfig.getOtherNodes());
   }
 
   public static OrionTestHarness create(
       final Path tempDir,
       final String pubKeyPath,
       final String privKeyPath,
-      final String... othernodes)
+      final List<String> othernodes)
       throws IOException {
     Path key1pub = copyResource(pubKeyPath, tempDir.resolve(pubKeyPath));
     Path key1key = copyResource(privKeyPath, tempDir.resolve(privKeyPath));
@@ -90,7 +100,7 @@ public class OrionTestHarnessFactory {
   }
 
   public static OrionTestHarness create(
-      final Path tempDir, final Path key1pub, final Path key1key, final String... othernodes) {
+      final Path tempDir, final Path key1pub, final Path key1key, final List<String> othernodes) {
 
     // @formatter:off
     String confString =
@@ -116,7 +126,7 @@ public class OrionTestHarnessFactory {
             + tempDir.toString()
             + "\"\n";
 
-    if (othernodes.length != 0) {
+    if (othernodes.size() != 0) {
       confString += "othernodes = [" + joinStringsAsTomlListEntry(othernodes) + "]\n";
     }
 
@@ -124,13 +134,7 @@ public class OrionTestHarnessFactory {
 
     Config config = Config.load(confString);
 
-    final Orion orion = new Orion();
-    orion.run(System.out, System.err, config);
-
-    LOG.info("Orion node port: {}", orion.nodePort());
-    LOG.info("Orion client port: {}", orion.clientPort());
-
-    return new OrionTestHarness(orion, config);
+    return new OrionTestHarness(config);
   }
 
   private static String joinPathsAsTomlListEntry(final Path... paths) {
@@ -146,7 +150,7 @@ public class OrionTestHarnessFactory {
     return builder.toString();
   }
 
-  private static String joinStringsAsTomlListEntry(final String... strings) {
+  private static String joinStringsAsTomlListEntry(final List<String> strings) {
     StringBuilder builder = new StringBuilder();
     boolean first = true;
     for (String string : strings) {

@@ -12,44 +12,44 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy;
 
-import tech.pegasys.orion.testutil.OrionTestHarness;
+import tech.pegasys.orion.testutil.OrionFactoryConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfiguration;
 
 public class PrivacyPantheonFactoryConfigurationBuilder {
 
-  protected PantheonFactoryConfiguration config;
-  protected OrionTestHarness orion;
+  protected PantheonFactoryConfiguration pantheonConfig;
+  protected OrionFactoryConfiguration orionConfig;
 
-  public PrivacyPantheonFactoryConfigurationBuilder setConfig(
-      final PantheonFactoryConfiguration config) {
-    this.config = config;
+  public PrivacyPantheonFactoryConfigurationBuilder setPantheonConfig(
+      final PantheonFactoryConfiguration pantheonConfig) {
+    this.pantheonConfig = pantheonConfig;
     return this;
   }
 
-  public PrivacyPantheonFactoryConfigurationBuilder setOrion(final OrionTestHarness orion) {
-    this.orion = orion;
+  public PrivacyPantheonFactoryConfigurationBuilder setOrionConfig(
+      final OrionFactoryConfiguration orionConfig) {
+    this.orionConfig = orionConfig;
     return this;
   }
 
   public PrivacyPantheonFactoryConfiguration build() {
     return new PrivacyPantheonFactoryConfiguration(
-        config.getName(),
-        config.getMiningParameters(),
-        config.getPrivacyParameters(),
-        config.getJsonRpcConfiguration(),
-        config.getWebSocketConfiguration(),
-        config.getMetricsConfiguration(),
-        config.getPermissioningConfiguration(),
-        config.getKeyFilePath(),
-        config.isDevMode(),
-        config.getGenesisConfigProvider(),
-        config.isP2pEnabled(),
-        config.getNetworkingConfiguration(),
-        config.isDiscoveryEnabled(),
-        config.isBootnodeEligible(),
-        config.isRevertReasonEnabled(),
-        config.getPlugins(),
-        config.getExtraCLIOptions(),
-        orion);
+        pantheonConfig.getName(),
+        pantheonConfig.getMiningParameters(),
+        pantheonConfig.getPrivacyParameters(),
+        pantheonConfig.getJsonRpcConfiguration(),
+        pantheonConfig.getWebSocketConfiguration(),
+        pantheonConfig.getMetricsConfiguration(),
+        pantheonConfig.getPermissioningConfiguration(),
+        pantheonConfig.getKeyFilePath(),
+        pantheonConfig.isDevMode(),
+        pantheonConfig.getGenesisConfigProvider(),
+        pantheonConfig.isP2pEnabled(),
+        pantheonConfig.getNetworkingConfiguration(),
+        pantheonConfig.isDiscoveryEnabled(),
+        pantheonConfig.isBootnodeEligible(),
+        pantheonConfig.isRevertReasonEnabled(),
+        pantheonConfig.getPlugins(),
+        pantheonConfig.getExtraCLIOptions());
   }
 }

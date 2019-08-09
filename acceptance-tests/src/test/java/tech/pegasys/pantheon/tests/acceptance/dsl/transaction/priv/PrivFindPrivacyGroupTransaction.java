@@ -14,27 +14,30 @@ package tech.pegasys.pantheon.tests.acceptance.dsl.transaction.priv;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import tech.pegasys.pantheon.enclave.types.PrivacyGroup;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.NodeRequests;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 
 import java.io.IOException;
 import java.util.List;
 
+import org.web3j.protocol.pantheon.response.privacy.PrivFindPrivacyGroup;
+import org.web3j.protocol.pantheon.response.privacy.PrivacyGroup;
+import org.web3j.utils.Base64String;
+
 public class PrivFindPrivacyGroupTransaction implements Transaction<List<PrivacyGroup>> {
 
-  private final List<String> addresses;
+  private final List<Base64String> addresses;
 
   public PrivFindPrivacyGroupTransaction(final List<String> addresses) {
 
-    this.addresses = addresses;
+    this.addresses = Base64String.wrapList(addresses);
   }
 
   @Override
   public List<PrivacyGroup> execute(final NodeRequests node) {
     try {
-      PrivRequestFactory.PrivFindPrivacyGroupResponse result =
-          node.priv().privFindPrivacyGroup(addresses).send();
+      PrivFindPrivacyGroup result =
+          node.privacy().getPantheonClient().privFindPrivacyGroup(addresses).send();
       assertThat(result).isNotNull();
       return result.getResult();
     } catch (final IOException e) {

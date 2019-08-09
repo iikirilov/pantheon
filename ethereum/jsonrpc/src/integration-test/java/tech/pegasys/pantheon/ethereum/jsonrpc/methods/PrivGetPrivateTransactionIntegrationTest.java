@@ -80,7 +80,7 @@ public class PrivGetPrivateTransactionIntegrationTest {
 
   @AfterClass
   public static void tearDownOnce() {
-    testHarness.stopOrion();
+    testHarness.stop();
   }
 
   @Test

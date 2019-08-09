@@ -34,13 +34,12 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.NodeRequests;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.admin.AdminRequestFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.clique.CliqueRequestFactory;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.EeaRequestFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.ibft2.Ibft2RequestFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.login.LoginRequestFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.miner.MinerRequestFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.net.CustomRequestFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.perm.PermissioningJsonRpcRequestFactory;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.priv.PrivRequestFactory;
+import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.privacy.PrivacyRequestFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,7 +85,7 @@ public class PantheonNode implements NodeConfiguration, RunnableNode, AutoClosea
 
   private final String name;
   private final MiningParameters miningParameters;
-  private final PrivacyParameters privacyParameters;
+  private PrivacyParameters privacyParameters;
   private final JsonRpcConfiguration jsonRpcConfiguration;
   private final WebSocketConfiguration webSocketConfiguration;
   private final MetricsConfiguration metricsConfiguration;
@@ -301,8 +300,7 @@ public class PantheonNode implements NodeConfiguration, RunnableNode, AutoClosea
               new Ibft2RequestFactory(web3jService),
               new PermissioningJsonRpcRequestFactory(web3jService),
               new AdminRequestFactory(web3jService),
-              new EeaRequestFactory(web3jService),
-              new PrivRequestFactory(web3jService),
+              new PrivacyRequestFactory(web3jService),
               new CustomRequestFactory(web3jService),
               new MinerRequestFactory(web3jService),
               websocketService,
@@ -514,6 +512,10 @@ public class PantheonNode implements NodeConfiguration, RunnableNode, AutoClosea
 
   public PrivacyParameters getPrivacyParameters() {
     return privacyParameters;
+  }
+
+  public void setPrivacyParameters(final PrivacyParameters privacyParameters) {
+    this.privacyParameters = privacyParameters;
   }
 
   public boolean isDevMode() {

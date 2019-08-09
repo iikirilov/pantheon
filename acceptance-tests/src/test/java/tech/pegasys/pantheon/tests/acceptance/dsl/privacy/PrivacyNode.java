@@ -15,78 +15,67 @@ package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static tech.pegasys.pantheon.tests.acceptance.dsl.WaitUtils.waitFor;
 
+import tech.pegasys.orion.testutil.OrionFactoryConfiguration;
 import tech.pegasys.orion.testutil.OrionTestHarness;
+import tech.pegasys.orion.testutil.OrionTestHarnessFactory;
 import tech.pegasys.pantheon.enclave.Enclave;
 import tech.pegasys.pantheon.enclave.types.SendRequest;
 import tech.pegasys.pantheon.enclave.types.SendRequestLegacy;
-import tech.pegasys.pantheon.ethereum.core.MiningParameters;
+import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
-import tech.pegasys.pantheon.ethereum.jsonrpc.JsonRpcConfiguration;
-import tech.pegasys.pantheon.ethereum.jsonrpc.websocket.WebSocketConfiguration;
-import tech.pegasys.pantheon.ethereum.p2p.config.NetworkingConfiguration;
-import tech.pegasys.pantheon.ethereum.permissioning.PermissioningConfiguration;
-import tech.pegasys.pantheon.metrics.prometheus.MetricsConfiguration;
+import tech.pegasys.pantheon.tests.acceptance.dsl.condition.Condition;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNode;
-import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.genesis.GenesisConfigurationProvider;
+import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNodeRunner;
+import tech.pegasys.pantheon.tests.acceptance.dsl.node.RunnableNode;
+import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.NodeConfiguration;
+import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfiguration;
+import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.priv.PrivGetTransactionCountTransaction;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 import tech.pegasys.pantheon.util.bytes.BytesValues;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PrivacyNode extends PantheonNode {
+public class PrivacyNode implements RunnableNode, AutoCloseable {
   private static final Logger LOG = LogManager.getLogger();
 
   public OrionTestHarness orion;
+  public PantheonNode pantheon;
 
   public PrivacyNode(
-      final String name,
-      final MiningParameters miningParameters,
-      final PrivacyParameters privacyParameters,
-      final JsonRpcConfiguration jsonRpcConfiguration,
-      final WebSocketConfiguration webSocketConfiguration,
-      final MetricsConfiguration metricsConfiguration,
-      final Optional<PermissioningConfiguration> permissioningConfiguration,
-      final Optional<String> keyfilePath,
-      final boolean devMode,
-      final GenesisConfigurationProvider genesisConfigProvider,
-      final boolean p2pEnabled,
-      final NetworkingConfiguration networkingConfiguration,
-      final boolean discoveryEnabled,
-      final boolean bootnodeEligible,
-      final boolean revertReasonEnabled,
-      final List<String> plugins,
-      final List<String> extraCLIOptions,
-      final OrionTestHarness orion)
+      final PantheonFactoryConfiguration pantheonConfig,
+      final OrionFactoryConfiguration orionConfig)
       throws IOException {
-    super(
-        name,
-        miningParameters,
-        privacyParameters,
-        jsonRpcConfiguration,
-        webSocketConfiguration,
-        metricsConfiguration,
-        permissioningConfiguration,
-        keyfilePath,
-        devMode,
-        genesisConfigProvider,
-        p2pEnabled,
-        networkingConfiguration,
-        discoveryEnabled,
-        bootnodeEligible,
-        revertReasonEnabled,
-        plugins,
-        extraCLIOptions,
-        new ArrayList<>());
-    this.orion = orion;
+    this.orion = OrionTestHarnessFactory.create(orionConfig);
+
+    this.pantheon =
+        new PantheonNode(
+            pantheonConfig.getName(),
+            pantheonConfig.getMiningParameters(),
+            pantheonConfig.getPrivacyParameters(),
+            pantheonConfig.getJsonRpcConfiguration(),
+            pantheonConfig.getWebSocketConfiguration(),
+            pantheonConfig.getMetricsConfiguration(),
+            pantheonConfig.getPermissioningConfiguration(),
+            pantheonConfig.getKeyFilePath(),
+            pantheonConfig.isDevMode(),
+            pantheonConfig.getGenesisConfigProvider(),
+            pantheonConfig.isP2pEnabled(),
+            pantheonConfig.getNetworkingConfiguration(),
+            pantheonConfig.isDiscoveryEnabled(),
+            pantheonConfig.isBootnodeEligible(),
+            pantheonConfig.isRevertReasonEnabled(),
+            pantheonConfig.getPlugins(),
+            pantheonConfig.getExtraCLIOptions(),
+            new ArrayList<>());
   }
 
   public BytesValue getOrionPubKeyBytes() {
@@ -97,9 +86,10 @@ public class PrivacyNode extends PantheonNode {
     LOG.info(
         String.format(
             "Testing Orion connectivity between %s (%s) and %s (%s)",
-            getName(),
+            pantheon.getName(),
             orion.nodeUrl(),
-            Arrays.toString(Arrays.stream(otherNodes).map(PrivacyNode::getName).toArray()),
+            Arrays.toString(
+                Arrays.stream(otherNodes).map(node -> node.pantheon.getName()).toArray()),
             Arrays.toString(
                 Arrays.stream(otherNodes).map(node -> node.orion.nodeUrl()).toArray())));
     Enclave orionEnclave = new Enclave(orion.clientUrl());
@@ -114,9 +104,82 @@ public class PrivacyNode extends PantheonNode {
   }
 
   public long nextNonce(final BytesValue privacyGroupId) {
-    return execute(
+    return pantheon
+        .execute(
             new PrivGetTransactionCountTransaction(
-                getAddress().toString(), BytesValues.asBase64String(privacyGroupId)))
+                pantheon.getAddress().toString(), BytesValues.asBase64String(privacyGroupId)))
         .longValue();
+  }
+
+  @Override
+  public void stop() {
+    pantheon.stop();
+    orion.stop();
+  }
+
+  @Override
+  public void close() {
+    pantheon.close();
+    orion.close();
+  }
+
+  @Override
+  public void start(PantheonNodeRunner runner) {
+    orion.start();
+
+    final PrivacyParameters privacyParameters;
+    try {
+      privacyParameters =
+          new PrivacyParameters.Builder()
+              .setEnabled(true)
+              .setEnclaveUrl(orion.clientUrl())
+              .setEnclavePublicKeyUsingFile(orion.getConfig().publicKeys().get(0).toFile())
+              .setDataDir(Files.createTempDirectory("acctest-privacy"))
+              .build();
+    } catch (IOException e) {
+      throw new RuntimeException();
+    }
+    pantheon.setPrivacyParameters(privacyParameters);
+    pantheon.start(runner);
+  }
+
+  @Override
+  public NodeConfiguration getConfiguration() {
+    return pantheon.getConfiguration();
+  }
+
+  @Override
+  public void awaitPeerDiscovery(Condition condition) {
+    pantheon.awaitPeerDiscovery(condition);
+  }
+
+  @Override
+  public String getName() {
+    return pantheon.getName();
+  }
+
+  @Override
+  public Address getAddress() {
+    return pantheon.getAddress();
+  }
+
+  @Override
+  public URI enodeUrl() {
+    return pantheon.enodeUrl();
+  }
+
+  @Override
+  public String getNodeId() {
+    return pantheon.getNodeId();
+  }
+
+  @Override
+  public <T> T execute(Transaction<T> transaction) {
+    return pantheon.execute(transaction);
+  }
+
+  @Override
+  public void verify(Condition expected) {
+    pantheon.verify(expected);
   }
 }

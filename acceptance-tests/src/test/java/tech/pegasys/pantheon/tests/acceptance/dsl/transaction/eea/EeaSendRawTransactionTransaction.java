@@ -32,7 +32,8 @@ public class EeaSendRawTransactionTransaction implements Transaction<String> {
   @Override
   public String execute(final NodeRequests node) {
     try {
-      EthSendTransaction response = node.eea().eeaSendRawTransaction(transactionData).send();
+      EthSendTransaction response =
+          node.privacy().getPantheonClient().eeaSendRawTransaction(transactionData).send();
       assertThat(response.getTransactionHash()).isNotNull();
       return response.getTransactionHash();
     } catch (final IOException e) {

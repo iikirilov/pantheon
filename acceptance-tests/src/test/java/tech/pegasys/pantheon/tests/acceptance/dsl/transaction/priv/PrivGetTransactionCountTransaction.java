@@ -21,23 +21,27 @@ import java.io.IOException;
 import java.math.BigInteger;
 
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+import org.web3j.utils.Base64String;
 
 public class PrivGetTransactionCountTransaction implements Transaction<BigInteger> {
 
   private final String accountAddress;
-  private String privacyGroupId;
+  private final Base64String privacyGroupId;
 
   public PrivGetTransactionCountTransaction(
       final String accountAddress, final String privacyGroupId) {
     this.accountAddress = accountAddress;
-    this.privacyGroupId = privacyGroupId;
+    this.privacyGroupId = Base64String.wrap(privacyGroupId);
   }
 
   @Override
   public BigInteger execute(final NodeRequests node) {
     try {
       EthGetTransactionCount result =
-          node.priv().privGetTransactionCount(accountAddress, privacyGroupId).send();
+          node.privacy()
+              .getPantheonClient()
+              .privGetTransactionCount(accountAddress, privacyGroupId)
+              .send();
       assertThat(result).isNotNull();
       return result.getTransactionCount();
     } catch (final IOException e) {

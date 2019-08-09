@@ -12,9 +12,10 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy;
 
-import tech.pegasys.orion.testutil.OrionTestHarness;
+import tech.pegasys.orion.testutil.OrionFactoryConfiguration;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.NodeConfigurationFactory;
+import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfigurationBuilder;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.genesis.GenesisConfigurationFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
@@ -26,79 +27,77 @@ public class PrivacyPantheonNodeFactory {
   private final GenesisConfigurationFactory genesis = new GenesisConfigurationFactory();
   private final NodeConfigurationFactory node = new NodeConfigurationFactory();
 
-  private static PrivacyNode create(final PrivacyPantheonFactoryConfiguration config)
+  private static PrivacyNode create(
+      final PantheonFactoryConfiguration pantheonConfig,
+      final OrionFactoryConfiguration orionConfig)
       throws IOException {
-    return new PrivacyNode(
-        config.getName(),
-        config.getMiningParameters(),
-        config.getPrivacyParameters(),
-        config.getJsonRpcConfiguration(),
-        config.getWebSocketConfiguration(),
-        config.getMetricsConfiguration(),
-        config.getPermissioningConfiguration(),
-        config.getKeyFilePath(),
-        config.isDevMode(),
-        config.getGenesisConfigProvider(),
-        config.isP2pEnabled(),
-        config.getNetworkingConfiguration(),
-        config.isDiscoveryEnabled(),
-        config.isBootnodeEligible(),
-        config.isRevertReasonEnabled(),
-        config.getPlugins(),
-        config.getExtraCLIOptions(),
-        config.getOrion());
+    return new PrivacyNode(pantheonConfig, orionConfig);
+  }
+
+  public PrivacyNode createPrivateTransactionEnabledMinerNode(
+      final String name, final String transactionSigningKeyPath) throws IOException {
+    return create(
+        new PantheonFactoryConfigurationBuilder()
+            .name(name)
+            .miningEnabled()
+            .jsonRpcEnabled()
+            .webSocketEnabled()
+            .enablePrivateTransactions()
+            .keyFilePath(transactionSigningKeyPath)
+            .build(),
+        new OrionFactoryConfiguration("orion_key_0.pub", "orion_key_0.key"));
   }
 
   public PrivacyNode createPrivateTransactionEnabledMinerNode(
       final String name,
       final PrivacyParameters privacyParameters,
       final String keyFilePath,
-      final OrionTestHarness orionTestHarness)
+      final OrionFactoryConfiguration orionTestHarness)
       throws IOException {
     return create(
         new PrivacyPantheonFactoryConfigurationBuilder()
-            .setConfig(
+            .setPantheonConfig(
                 new PantheonFactoryConfigurationBuilder()
                     .name(name)
                     .miningEnabled()
                     .jsonRpcEnabled()
                     .keyFilePath(keyFilePath)
-                    .enablePrivateTransactions(privacyParameters)
+                    .enablePrivateTransactions()
                     .webSocketEnabled()
                     .build())
-            .setOrion(orionTestHarness)
-            .build());
+            .build(),
+        orionTestHarness);
   }
 
   public PrivacyNode createPrivateTransactionEnabledNode(
       final String name,
       final PrivacyParameters privacyParameters,
       final String keyFilePath,
-      final OrionTestHarness orionTestHarness)
+      final OrionFactoryConfiguration orionTestHarness)
       throws IOException {
     return create(
         new PrivacyPantheonFactoryConfigurationBuilder()
-            .setConfig(
+            .setPantheonConfig(
                 new PantheonFactoryConfigurationBuilder()
                     .name(name)
                     .jsonRpcEnabled()
                     .keyFilePath(keyFilePath)
-                    .enablePrivateTransactions(privacyParameters)
+                    .enablePrivateTransactions()
                     .webSocketEnabled()
                     .build())
-            .setOrion(orionTestHarness)
-            .build());
+            .build(),
+        orionTestHarness);
   }
 
   public PrivacyNode createIbft2NodePrivacyEnabled(
       final String name,
       final PrivacyParameters privacyParameters,
       final String keyFilePath,
-      final OrionTestHarness orionTestHarness)
+      final OrionFactoryConfiguration orionTestHarness)
       throws IOException {
     return create(
         new PrivacyPantheonFactoryConfigurationBuilder()
-            .setConfig(
+            .setPantheonConfig(
                 new PantheonFactoryConfigurationBuilder()
                     .name(name)
                     .miningEnabled()
@@ -107,9 +106,9 @@ public class PrivacyPantheonNodeFactory {
                     .devMode(false)
                     .genesisConfigProvider(genesis::createIbft2GenesisConfig)
                     .keyFilePath(keyFilePath)
-                    .enablePrivateTransactions(privacyParameters)
+                    .enablePrivateTransactions()
                     .build())
-            .setOrion(orionTestHarness)
-            .build());
+            .build(),
+        orionTestHarness);
   }
 }

@@ -10,19 +10,8 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
+package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract;
 
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.PrivacyTransactions;
-
-public class PrivateTransactionVerifier {
-
-  private final PrivacyTransactions transactions;
-
-  public PrivateTransactionVerifier(final PrivacyTransactions transactions) {
-    this.transactions = transactions;
-  }
-
-  //  public ExpectValidPrivateContractTransactionReceipt validPrivateTransactionReceipt() {
-  //    return new ExpectValidPrivateContractTransactionReceipt(eea, transactions);
-  //  }
+public class PrivateCallSmartContractFunction {
+  public PrivateCallSmartContractFunction(String functionName, String contractAddress) {}
 }

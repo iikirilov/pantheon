@@ -29,7 +29,7 @@ import org.web3j.rlp.RlpList;
 import org.web3j.rlp.RlpString;
 import org.web3j.rlp.RlpType;
 
-public class PrivacyGroup {
+public class PrivacyGroupUtils {
   public static BytesValue generatePrivacyGroup(
       final PrivacyNet privacyNet, final String sender, final String... receivers) {
     final List<byte[]> stringList = new ArrayList<>();

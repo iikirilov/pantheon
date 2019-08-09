@@ -12,29 +12,42 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.condition.eea;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNode;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.EeaRequestFactory.PrivateTransactionReceipt;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.EeaTransactions;
+import java.util.Optional;
 
-public class ExpectValidPrivateContractDeployedReceipt extends GetValidPrivateTransactionReceipt {
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.tx.Contract;
+
+public class ExpectValidPrivateContractDeployedReceipt implements PrivateContractCondition {
 
   private final String contractAddress;
+  private final String senderAddress;
 
   public ExpectValidPrivateContractDeployedReceipt(
-      final String contractAddress, final EeaConditions eea, final EeaTransactions transactions) {
-    super(eea, transactions);
+      final String contractAddress, final String senderAddress) {
     this.contractAddress = contractAddress;
+    this.senderAddress = senderAddress;
   }
 
   @Override
-  public void verify(final PantheonNode node, final String transactionHash) {
-    final PrivateTransactionReceipt privateTxReceipt =
-        getPrivateTransactionReceipt(node, transactionHash);
+  public void verify(final Contract contract) {
 
-    assertEquals(contractAddress, privateTxReceipt.getContractAddress());
-    assertNotEquals("0x", privateTxReceipt.getOutput());
+    assertThat(contract).isNotNull();
+    final Optional<TransactionReceipt> receipt = contract.getTransactionReceipt();
+
+    // We're expecting a receipt
+    assertThat(receipt).isNotNull();
+    assertThat(receipt.isPresent()).isTrue();
+    final TransactionReceipt transactionReceipt = receipt.get();
+
+    // Contract transaction has no 'to' address or contract address
+    assertThat(transactionReceipt.getTo()).isNull();
+
+    // Address generation is deterministic, based on the sender address and the transaction nonce
+    assertThat(transactionReceipt.getContractAddress()).isEqualTo(contractAddress);
+
+    // Address for the account that signed (and paid) for the contract deployment transaction
+    assertThat(transactionReceipt.getFrom()).isEqualTo(senderAddress);
   }
 }

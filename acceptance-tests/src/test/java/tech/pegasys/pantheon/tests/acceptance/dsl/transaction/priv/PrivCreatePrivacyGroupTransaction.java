@@ -20,16 +20,19 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 import java.io.IOException;
 import java.util.List;
 
+import org.web3j.protocol.pantheon.response.privacy.PrivCreatePrivacyGroup;
+import org.web3j.utils.Base64String;
+
 public class PrivCreatePrivacyGroupTransaction implements Transaction<String> {
 
-  private final List<String> addresses;
+  private final List<Base64String> addresses;
   private final String name;
   private final String description;
 
   public PrivCreatePrivacyGroupTransaction(
       final List<String> addresses, final String name, final String description) {
 
-    this.addresses = addresses;
+    this.addresses = Base64String.wrapList(addresses);
     this.name = name;
     this.description = description;
   }
@@ -37,10 +40,13 @@ public class PrivCreatePrivacyGroupTransaction implements Transaction<String> {
   @Override
   public String execute(final NodeRequests node) {
     try {
-      PrivRequestFactory.PrivCreatePrivacyGroupResponse result =
-          node.priv().privCreatePrivacyGroup(addresses, name, description).send();
+      PrivCreatePrivacyGroup result =
+          node.privacy()
+              .getPantheonClient()
+              .privCreatePrivacyGroup(addresses, name, description)
+              .send();
       assertThat(result).isNotNull();
-      return result.getResult();
+      return result.getResult().toString();
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }

@@ -21,33 +21,64 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Charsets;
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 import net.consensys.orion.cmd.Orion;
 import net.consensys.orion.config.Config;
 import okhttp3.HttpUrl;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class OrionTestHarness {
+  private static final Logger LOG = LogManager.getLogger();
 
   private final Orion orion;
   private final Config config;
 
+  private boolean isRunning;
+
   protected static final String HOST = "127.0.0.1";
 
-  protected OrionTestHarness(final Orion orion, final Config config) {
-
-    this.orion = orion;
+  protected OrionTestHarness(final Config config) {
     this.config = config;
+    this.orion = new Orion();
   }
 
   public Orion getOrion() {
     return orion;
   }
 
-  public void stopOrion() {
-    orion.stop();
+  public void start() {
+    if (!isRunning) {
+      orion.run(System.out, System.err, config);
+      isRunning = true;
+      LOG.info("Orion node port: {}", orion.nodePort());
+      LOG.info("Orion client port: {}", orion.clientPort());
+    }
+  }
+
+  public void stop() {
+    if (isRunning) {
+      orion.stop();
+      isRunning = false;
+    }
+  }
+
+  public void close() {
+    stop();
+    try {
+      MoreFiles.deleteRecursively(config.workDir(), RecursiveDeleteOption.ALLOW_INSECURE);
+    } catch (final IOException e) {
+      LOG.info("Failed to clean up temporary file: {}", config.workDir(), e);
+    }
   }
 
   public Config getConfig() {
     return config;
+  }
+
+  public String getDefaultPublicKey() {
+    return config.publicKeys().stream().map(OrionTestHarness::readFile).findFirst().orElseThrow();
   }
 
   public List<String> getPublicKeys() {

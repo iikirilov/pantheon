@@ -13,30 +13,31 @@
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
 import tech.pegasys.pantheon.tests.acceptance.dsl.AcceptanceTestBase;
-import tech.pegasys.pantheon.tests.acceptance.dsl.condition.eea.EeaConditions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyPantheonNodeFactory;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.EeaTransactions;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractTransactions;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractVerifier;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.PrivateTransactionBuilder;
 
 import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 
 public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
+  protected final long POW_CHAIN_ID = 2018;
+  protected final long IBFT2_CHAIN_ID = 4;
   @ClassRule public static final TemporaryFolder privacy = new TemporaryFolder();
 
-  protected final EeaConditions eea;
   protected final PrivateTransactions privateTransactions;
   protected final PrivateTransactionBuilder.Builder privateTransactionBuilder;
-  protected final PrivateTransactionVerifier privateTransactionVerifier;
+  protected final PrivateContractVerifier privateContractVerifier;
   protected final PrivacyPantheonNodeFactory privacyPantheon;
+  protected final PrivateContractTransactions privateContractTransactions;
 
   public PrivacyAcceptanceTestBase() {
-    final EeaTransactions eeaTransactions = new EeaTransactions();
 
     privateTransactions = new PrivateTransactions();
-    eea = new EeaConditions(eeaTransactions);
     privateTransactionBuilder = PrivateTransactionBuilder.builder();
-    privateTransactionVerifier = new PrivateTransactionVerifier(eea, eeaTransactions);
+    privateContractVerifier = new PrivateContractVerifier();
     privacyPantheon = new PrivacyPantheonNodeFactory();
+    privateContractTransactions = new PrivateContractTransactions();
   }
 }

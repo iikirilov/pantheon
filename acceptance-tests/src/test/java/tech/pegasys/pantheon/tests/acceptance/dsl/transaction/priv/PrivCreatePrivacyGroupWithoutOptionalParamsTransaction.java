@@ -20,22 +20,25 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 import java.io.IOException;
 import java.util.List;
 
+import org.web3j.protocol.pantheon.response.privacy.PrivCreatePrivacyGroup;
+import org.web3j.utils.Base64String;
+
 public class PrivCreatePrivacyGroupWithoutOptionalParamsTransaction implements Transaction<String> {
 
-  private final List<String> addresses;
+  private final List<Base64String> addresses;
 
   public PrivCreatePrivacyGroupWithoutOptionalParamsTransaction(final List<String> addresses) {
 
-    this.addresses = addresses;
+    this.addresses = Base64String.wrapList(addresses);
   }
 
   @Override
   public String execute(final NodeRequests node) {
     try {
-      PrivRequestFactory.PrivCreatePrivacyGroupResponse result =
-          node.priv().privCreatePrivacyGroupWithoutOptionalParams(addresses).send();
+      PrivCreatePrivacyGroup result =
+          node.privacy().getPantheonClient().privCreatePrivacyGroup(addresses, null, null).send();
       assertThat(result).isNotNull();
-      return result.getResult();
+      return result.getResult().toString();
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }

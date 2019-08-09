@@ -12,19 +12,17 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.condition.eea;
 
-import tech.pegasys.pantheon.tests.acceptance.dsl.condition.Condition;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.EeaTransactions;
-
-public class EeaConditions {
-
-  private final EeaTransactions transactions;
-
-  public EeaConditions(final EeaTransactions transactions) {
-    this.transactions = transactions;
-  }
-
-  public Condition expectSuccessfulTransactionReceipt(final String transactionHash) {
-    return new ExpectSuccessfulEeaGetTransactionReceipt(
-        transactions.getTransactionReceipt(transactionHash));
-  }
-}
+// public class ExpectNoPrivateContractContractDeployedReceipt implements PrivateContractCondition {
+//
+//  public ExpectNoPrivateContractContractDeployedReceipt(
+//          final PrivacyConditions eea, final PrivacyTransactions transactions) {
+//    super(eea, transactions);
+//  }
+//
+//  public void verify(final PantheonNode node, final String transactionHash) {
+//    final PrivateTransactionReceipt privateTxReceipt =
+//        getPrivateTransactionReceipt(node, transactionHash);
+//
+//    assertNull(privateTxReceipt.getContractAddress());
+//  }
+// }
