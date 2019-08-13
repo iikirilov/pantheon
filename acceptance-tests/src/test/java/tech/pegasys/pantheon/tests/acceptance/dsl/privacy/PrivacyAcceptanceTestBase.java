@@ -12,6 +12,7 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
+import org.junit.After;
 import tech.pegasys.pantheon.tests.acceptance.dsl.AcceptanceTestBase;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyPantheonNodeFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractTransactions;
@@ -31,6 +32,7 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
   protected final PrivateContractVerifier privateContractVerifier;
   protected final PrivacyPantheonNodeFactory privacyPantheon;
   protected final PrivateContractTransactions privateContractTransactions;
+  protected final PrivacyCluster privacyCluster;
 
   public PrivacyAcceptanceTestBase() {
 
@@ -39,5 +41,12 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
     privateContractVerifier = new PrivateContractVerifier();
     privacyPantheon = new PrivacyPantheonNodeFactory();
     privateContractTransactions = new PrivateContractTransactions();
+    privacyCluster = new PrivacyCluster(net);
   }
+
+    @After
+    public void tearDownAcceptanceTestBase() {
+      privacyCluster.close();
+        super.tearDownAcceptanceTestBase();
+    }
 }

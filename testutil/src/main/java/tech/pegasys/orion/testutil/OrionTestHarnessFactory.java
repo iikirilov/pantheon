@@ -21,11 +21,11 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.io.CharSink;
 import com.google.common.io.Files;
-import net.consensys.orion.config.Config;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
@@ -78,13 +78,13 @@ public class OrionTestHarnessFactory {
     return create(tempDir, pubKeyFile, privKeyFile, Arrays.asList(othernodes));
   }
 
-  public static OrionTestHarness create(final OrionFactoryConfiguration orionConfig)
+  public static OrionTestHarness create(final OrionFactoryKeyConfiguration orionConfig)
       throws IOException {
     return create(
         java.nio.file.Files.createTempDirectory("acctest-orion"),
         orionConfig.getPubKeyPath(),
         orionConfig.getPrivKeyPath(),
-        orionConfig.getOtherNodes());
+        Collections.emptyList());
   }
 
   public static OrionTestHarness create(
@@ -102,64 +102,6 @@ public class OrionTestHarnessFactory {
   public static OrionTestHarness create(
       final Path tempDir, final Path key1pub, final Path key1key, final List<String> othernodes) {
 
-    // @formatter:off
-    String confString =
-        "tls=\"off\"\n"
-            + "tlsservertrust=\"tofu\"\n"
-            + "tlsclienttrust=\"tofu\"\n"
-            + "nodeport=0\n"
-            + "nodenetworkinterface = \""
-            + HOST
-            + "\"\n"
-            + "clientport=0\n"
-            + "clientnetworkinterface = \""
-            + HOST
-            + "\"\n"
-            + "storage = \"leveldb:database/orion_node\"\n"
-            + "publickeys = ["
-            + joinPathsAsTomlListEntry(key1pub)
-            + "]\n"
-            + "privatekeys = ["
-            + joinPathsAsTomlListEntry(key1key)
-            + "]\n"
-            + "workdir= \""
-            + tempDir.toString()
-            + "\"\n";
-
-    if (othernodes.size() != 0) {
-      confString += "othernodes = [" + joinStringsAsTomlListEntry(othernodes) + "]\n";
-    }
-
-    // @formatter:on
-
-    Config config = Config.load(confString);
-
-    return new OrionTestHarness(config);
-  }
-
-  private static String joinPathsAsTomlListEntry(final Path... paths) {
-    StringBuilder builder = new StringBuilder();
-    boolean first = true;
-    for (Path path : paths) {
-      if (!first) {
-        builder.append(",");
-      }
-      first = false;
-      builder.append("\"").append(path.toAbsolutePath().toString()).append("\"");
-    }
-    return builder.toString();
-  }
-
-  private static String joinStringsAsTomlListEntry(final List<String> strings) {
-    StringBuilder builder = new StringBuilder();
-    boolean first = true;
-    for (String string : strings) {
-      if (!first) {
-        builder.append(",");
-      }
-      first = false;
-      builder.append("\"").append(string).append("\"");
-    }
-    return builder.toString();
+    return new OrionTestHarness(new OrionConfiguration(key1pub, key1key, tempDir, othernodes));
   }
 }

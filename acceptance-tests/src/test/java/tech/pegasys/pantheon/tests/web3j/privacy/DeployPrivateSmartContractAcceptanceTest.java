@@ -16,7 +16,6 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyAcceptanceTestB
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 import tech.pegasys.pantheon.tests.web3j.generated.EventEmitter;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +26,7 @@ public class DeployPrivateSmartContractAcceptanceTest extends PrivacyAcceptanceT
   @Before
   public void setUp() throws Exception {
     minerNode = privacyPantheon.createPrivateTransactionEnabledMinerNode("miner-node", "key");
-    cluster.start(minerNode);
+    privacyCluster.start(minerNode);
   }
 
   @Test
@@ -39,17 +38,12 @@ public class DeployPrivateSmartContractAcceptanceTest extends PrivacyAcceptanceT
         minerNode.execute(
             privateContractTransactions.createSmartContract(
                 EventEmitter.class,
-                "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63",
+                minerNode.getTransactionSigningKey(),
                 POW_CHAIN_ID,
-                minerNode.orion.getDefaultPublicKey()));
+                minerNode.getEnclaveKey()));
 
     privateContractVerifier
         .validPrivateContractDeployed(contractAddress, minerNode.getAddress().toString())
         .verify(eventEmitter);
-  }
-
-  @After
-  public void tearDownAcceptanceTestBase() {
-    minerNode.close();
   }
 }

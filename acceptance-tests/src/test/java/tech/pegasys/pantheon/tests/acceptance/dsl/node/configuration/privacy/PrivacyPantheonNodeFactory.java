@@ -12,8 +12,7 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy;
 
-import tech.pegasys.orion.testutil.OrionFactoryConfiguration;
-import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
+import tech.pegasys.orion.testutil.OrionFactoryKeyConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.NodeConfigurationFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfigurationBuilder;
@@ -29,7 +28,7 @@ public class PrivacyPantheonNodeFactory {
 
   private static PrivacyNode create(
       final PantheonFactoryConfiguration pantheonConfig,
-      final OrionFactoryConfiguration orionConfig)
+      final OrionFactoryKeyConfiguration orionConfig)
       throws IOException {
     return new PrivacyNode(pantheonConfig, orionConfig);
   }
@@ -45,14 +44,11 @@ public class PrivacyPantheonNodeFactory {
             .enablePrivateTransactions()
             .keyFilePath(transactionSigningKeyPath)
             .build(),
-        new OrionFactoryConfiguration("orion_key_0.pub", "orion_key_0.key"));
+        new OrionFactoryKeyConfiguration("orion_key_0.pub", "orion_key_0.key"));
   }
 
   public PrivacyNode createPrivateTransactionEnabledMinerNode(
-      final String name,
-      final PrivacyParameters privacyParameters,
-      final String keyFilePath,
-      final OrionFactoryConfiguration orionTestHarness)
+      final String name, final String keyFilePath, final OrionFactoryKeyConfiguration orionTestHarness)
       throws IOException {
     return create(
         new PrivacyPantheonFactoryConfigurationBuilder()
@@ -71,9 +67,8 @@ public class PrivacyPantheonNodeFactory {
 
   public PrivacyNode createPrivateTransactionEnabledNode(
       final String name,
-      final PrivacyParameters privacyParameters,
       final String keyFilePath,
-      final OrionFactoryConfiguration orionTestHarness)
+      final String enclaveKeyFilePath)
       throws IOException {
     return create(
         new PrivacyPantheonFactoryConfigurationBuilder()
@@ -86,14 +81,11 @@ public class PrivacyPantheonNodeFactory {
                     .webSocketEnabled()
                     .build())
             .build(),
-        orionTestHarness);
+        new OrionFactoryKeyConfiguration(enclaveKeyFilePath));
   }
 
   public PrivacyNode createIbft2NodePrivacyEnabled(
-      final String name,
-      final PrivacyParameters privacyParameters,
-      final String keyFilePath,
-      final OrionFactoryConfiguration orionTestHarness)
+      final String name, final String keyFilePath, final OrionFactoryKeyConfiguration orionTestHarness)
       throws IOException {
     return create(
         new PrivacyPantheonFactoryConfigurationBuilder()

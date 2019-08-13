@@ -13,6 +13,11 @@
 package tech.pegasys.pantheon.tests.web3j.privacy;
 
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyAcceptanceTestBase;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
+import tech.pegasys.pantheon.tests.web3j.generated.EventEmitter;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
   //  private static final String CONTRACT_NAME = "Event Emmiter";
@@ -38,10 +43,37 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
   //                privacyConditions);
   //  }
   //
-  //  @Test
-  //  public void node2CanSeeContract() {
-  //    eventEmitterHarness.deploy(CONTRACT_NAME, "Alice", "Bob");
-  //  }
+
+  private PrivacyNode alice;
+  private PrivacyNode bob;
+  private PrivacyNode charlie;
+
+  @Before
+  public void setUp() throws Exception {
+    alice = privacyPantheon.createPrivateTransactionEnabledMinerNode("node1", "key");
+    bob = privacyPantheon.createPrivateTransactionEnabledNode("node2", "key1", "orion_key_1.pub");
+    charlie = privacyPantheon.createPrivateTransactionEnabledNode("node3", "key2", "orion_key_2.pub");
+    privacyCluster.start(alice, bob, charlie);
+  }
+
+  @Test
+  public void node2CanSeeContract() {
+    // Contract address is generated from sender address and transaction nonce
+    final String contractAddress = "0xebf56429e6500e84442467292183d4d621359838";
+
+    final EventEmitter eventEmitter =
+        alice.execute(
+            privateContractTransactions.createSmartContract(
+                EventEmitter.class,
+                alice.getTransactionSigningKey(),
+                POW_CHAIN_ID,
+                alice.getEnclaveKey(),
+                bob.getEnclaveKey()));
+
+    privateContractVerifier
+        .validPrivateContractDeployed(contractAddress, alice.getAddress().toString())
+        .verify(eventEmitter);
+  }
   //
   //  @Test
   //  public void node2CanExecuteContract() {

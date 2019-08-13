@@ -12,13 +12,13 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy;
 
-import tech.pegasys.orion.testutil.OrionFactoryConfiguration;
+import tech.pegasys.orion.testutil.OrionFactoryKeyConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfiguration;
 
 public class PrivacyPantheonFactoryConfigurationBuilder {
 
   protected PantheonFactoryConfiguration pantheonConfig;
-  protected OrionFactoryConfiguration orionConfig;
+  protected OrionFactoryKeyConfiguration orionConfig;
 
   public PrivacyPantheonFactoryConfigurationBuilder setPantheonConfig(
       final PantheonFactoryConfiguration pantheonConfig) {
@@ -27,7 +27,7 @@ public class PrivacyPantheonFactoryConfigurationBuilder {
   }
 
   public PrivacyPantheonFactoryConfigurationBuilder setOrionConfig(
-      final OrionFactoryConfiguration orionConfig) {
+      final OrionFactoryKeyConfiguration orionConfig) {
     this.orionConfig = orionConfig;
     return this;
   }

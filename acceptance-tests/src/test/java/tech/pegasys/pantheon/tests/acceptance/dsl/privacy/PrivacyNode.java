@@ -12,10 +12,9 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static tech.pegasys.pantheon.tests.acceptance.dsl.WaitUtils.waitFor;
 
-import tech.pegasys.orion.testutil.OrionFactoryConfiguration;
+import tech.pegasys.orion.testutil.OrionFactoryKeyConfiguration;
 import tech.pegasys.orion.testutil.OrionTestHarness;
 import tech.pegasys.orion.testutil.OrionTestHarnessFactory;
 import tech.pegasys.pantheon.enclave.Enclave;
@@ -26,13 +25,9 @@ import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.tests.acceptance.dsl.condition.Condition;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNodeRunner;
-import tech.pegasys.pantheon.tests.acceptance.dsl.node.RunnableNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.NodeConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.priv.PrivGetTransactionCountTransaction;
-import tech.pegasys.pantheon.util.bytes.BytesValue;
-import tech.pegasys.pantheon.util.bytes.BytesValues;
 
 import java.io.IOException;
 import java.net.URI;
@@ -44,15 +39,15 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PrivacyNode implements RunnableNode, AutoCloseable {
+public class PrivacyNode implements AutoCloseable {
   private static final Logger LOG = LogManager.getLogger();
 
-  public OrionTestHarness orion;
-  public PantheonNode pantheon;
+  public final OrionTestHarness orion;
+  public final PantheonNode pantheon;
 
   public PrivacyNode(
       final PantheonFactoryConfiguration pantheonConfig,
-      final OrionFactoryConfiguration orionConfig)
+      final OrionFactoryKeyConfiguration orionConfig)
       throws IOException {
     this.orion = OrionTestHarnessFactory.create(orionConfig);
 
@@ -78,14 +73,10 @@ public class PrivacyNode implements RunnableNode, AutoCloseable {
             new ArrayList<>());
   }
 
-  public BytesValue getOrionPubKeyBytes() {
-    return BytesValue.wrap(orion.getPublicKeys().get(0).getBytes(UTF_8));
-  }
-
   public void testOrionConnection(final PrivacyNode... otherNodes) {
     LOG.info(
         String.format(
-            "Testing Orion connectivity between %s (%s) and %s (%s)",
+            "Testing Enclave connectivity between %s (%s) and %s (%s)",
             pantheon.getName(),
             orion.nodeUrl(),
             Arrays.toString(
@@ -96,22 +87,16 @@ public class PrivacyNode implements RunnableNode, AutoCloseable {
     SendRequest sendRequest1 =
         new SendRequestLegacy(
             "SGVsbG8sIFdvcmxkIQ==",
-            orion.getPublicKeys().get(0),
+            orion.getDefaultPublicKey(),
             Arrays.stream(otherNodes)
-                .map(node -> node.orion.getPublicKeys().get(0))
+                .map(node -> node.orion.getDefaultPublicKey())
                 .collect(Collectors.toList()));
-    waitFor(() -> orionEnclave.send(sendRequest1));
+    waitFor(
+        () -> {
+          orionEnclave.send(sendRequest1);
+        });
   }
 
-  public long nextNonce(final BytesValue privacyGroupId) {
-    return pantheon
-        .execute(
-            new PrivGetTransactionCountTransaction(
-                pantheon.getAddress().toString(), BytesValues.asBase64String(privacyGroupId)))
-        .longValue();
-  }
-
-  @Override
   public void stop() {
     pantheon.stop();
     orion.stop();
@@ -123,8 +108,7 @@ public class PrivacyNode implements RunnableNode, AutoCloseable {
     orion.close();
   }
 
-  @Override
-  public void start(PantheonNodeRunner runner) {
+  public void start(final PantheonNodeRunner runner) {
     orion.start();
 
     final PrivacyParameters privacyParameters;
@@ -143,43 +127,47 @@ public class PrivacyNode implements RunnableNode, AutoCloseable {
     pantheon.start(runner);
   }
 
-  @Override
-  public NodeConfiguration getConfiguration() {
-    return pantheon.getConfiguration();
-  }
-
-  @Override
   public void awaitPeerDiscovery(Condition condition) {
     pantheon.awaitPeerDiscovery(condition);
   }
 
-  @Override
   public String getName() {
     return pantheon.getName();
   }
 
-  @Override
   public Address getAddress() {
     return pantheon.getAddress();
   }
 
-  @Override
   public URI enodeUrl() {
     return pantheon.enodeUrl();
   }
 
-  @Override
   public String getNodeId() {
     return pantheon.getNodeId();
   }
 
-  @Override
   public <T> T execute(Transaction<T> transaction) {
     return pantheon.execute(transaction);
   }
 
-  @Override
   public void verify(Condition expected) {
     pantheon.verify(expected);
+  }
+
+  public String getEnclaveKey() {
+    return orion.getDefaultPublicKey();
+  }
+
+  public String getTransactionSigningKey() {
+    return pantheon.keyPair().getPrivateKey().toString();
+  }
+
+  public void addOtherEnclaveNode(final URI otherNode) {
+    this.orion.addOtherNode(otherNode);
+  }
+
+  public NodeConfiguration getConfiguration() {
+    return pantheon.getConfiguration();
   }
 }

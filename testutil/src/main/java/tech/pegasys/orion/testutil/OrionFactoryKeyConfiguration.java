@@ -12,31 +12,18 @@
  */
 package tech.pegasys.orion.testutil;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-public class OrionFactoryConfiguration {
+public class OrionFactoryKeyConfiguration {
   private final String pubKeyPath;
   private final String privKeyPath;
-  private final List<String> otherNodes;
 
-  public OrionFactoryConfiguration(String pubKeyPath, String privKeyPath, List<String> otherNodes)
-      throws IOException {
+  public OrionFactoryKeyConfiguration(final String pubKeyPath, final String privKeyPath) {
     this.pubKeyPath = pubKeyPath;
     this.privKeyPath = privKeyPath;
-    this.otherNodes = otherNodes;
   }
 
-  public OrionFactoryConfiguration(String pubKeyPath, String privKeyPath, String... otherNodes)
-      throws IOException {
-    this(pubKeyPath, privKeyPath, Arrays.asList(otherNodes));
-  }
-
-  public OrionFactoryConfiguration(String pubKeyPath, String privKeyPath, String otherNode)
-      throws IOException {
-    this(pubKeyPath, privKeyPath, Collections.singletonList(otherNode));
+  public OrionFactoryKeyConfiguration(final String pubKeyPath) {
+    this.pubKeyPath = pubKeyPath;
+    this.privKeyPath = resolveEnclavePrivateKey(pubKeyPath);
   }
 
   public String getPubKeyPath() {
@@ -47,7 +34,7 @@ public class OrionFactoryConfiguration {
     return privKeyPath;
   }
 
-  public List<String> getOtherNodes() {
-    return otherNodes;
+  private String resolveEnclavePrivateKey(String enclaveKeyFilePath) {
+    return enclaveKeyFilePath.substring(0, enclaveKeyFilePath.length() - 3) + "key";
   }
 }
