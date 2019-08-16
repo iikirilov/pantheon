@@ -12,13 +12,14 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
-import org.junit.After;
 import tech.pegasys.pantheon.tests.acceptance.dsl.AcceptanceTestBase;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyPantheonNodeFactory;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.account.PrivacyAccountSupplier;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractTransactions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractVerifier;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.PrivateTransactionBuilder;
 
+import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 
@@ -33,6 +34,7 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
   protected final PrivacyPantheonNodeFactory privacyPantheon;
   protected final PrivateContractTransactions privateContractTransactions;
   protected final PrivacyCluster privacyCluster;
+  protected final PrivacyAccountSupplier privacyAccountSupplier;
 
   public PrivacyAcceptanceTestBase() {
 
@@ -42,11 +44,12 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
     privacyPantheon = new PrivacyPantheonNodeFactory();
     privateContractTransactions = new PrivateContractTransactions();
     privacyCluster = new PrivacyCluster(net);
+    privacyAccountSupplier = new PrivacyAccountSupplier();
   }
 
-    @After
-    public void tearDownAcceptanceTestBase() {
-      privacyCluster.close();
-        super.tearDownAcceptanceTestBase();
-    }
+  @After
+  public void tearDownAcceptanceTestBase() {
+    privacyCluster.close();
+    super.tearDownAcceptanceTestBase();
+  }
 }

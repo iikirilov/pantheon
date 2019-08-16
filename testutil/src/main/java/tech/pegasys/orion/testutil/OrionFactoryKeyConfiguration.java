@@ -21,20 +21,11 @@ public class OrionFactoryKeyConfiguration {
     this.privKeyPath = privKeyPath;
   }
 
-  public OrionFactoryKeyConfiguration(final String pubKeyPath) {
-    this.pubKeyPath = pubKeyPath;
-    this.privKeyPath = resolveEnclavePrivateKey(pubKeyPath);
-  }
-
   public String getPubKeyPath() {
     return pubKeyPath;
   }
 
   public String getPrivKeyPath() {
     return privKeyPath;
-  }
-
-  private String resolveEnclavePrivateKey(String enclaveKeyFilePath) {
-    return enclaveKeyFilePath.substring(0, enclaveKeyFilePath.length() - 3) + "key";
   }
 }

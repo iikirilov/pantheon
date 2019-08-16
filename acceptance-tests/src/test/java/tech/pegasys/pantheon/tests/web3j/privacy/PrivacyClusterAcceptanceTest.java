@@ -50,9 +50,13 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
 
   @Before
   public void setUp() throws Exception {
-    alice = privacyPantheon.createPrivateTransactionEnabledMinerNode("node1", "key");
-    bob = privacyPantheon.createPrivateTransactionEnabledNode("node2", "key1", "orion_key_1.pub");
-    charlie = privacyPantheon.createPrivateTransactionEnabledNode("node3", "key2", "orion_key_2.pub");
+    alice =
+        privacyPantheon.createPrivateTransactionEnabledMinerNode(
+            "node1", privacyAccountSupplier.get());
+    bob =
+        privacyPantheon.createPrivateTransactionEnabledNode("node2", privacyAccountSupplier.get());
+    charlie =
+        privacyPantheon.createPrivateTransactionEnabledNode("node3", privacyAccountSupplier.get());
     privacyCluster.start(alice, bob, charlie);
   }
 

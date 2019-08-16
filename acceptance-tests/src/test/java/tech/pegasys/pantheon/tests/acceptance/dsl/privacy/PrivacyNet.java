@@ -12,258 +12,248 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
-import tech.pegasys.orion.testutil.OrionFactoryKeyConfiguration;
-import tech.pegasys.orion.testutil.OrionTestHarness;
-import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
-import tech.pegasys.pantheon.tests.acceptance.dsl.node.cluster.Cluster;
-import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyPantheonNodeFactory;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import com.google.common.base.Preconditions;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.rules.TemporaryFolder;
-
 public class PrivacyNet {
-//  private static final Logger LOG = LogManager.getLogger();
-//
-//  private static final String PANTHEON_KEYPAIR_NODE_1 = "key";
-//  private static final String PANTHEON_KEYPAIR_NODE_2 = "key1";
-//  private static final String PANTHEON_KEYPAIR_NODE_3 = "key2";
-//
-//  private static final Map<String, String> KNOWN_PANTHEON_KEYPAIRS = new HashMap<>();
-//
-//  private final TemporaryFolder temporaryFolder;
-//  private Cluster cluster;
-//
-//  private Map<String, PrivacyNode> nodes;
-//
-//  static {
-//    KNOWN_PANTHEON_KEYPAIRS.put("Alice", PANTHEON_KEYPAIR_NODE_1);
-//    KNOWN_PANTHEON_KEYPAIRS.put("Bob", PANTHEON_KEYPAIR_NODE_2);
-//    KNOWN_PANTHEON_KEYPAIRS.put("Charlie", PANTHEON_KEYPAIR_NODE_3);
-//  }
-//
-//  private PrivacyNet(
-//      final TemporaryFolder temporaryFolder,
-//      final Map<String, PrivacyNode> privacyNodes,
-//      final Cluster cluster) {
-//    this.temporaryFolder = temporaryFolder;
-//    this.nodes = privacyNodes;
-//    this.cluster = cluster;
-//  }
-//
-//  public static PrivacyNet.Builder builder(
-//      final TemporaryFolder temporaryFolder,
-//      final PrivacyPantheonNodeFactory pantheonNodeFactory,
-//      final Cluster cluster,
-//      final boolean ibft) {
-//    return new Builder(temporaryFolder, pantheonNodeFactory, cluster, ibft);
-//  }
-//
-//  public Map<String, PrivacyNode> getNodes() {
-//    return nodes;
-//  }
-//
-//  public PrivacyNode getNode(final String name) {
-//    return nodes.get(name);
-//  }
-//
-//  public OrionTestHarness getEnclave(final String name) {
-//    return nodes.get(name).orion;
-//  }
-//
-//  public void startPrivacyNet() {
-//    if (nodes == null)
-//      throw new IllegalStateException(
-//          "Cannot start network nodes.  init method was never called to initialize the nodes");
-//    // cluster.start(nodes.values().toArray(new PrivacyNode[0]));
-//    verifyAllOrionNetworkConnections();
-//  }
-//
-//  public void stopPrivacyNet() {
-//    try {
-//      cluster.stop();
-//    } catch (RuntimeException e) {
-//      LOG.error("Error stopping Pantheon nodes.  Logging and continuing.", e);
-//    }
-//    try {
-//      stopOrionNodes();
-//    } catch (RuntimeException e) {
-//      LOG.error("Error stopping Orion nodes.  Logging and continuing.", e);
-//    }
-//  }
-//
-//  private void stopOrionNodes() {
-//    if (nodes == null) return; // Never started
-//    for (PrivacyNode node : nodes.values()) {
-//      try {
-//        node.orion.getOrion().stop();
-//      } catch (RuntimeException e) {
-//        LOG.error(
-//            String.format(
-//                "Error stopping Orion node %s.  Logging and continuing to shutdown other nodes.",
-//                node.orion.nodeUrl()),
-//            e);
-//      }
-//    }
-//  }
-//
-//  /** Verify that each Orion node has connected to every other Orion */
-//  public void verifyAllOrionNetworkConnections() {
-//    PrivacyNode[] nodeList = nodes.values().toArray(new PrivacyNode[0]);
-//    for (int i = 0; i < nodeList.length; i++) {
-//      for (int j = i + 1; j < nodeList.length; j++) {
-//        nodeList[i].testOrionConnection(nodeList[j]);
-//      }
-//      for (int j = i + 2; j < nodeList.length; j = j + 2) {
-//        nodeList[i].testOrionConnection(nodeList[j]);
-//      }
-//    }
-//  }
-//
-//  @Override
-//  public String toString() {
-//    return super.toString();
-    //    StringBuilder sb = new StringBuilder();
-    //    sb.append(String.format("temporaryFolder      = %s\n", temporaryFolder.getRoot()));
-    //    for (PrivacyNode privacyNode : nodes.values()) {
-    //      sb.append(String.format("Pantheon Node Name   = %s\n", privacyNode.getName()));
-    //      sb.append(String.format("Pantheon Address     = %s\n", privacyNode.getAddress()));
-    //      sb.append(
-    //          String.format(
-    //              "Pantheon Private Key = %s\n", privacyNode.pantheon.keyPair().getPrivateKey()));
-    //      sb.append(
-    //          String.format(
-    //              "Pantheon Public  Key = %s\n", privacyNode.pantheon.keyPair().getPublicKey()));
-    //      sb.append(String.format("Orion Pub Key        = %s\n",
-    // privacyNode.getOrionPubKeyBytes()));
-    //      sb.append(
-    //          String.format(
-    //              "Orion Pub Key Base64 = %s\n",
-    //              Base64.getEncoder()
-    //                  .encodeToString(privacyNode.getOrionPubKeyBytes().extractArray())));
-    //
-    //      sb.append(String.format("Pantheon             = %s\n", privacyNode));
-    //      sb.append(String.format("Orion Config         = %s\n", privacyNode.orion.getConfig()));
-    //      sb.append(String.format("Orion Pub Key        = %s\n",
-    // privacyNode.getOrionPubKeyBytes()));
-    //    }
-    //    return sb.toString();
-//  }
-//
-//  public static class Builder {
-//    private TemporaryFolder temporaryFolder;
-//    private PrivacyPantheonNodeFactory pantheonNodeFactory;
-//    private Cluster cluster;
-//    private final boolean ibft;
-//
-//    private String otherOrionNode = null;
-//
-//    private Map<String, PrivacyNode> nodes;
-//
-//    private Builder(
-//        final TemporaryFolder temporaryFolder,
-//        final PrivacyPantheonNodeFactory pantheonNodeFactory,
-//        final Cluster cluster,
-//        final boolean ibft) {
-//      this.temporaryFolder = temporaryFolder;
-//      this.pantheonNodeFactory = pantheonNodeFactory;
-//      this.cluster = cluster;
-//      this.ibft = ibft;
-//    }
-//
-//    public Builder addMinerNode(final String name) throws IOException {
-//      return addNode(name, true);
-//    }
-//
-//    public Builder addNode(final String name) throws IOException {
-//      return addNode(name, false);
-//    }
-//
-//    public Builder addNode(final String name, final Optional<String> keyPath) throws IOException {
-//      return addNode(name, false, keyPath);
-//    }
-//
-//    public Builder addNode(final String name, final boolean isMiningEnabled) throws IOException {
-//      return addNode(name, isMiningEnabled, Optional.empty());
-//    }
-//
-//    public Builder addNode(
-//        final String name, final boolean isMiningEnabled, final Optional<String> keyPath)
-//        throws IOException {
-//      final PrivacyNode node = makeNode(name, isMiningEnabled, otherOrionNode, keyPath);
-//      if (nodes == null) {
-//        nodes = new HashMap<>();
-//        otherOrionNode =
-//            node.orion.nodeUrl().toString(); // All nodes use first added node for discovery
-//      }
-//      nodes.put(name, node);
-//      return this;
-//    }
-//
-//    public PrivacyNode makeNode(
-//        final String name,
-//        final boolean isMiningEnabled,
-//        final String otherOrionNodes,
-//        final Optional<String> orionKeyPath)
-//        throws IOException {
-//
-//      final OrionFactoryKeyConfiguration orion;
-//      if (otherOrionNodes == null) {
-//        // Need conditional because createEnclave will choke if passing in null
-//        orion = createEnclave(orionKeyPath);
-//      } else {
-//        orion = createEnclave(orionKeyPath, otherOrionNodes);
-//      }
-//
-//      final PrivacyNode node;
-//      final String keyFilePath = KNOWN_PANTHEON_KEYPAIRS.get(name);
-//      if (isMiningEnabled && !ibft) {
-//        node =
-//            pantheonNodeFactory.createPrivateTransactionEnabledMinerNode(name, keyFilePath, orion);
-//      } else if (!isMiningEnabled && !ibft) {
-//        node = pantheonNodeFactory.createPrivateTransactionEnabledNode(name, keyFilePath, "orion");
-//      } else {
-//        node = pantheonNodeFactory.createIbft2NodePrivacyEnabled(name, keyFilePath, orion);
-//      }
-//
-//      return node;
-//    }
-//
-//    protected OrionFactoryKeyConfiguration createEnclave(
-//        final Optional<String> pubKeyPath, final String... otherNodes) throws IOException {
-//      final String orionPublicKeyFileName = pubKeyPath.orElse(provideNextKnownOrionKey());
-//      final String orionPrivateKeyFileName = privaKeyPathFromPubKeyPath(orionPublicKeyFileName);
-//      return new OrionFactoryKeyConfiguration(
-//          orionPublicKeyFileName, orionPrivateKeyFileName, otherNodes);
-//    }
-//
-//    private String privaKeyPathFromPubKeyPath(final String orionPublicKeyFileName) {
-//      return orionPublicKeyFileName.substring(0, orionPublicKeyFileName.length() - 3) + "key";
-//    }
-//
-//    private Integer nextKnownOrionKey = 0;
-//
-//    private String provideNextKnownOrionKey() {
-//      if (nextKnownOrionKey < 4) {
-//        return String.format("orion_key_%d.pub", nextKnownOrionKey++);
-//      }
-//      throw new RuntimeException("Limit of known nodes reached");
-//    }
-//
-//    private PrivacyParameters generatePrivacyParameters(final OrionFactoryKeyConfiguration testHarness)
-//        throws IOException {
-//      return new PrivacyParameters.Builder().build();
-//    }
-//
-//    public PrivacyNet build() {
-//      Preconditions.checkNotNull(nodes);
-//      return new PrivacyNet(temporaryFolder, nodes, cluster);
-//    }
-//  }
+  //  private static final Logger LOG = LogManager.getLogger();
+  //
+  //  private static final String PANTHEON_KEYPAIR_NODE_1 = "key";
+  //  private static final String PANTHEON_KEYPAIR_NODE_2 = "key1";
+  //  private static final String PANTHEON_KEYPAIR_NODE_3 = "key2";
+  //
+  //  private static final Map<String, String> KNOWN_PANTHEON_KEYPAIRS = new HashMap<>();
+  //
+  //  private final TemporaryFolder temporaryFolder;
+  //  private Cluster cluster;
+  //
+  //  private Map<String, PrivacyNode> nodes;
+  //
+  //  static {
+  //    KNOWN_PANTHEON_KEYPAIRS.put("Alice", PANTHEON_KEYPAIR_NODE_1);
+  //    KNOWN_PANTHEON_KEYPAIRS.put("Bob", PANTHEON_KEYPAIR_NODE_2);
+  //    KNOWN_PANTHEON_KEYPAIRS.put("Charlie", PANTHEON_KEYPAIR_NODE_3);
+  //  }
+  //
+  //  private PrivacyNet(
+  //      final TemporaryFolder temporaryFolder,
+  //      final Map<String, PrivacyNode> privacyNodes,
+  //      final Cluster cluster) {
+  //    this.temporaryFolder = temporaryFolder;
+  //    this.nodes = privacyNodes;
+  //    this.cluster = cluster;
+  //  }
+  //
+  //  public static PrivacyNet.Builder builder(
+  //      final TemporaryFolder temporaryFolder,
+  //      final PrivacyPantheonNodeFactory pantheonNodeFactory,
+  //      final Cluster cluster,
+  //      final boolean ibft) {
+  //    return new Builder(temporaryFolder, pantheonNodeFactory, cluster, ibft);
+  //  }
+  //
+  //  public Map<String, PrivacyNode> getNodes() {
+  //    return nodes;
+  //  }
+  //
+  //  public PrivacyNode getNode(final String name) {
+  //    return nodes.get(name);
+  //  }
+  //
+  //  public OrionTestHarness getEnclave(final String name) {
+  //    return nodes.get(name).orion;
+  //  }
+  //
+  //  public void startPrivacyNet() {
+  //    if (nodes == null)
+  //      throw new IllegalStateException(
+  //          "Cannot start network nodes.  init method was never called to initialize the nodes");
+  //    // cluster.start(nodes.values().toArray(new PrivacyNode[0]));
+  //    verifyAllOrionNetworkConnections();
+  //  }
+  //
+  //  public void stopPrivacyNet() {
+  //    try {
+  //      cluster.stop();
+  //    } catch (RuntimeException e) {
+  //      LOG.error("Error stopping Pantheon nodes.  Logging and continuing.", e);
+  //    }
+  //    try {
+  //      stopOrionNodes();
+  //    } catch (RuntimeException e) {
+  //      LOG.error("Error stopping Orion nodes.  Logging and continuing.", e);
+  //    }
+  //  }
+  //
+  //  private void stopOrionNodes() {
+  //    if (nodes == null) return; // Never started
+  //    for (PrivacyNode node : nodes.values()) {
+  //      try {
+  //        node.orion.getOrion().stop();
+  //      } catch (RuntimeException e) {
+  //        LOG.error(
+  //            String.format(
+  //                "Error stopping Orion node %s.  Logging and continuing to shutdown other
+  // nodes.",
+  //                node.orion.nodeUrl()),
+  //            e);
+  //      }
+  //    }
+  //  }
+  //
+  //  /** Verify that each Orion node has connected to every other Orion */
+  //  public void verifyAllOrionNetworkConnections() {
+  //    PrivacyNode[] nodeList = nodes.values().toArray(new PrivacyNode[0]);
+  //    for (int i = 0; i < nodeList.length; i++) {
+  //      for (int j = i + 1; j < nodeList.length; j++) {
+  //        nodeList[i].testOrionConnection(nodeList[j]);
+  //      }
+  //      for (int j = i + 2; j < nodeList.length; j = j + 2) {
+  //        nodeList[i].testOrionConnection(nodeList[j]);
+  //      }
+  //    }
+  //  }
+  //
+  //  @Override
+  //  public String toString() {
+  //    return super.toString();
+  //    StringBuilder sb = new StringBuilder();
+  //    sb.append(String.format("temporaryFolder      = %s\n", temporaryFolder.getRoot()));
+  //    for (PrivacyNode privacyNode : nodes.values()) {
+  //      sb.append(String.format("Pantheon Node Name   = %s\n", privacyNode.getName()));
+  //      sb.append(String.format("Pantheon Address     = %s\n", privacyNode.getAddress()));
+  //      sb.append(
+  //          String.format(
+  //              "Pantheon Private Key = %s\n", privacyNode.pantheon.keyPair().getPrivateKey()));
+  //      sb.append(
+  //          String.format(
+  //              "Pantheon Public  Key = %s\n", privacyNode.pantheon.keyPair().getPublicKey()));
+  //      sb.append(String.format("Orion Pub Key        = %s\n",
+  // privacyNode.getOrionPubKeyBytes()));
+  //      sb.append(
+  //          String.format(
+  //              "Orion Pub Key Base64 = %s\n",
+  //              Base64.getEncoder()
+  //                  .encodeToString(privacyNode.getOrionPubKeyBytes().extractArray())));
+  //
+  //      sb.append(String.format("Pantheon             = %s\n", privacyNode));
+  //      sb.append(String.format("Orion Config         = %s\n", privacyNode.orion.getConfig()));
+  //      sb.append(String.format("Orion Pub Key        = %s\n",
+  // privacyNode.getOrionPubKeyBytes()));
+  //    }
+  //    return sb.toString();
+  //  }
+  //
+  //  public static class Builder {
+  //    private TemporaryFolder temporaryFolder;
+  //    private PrivacyPantheonNodeFactory pantheonNodeFactory;
+  //    private Cluster cluster;
+  //    private final boolean ibft;
+  //
+  //    private String otherOrionNode = null;
+  //
+  //    private Map<String, PrivacyNode> nodes;
+  //
+  //    private Builder(
+  //        final TemporaryFolder temporaryFolder,
+  //        final PrivacyPantheonNodeFactory pantheonNodeFactory,
+  //        final Cluster cluster,
+  //        final boolean ibft) {
+  //      this.temporaryFolder = temporaryFolder;
+  //      this.pantheonNodeFactory = pantheonNodeFactory;
+  //      this.cluster = cluster;
+  //      this.ibft = ibft;
+  //    }
+  //
+  //    public Builder addMinerNode(final String name) throws IOException {
+  //      return addNode(name, true);
+  //    }
+  //
+  //    public Builder addNode(final String name) throws IOException {
+  //      return addNode(name, false);
+  //    }
+  //
+  //    public Builder addNode(final String name, final Optional<String> keyPath) throws IOException
+  // {
+  //      return addNode(name, false, keyPath);
+  //    }
+  //
+  //    public Builder addNode(final String name, final boolean isMiningEnabled) throws IOException
+  // {
+  //      return addNode(name, isMiningEnabled, Optional.empty());
+  //    }
+  //
+  //    public Builder addNode(
+  //        final String name, final boolean isMiningEnabled, final Optional<String> keyPath)
+  //        throws IOException {
+  //      final PrivacyNode node = makeNode(name, isMiningEnabled, otherOrionNode, keyPath);
+  //      if (nodes == null) {
+  //        nodes = new HashMap<>();
+  //        otherOrionNode =
+  //            node.orion.nodeUrl().toString(); // All nodes use first added node for discovery
+  //      }
+  //      nodes.put(name, node);
+  //      return this;
+  //    }
+  //
+  //    public PrivacyNode makeNode(
+  //        final String name,
+  //        final boolean isMiningEnabled,
+  //        final String otherOrionNodes,
+  //        final Optional<String> orionKeyPath)
+  //        throws IOException {
+  //
+  //      final OrionFactoryKeyConfiguration orion;
+  //      if (otherOrionNodes == null) {
+  //        // Need conditional because createEnclave will choke if passing in null
+  //        orion = createEnclave(orionKeyPath);
+  //      } else {
+  //        orion = createEnclave(orionKeyPath, otherOrionNodes);
+  //      }
+  //
+  //      final PrivacyNode node;
+  //      final String keyFilePath = KNOWN_PANTHEON_KEYPAIRS.get(name);
+  //      if (isMiningEnabled && !ibft) {
+  //        node =
+  //            pantheonNodeFactory.createPrivateTransactionEnabledMinerNode(name, keyFilePath,
+  // orion);
+  //      } else if (!isMiningEnabled && !ibft) {
+  //        node = pantheonNodeFactory.createPrivateTransactionEnabledNode(name, keyFilePath,
+  // "orion");
+  //      } else {
+  //        node = pantheonNodeFactory.createIbft2NodePrivacyEnabled(name, keyFilePath, orion);
+  //      }
+  //
+  //      return node;
+  //    }
+  //
+  //    protected OrionFactoryKeyConfiguration createEnclave(
+  //        final Optional<String> pubKeyPath, final String... otherNodes) throws IOException {
+  //      final String orionPublicKeyFileName = pubKeyPath.orElse(provideNextKnownOrionKey());
+  //      final String orionPrivateKeyFileName = privaKeyPathFromPubKeyPath(orionPublicKeyFileName);
+  //      return new OrionFactoryKeyConfiguration(
+  //          orionPublicKeyFileName, orionPrivateKeyFileName, otherNodes);
+  //    }
+  //
+  //    private String privaKeyPathFromPubKeyPath(final String orionPublicKeyFileName) {
+  //      return orionPublicKeyFileName.substring(0, orionPublicKeyFileName.length() - 3) + "key";
+  //    }
+  //
+  //    private Integer nextKnownOrionKey = 0;
+  //
+  //    private String provideNextKnownOrionKey() {
+  //      if (nextKnownOrionKey < 4) {
+  //        return String.format("orion_key_%d.pub", nextKnownOrionKey++);
+  //      }
+  //      throw new RuntimeException("Limit of known nodes reached");
+  //    }
+  //
+  //    private PrivacyParameters generatePrivacyParameters(final OrionFactoryKeyConfiguration
+  // testHarness)
+  //        throws IOException {
+  //      return new PrivacyParameters.Builder().build();
+  //    }
+  //
+  //    public PrivacyNet build() {
+  //      Preconditions.checkNotNull(nodes);
+  //      return new PrivacyNet(temporaryFolder, nodes, cluster);
+  //    }
+  //  }
 }

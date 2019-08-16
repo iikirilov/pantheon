@@ -69,9 +69,11 @@ public class PrivacyCluster {
 
   /** Verify that each Orion node has connected to every other Orion */
   public void verifyAllOrionNetworkConnections() {
-    nodes.stream().forEachOrdered(n -> {
-        n.testOrionConnection();
-    });
+    nodes.stream()
+        .forEachOrdered(
+            n -> {
+              n.testOrionConnection();
+            });
   }
 
   public void stop() {
