@@ -12,12 +12,15 @@
  */
 package tech.pegasys.pantheon.tests.web3j.privacy;
 
+import tech.pegasys.pantheon.ethereum.core.TransactionReceipt;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyAcceptanceTestBase;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 import tech.pegasys.pantheon.tests.web3j.generated.EventEmitter;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.math.BigInteger;
 
 public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
   //  private static final String CONTRACT_NAME = "Event Emmiter";
@@ -61,7 +64,7 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
   }
 
   @Test
-  public void node2CanSeeContract() {
+  public void onlyAliceAndBobCanExecuteContract() throws Exception {
     // Contract address is generated from sender address and transaction nonce
     final String contractAddress = "0xebf56429e6500e84442467292183d4d621359838";
 
@@ -75,15 +78,27 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
                 bob.getEnclaveKey()));
 
     privateContractVerifier
-        .validPrivateContractDeployed(contractAddress, alice.getAddress().toString())
-        .verify(eventEmitter);
+            .validPrivateContractDeployed(contractAddress, alice.getAddress().toString())
+            .verify(eventEmitter);
+
+    String transactionHash = eventEmitter.store(BigInteger.ONE).send().getTransactionHash();
+
+    privateContractVerifier.validPrivateEventEmitted(1, isIndexed?, transactionHash).verify(BigInteger.ONE);
+
+    final EventEmitter eventEmitter_1 =
+            bob.execute(
+                    privateContractTransactions.loadSmartContract(
+                            eventEmitter.getContractAddress(),
+                            EventEmitter.class,
+                            alice.getTransactionSigningKey(),
+                            POW_CHAIN_ID,
+                            alice.getEnclaveKey(),
+                            bob.getEnclaveKey()));
+
+    eventEmitter_1.store(BigInteger.TEN);
+
+    privateTransactionVerifier.noPrivateTransactionsReceived().verify(charlie);
   }
-  //
-  //  @Test
-  //  public void node2CanExecuteContract() {
-  //    eventEmitterHarness.deploy(CONTRACT_NAME, "Alice", "Bob");
-  //    eventEmitterHarness.store(CONTRACT_NAME, "Bob", "Alice");
-  //  }
   //
   //  @Test
   //  public void node2CanSeePrivateTransactionReceipt() {

@@ -13,5 +13,6 @@
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract;
 
 public class PrivateCallSmartContractFunction {
-  public PrivateCallSmartContractFunction(String functionName, String contractAddress) {}
+  public PrivateCallSmartContractFunction(
+      final String functionName, final String contractAddress) {}
 }

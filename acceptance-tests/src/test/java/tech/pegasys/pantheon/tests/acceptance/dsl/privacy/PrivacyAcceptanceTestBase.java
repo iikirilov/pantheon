@@ -17,6 +17,8 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.Pri
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.account.PrivacyAccountSupplier;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractTransactions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractVerifier;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivateTransactionVerifier;
+import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.PrivacyTransactions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.PrivateTransactionBuilder;
 
 import org.junit.After;
@@ -28,9 +30,10 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
   protected final long IBFT2_CHAIN_ID = 4;
   @ClassRule public static final TemporaryFolder privacy = new TemporaryFolder();
 
-  protected final PrivateTransactions privateTransactions;
+  protected final PrivacyTransactions privacyTransactions;
   protected final PrivateTransactionBuilder.Builder privateTransactionBuilder;
   protected final PrivateContractVerifier privateContractVerifier;
+  protected final PrivateTransactionVerifier privateTransactionVerifier;
   protected final PrivacyPantheonNodeFactory privacyPantheon;
   protected final PrivateContractTransactions privateContractTransactions;
   protected final PrivacyCluster privacyCluster;
@@ -38,9 +41,10 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
 
   public PrivacyAcceptanceTestBase() {
 
-    privateTransactions = new PrivateTransactions();
+    privacyTransactions = new PrivacyTransactions();
     privateTransactionBuilder = PrivateTransactionBuilder.builder();
     privateContractVerifier = new PrivateContractVerifier();
+    privateTransactionVerifier = new PrivateTransactionVerifier(privacyTransactions);
     privacyPantheon = new PrivacyPantheonNodeFactory();
     privateContractTransactions = new PrivateContractTransactions();
     privacyCluster = new PrivacyCluster(net);
@@ -48,6 +52,7 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
   }
 
   @After
+  @Override
   public void tearDownAcceptanceTestBase() {
     privacyCluster.close();
     super.tearDownAcceptanceTestBase();

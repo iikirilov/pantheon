@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.web3j.tx.Contract;
+import tech.pegasys.pantheon.tests.web3j.generated.EventEmitter;
 
 public class PrivateContractTransactions {
 
@@ -23,8 +24,8 @@ public class PrivateContractTransactions {
       final Class<T> clazz,
       final String transactionSigningKey,
       final long chainId,
-      String privateFrom,
-      String... privateFor) {
+      final String privateFrom,
+      final String... privateFor) {
     return createSmartContract(
         clazz, transactionSigningKey, chainId, privateFrom, Arrays.asList(privateFor));
   }
@@ -33,7 +34,7 @@ public class PrivateContractTransactions {
       final Class<T> clazz,
       final String transactionSigningKey,
       final long chainId,
-      String privateFrom,
+      final String privateFrom,
       final List<String> privateFor) {
     return new PrivateDeploySmartContractTransaction<>(
         clazz, transactionSigningKey, chainId, privateFrom, privateFor);
@@ -42,5 +43,15 @@ public class PrivateContractTransactions {
   public PrivateCallSmartContractFunction callSmartContract(
       final String functionName, final String contractAddress) {
     return new PrivateCallSmartContractFunction(functionName, contractAddress);
+  }
+
+  public <T extends Contract> PrivateLoadSmartContractTransaction<T> loadSmartContract(final String contractAddress, Class<T> clazz, String transactionSigningKey, long chainId, String privateFrom, String... privateFor) {
+    return loadSmartContract(
+            contractAddress, clazz, transactionSigningKey, chainId, privateFrom, Arrays.asList(privateFor));
+  }
+
+  private <T extends Contract> PrivateLoadSmartContractTransaction<T> loadSmartContract(final String contractAddress, Class<T> clazz, String transactionSigningKey, long chainId, String privateFrom, List<String> privateFor) {
+    return new PrivateLoadSmartContractTransaction<>(
+            contractAddress, clazz, transactionSigningKey, chainId, privateFrom, privateFor);
   }
 }

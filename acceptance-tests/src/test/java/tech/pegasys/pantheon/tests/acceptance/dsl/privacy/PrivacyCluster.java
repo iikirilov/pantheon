@@ -42,11 +42,11 @@ public class PrivacyCluster {
     this.pantheonNodeRunner = PantheonNodeRunner.instance();
   }
 
-  public void start(PrivacyNode... nodes) {
+  public void start(final PrivacyNode... nodes) {
     start(Arrays.asList(nodes));
   }
 
-  public void start(List<PrivacyNode> nodes) {
+  public void start(final List<PrivacyNode> nodes) {
     if (nodes.isEmpty()) {
       throw new IllegalArgumentException("Can't start a cluster with no nodes");
     }
@@ -69,11 +69,9 @@ public class PrivacyCluster {
 
   /** Verify that each Orion node has connected to every other Orion */
   public void verifyAllOrionNetworkConnections() {
-    nodes.stream()
-        .forEachOrdered(
-            n -> {
-              n.testOrionConnection();
-            });
+    for (int i = 0; i < nodes.size() - 1; i++) {
+      nodes.get(i).testOrionConnection(nodes.subList(i + 1, nodes.size()));
+    }
   }
 
   public void stop() {
@@ -83,7 +81,7 @@ public class PrivacyCluster {
     }
   }
 
-  public void stopNode(PantheonNode node) {
+  public void stopNode(final PantheonNode node) {
     pantheonNodeRunner.stopNode(node);
   }
 

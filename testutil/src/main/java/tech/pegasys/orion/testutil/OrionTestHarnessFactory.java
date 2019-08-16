@@ -26,15 +26,13 @@ import java.util.List;
 
 import com.google.common.io.CharSink;
 import com.google.common.io.Files;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 
 public class OrionTestHarnessFactory {
 
-  private static final Logger LOG = LogManager.getLogger();
-  protected static final String HOST = "127.0.0.1";
+  //  private static final Logger LOG = LogManager.getLogger();
+  //  protected static final String HOST = "127.0.0.1";
 
   public static OrionTestHarness create(
       final Path tempDir,

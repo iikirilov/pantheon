@@ -10,10 +10,11 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.tests.acceptance.dsl.condition.eea;
+package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction;
 
-import org.web3j.tx.Contract;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 
-public interface PrivateContractCondition {
-  void verify(final Contract contract);
+public interface PrivateCondition {
+
+  void verify(PrivacyNode node);
 }

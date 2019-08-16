@@ -12,8 +12,6 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract;
 
-import tech.pegasys.pantheon.tests.acceptance.dsl.condition.eea.ExpectValidPrivateContractDeployedReceipt;
-
 public class PrivateContractVerifier {
 
   public PrivateContractVerifier() {}

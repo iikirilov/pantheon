@@ -34,6 +34,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -73,28 +74,23 @@ public class PrivacyNode implements AutoCloseable {
             new ArrayList<>());
   }
 
-  public void testOrionConnection(final PrivacyNode... otherNodes) {
+  public void testOrionConnection(final List<PrivacyNode> otherNodes) {
     LOG.info(
         String.format(
             "Testing Enclave connectivity between %s (%s) and %s (%s)",
             pantheon.getName(),
             orion.nodeUrl(),
-            Arrays.toString(
-                Arrays.stream(otherNodes).map(node -> node.pantheon.getName()).toArray()),
-            Arrays.toString(
-                Arrays.stream(otherNodes).map(node -> node.orion.nodeUrl()).toArray())));
+            Arrays.toString(otherNodes.stream().map(node -> node.pantheon.getName()).toArray()),
+            Arrays.toString(otherNodes.stream().map(node -> node.orion.nodeUrl()).toArray())));
     Enclave orionEnclave = new Enclave(orion.clientUrl());
     SendRequest sendRequest1 =
         new SendRequestLegacy(
             "SGVsbG8sIFdvcmxkIQ==",
             orion.getDefaultPublicKey(),
-            Arrays.stream(otherNodes)
+            otherNodes.stream()
                 .map(node -> node.orion.getDefaultPublicKey())
                 .collect(Collectors.toList()));
-    waitFor(
-        () -> {
-          orionEnclave.send(sendRequest1);
-        });
+    waitFor(() -> orionEnclave.send(sendRequest1));
   }
 
   public void stop() {
@@ -127,7 +123,7 @@ public class PrivacyNode implements AutoCloseable {
     pantheon.start(runner);
   }
 
-  public void awaitPeerDiscovery(Condition condition) {
+  public void awaitPeerDiscovery(final Condition condition) {
     pantheon.awaitPeerDiscovery(condition);
   }
 
@@ -147,11 +143,11 @@ public class PrivacyNode implements AutoCloseable {
     return pantheon.getNodeId();
   }
 
-  public <T> T execute(Transaction<T> transaction) {
+  public <T> T execute(final Transaction<T> transaction) {
     return pantheon.execute(transaction);
   }
 
-  public void verify(Condition expected) {
+  public void verify(final Condition expected) {
     pantheon.verify(expected);
   }
 

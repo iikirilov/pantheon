@@ -41,7 +41,7 @@ public class PrivacyAccount {
     return enclavePrivateKeyPath;
   }
 
-  private String resolveEnclavePrivateKey(String enclaveKeyFilePath) {
+  private String resolveEnclavePrivateKey(final String enclaveKeyFilePath) {
     return enclaveKeyFilePath.substring(0, enclaveKeyFilePath.length() - 3) + "key";
   }
 }

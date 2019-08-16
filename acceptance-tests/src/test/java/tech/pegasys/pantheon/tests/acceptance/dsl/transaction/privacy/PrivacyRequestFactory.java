@@ -18,7 +18,7 @@ import org.web3j.protocol.pantheon.Pantheon;
 public class PrivacyRequestFactory {
   private final Pantheon pantheonClient;
 
-  public PrivacyRequestFactory(Web3jService web3jService) {
+  public PrivacyRequestFactory(final Web3jService web3jService) {
     this.pantheonClient = Pantheon.build(web3jService);
   }
 
