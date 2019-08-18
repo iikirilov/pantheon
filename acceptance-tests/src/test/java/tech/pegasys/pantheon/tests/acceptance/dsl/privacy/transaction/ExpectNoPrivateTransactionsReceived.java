@@ -15,7 +15,6 @@ package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.PrivacyTransactions;
 
 public class ExpectNoPrivateTransactionsReceived implements PrivateCondition {
   private PrivacyTransactions transactions;

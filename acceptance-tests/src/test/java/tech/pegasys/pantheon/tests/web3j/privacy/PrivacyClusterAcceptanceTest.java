@@ -12,15 +12,14 @@
  */
 package tech.pegasys.pantheon.tests.web3j.privacy;
 
-import tech.pegasys.pantheon.ethereum.core.TransactionReceipt;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyAcceptanceTestBase;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 import tech.pegasys.pantheon.tests.web3j.generated.EventEmitter;
 
+import java.math.BigInteger;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import java.math.BigInteger;
 
 public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
   //  private static final String CONTRACT_NAME = "Event Emmiter";
@@ -70,7 +69,7 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
 
     final EventEmitter eventEmitter =
         alice.execute(
-            privateContractTransactions.createSmartContract(
+            privateContractTransactions.createSmartContractWithPrivacyGroupId(
                 EventEmitter.class,
                 alice.getTransactionSigningKey(),
                 POW_CHAIN_ID,
@@ -78,22 +77,23 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
                 bob.getEnclaveKey()));
 
     privateContractVerifier
-            .validPrivateContractDeployed(contractAddress, alice.getAddress().toString())
-            .verify(eventEmitter);
+        .validPrivateContractDeployed(contractAddress, alice.getAddress().toString())
+        .verify(eventEmitter);
 
     String transactionHash = eventEmitter.store(BigInteger.ONE).send().getTransactionHash();
 
-    privateContractVerifier.validPrivateEventEmitted(1, isIndexed?, transactionHash).verify(BigInteger.ONE);
+    //    privateContractVerifier.validPrivateEventEmitted(1, isIndexed?,
+    // transactionHash).verify(BigInteger.ONE);
 
     final EventEmitter eventEmitter_1 =
-            bob.execute(
-                    privateContractTransactions.loadSmartContract(
-                            eventEmitter.getContractAddress(),
-                            EventEmitter.class,
-                            alice.getTransactionSigningKey(),
-                            POW_CHAIN_ID,
-                            alice.getEnclaveKey(),
-                            bob.getEnclaveKey()));
+        bob.execute(
+            privateContractTransactions.loadSmartContract(
+                eventEmitter.getContractAddress(),
+                EventEmitter.class,
+                alice.getTransactionSigningKey(),
+                POW_CHAIN_ID,
+                alice.getEnclaveKey(),
+                bob.getEnclaveKey()));
 
     eventEmitter_1.store(BigInteger.TEN);
 

@@ -67,6 +67,10 @@ public class PrivacyCluster {
     verifyAllOrionNetworkConnections();
   }
 
+  public List<PrivacyNode> getNodes() {
+    return nodes;
+  }
+
   /** Verify that each Orion node has connected to every other Orion */
   public void verifyAllOrionNetworkConnections() {
     for (int i = 0; i < nodes.size() - 1; i++) {

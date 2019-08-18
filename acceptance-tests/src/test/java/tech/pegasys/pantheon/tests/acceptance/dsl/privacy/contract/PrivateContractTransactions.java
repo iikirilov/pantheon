@@ -16,11 +16,22 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.web3j.tx.Contract;
-import tech.pegasys.pantheon.tests.web3j.generated.EventEmitter;
 
 public class PrivateContractTransactions {
 
-  public <T extends Contract> PrivateDeploySmartContractTransaction<T> createSmartContract(
+  public <T extends Contract>
+      DeployPrivateSmartContractWithPrivacyGroupIdTransaction<T>
+          createSmartContractWithPrivacyGroupId(
+              final Class<T> clazz,
+              final String transactionSigningKey,
+              final long chainId,
+              final String privateFrom,
+              final String privacyGroupId) {
+    return new DeployPrivateSmartContractWithPrivacyGroupIdTransaction<>(
+        clazz, transactionSigningKey, chainId, privateFrom, privacyGroupId);
+  }
+
+  public <T extends Contract> DeployPrivateSmartContractTransaction<T> createSmartContract(
       final Class<T> clazz,
       final String transactionSigningKey,
       final long chainId,
@@ -30,13 +41,13 @@ public class PrivateContractTransactions {
         clazz, transactionSigningKey, chainId, privateFrom, Arrays.asList(privateFor));
   }
 
-  public <T extends Contract> PrivateDeploySmartContractTransaction<T> createSmartContract(
+  public <T extends Contract> DeployPrivateSmartContractTransaction<T> createSmartContract(
       final Class<T> clazz,
       final String transactionSigningKey,
       final long chainId,
       final String privateFrom,
       final List<String> privateFor) {
-    return new PrivateDeploySmartContractTransaction<>(
+    return new DeployPrivateSmartContractTransaction<>(
         clazz, transactionSigningKey, chainId, privateFrom, privateFor);
   }
 
@@ -45,13 +56,30 @@ public class PrivateContractTransactions {
     return new PrivateCallSmartContractFunction(functionName, contractAddress);
   }
 
-  public <T extends Contract> PrivateLoadSmartContractTransaction<T> loadSmartContract(final String contractAddress, Class<T> clazz, String transactionSigningKey, long chainId, String privateFrom, String... privateFor) {
+  public <T extends Contract> PrivateLoadSmartContractTransaction<T> loadSmartContract(
+      final String contractAddress,
+      Class<T> clazz,
+      String transactionSigningKey,
+      long chainId,
+      String privateFrom,
+      String... privateFor) {
     return loadSmartContract(
-            contractAddress, clazz, transactionSigningKey, chainId, privateFrom, Arrays.asList(privateFor));
+        contractAddress,
+        clazz,
+        transactionSigningKey,
+        chainId,
+        privateFrom,
+        Arrays.asList(privateFor));
   }
 
-  private <T extends Contract> PrivateLoadSmartContractTransaction<T> loadSmartContract(final String contractAddress, Class<T> clazz, String transactionSigningKey, long chainId, String privateFrom, List<String> privateFor) {
+  private <T extends Contract> PrivateLoadSmartContractTransaction<T> loadSmartContract(
+      final String contractAddress,
+      Class<T> clazz,
+      String transactionSigningKey,
+      long chainId,
+      String privateFrom,
+      List<String> privateFor) {
     return new PrivateLoadSmartContractTransaction<>(
-            contractAddress, clazz, transactionSigningKey, chainId, privateFrom, privateFor);
+        contractAddress, clazz, transactionSigningKey, chainId, privateFrom, privateFor);
   }
 }

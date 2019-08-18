@@ -30,7 +30,7 @@ import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.PantheonPrivacyGasProvider;
 import org.web3j.utils.Base64String;
 
-public class PrivateDeploySmartContractTransaction<T extends Contract> implements Transaction<T> {
+public class DeployPrivateSmartContractTransaction<T extends Contract> implements Transaction<T> {
 
   private static PantheonPrivacyGasProvider GAS_POROVIDER =
       new PantheonPrivacyGasProvider(BigInteger.valueOf(1000));
@@ -42,7 +42,7 @@ public class PrivateDeploySmartContractTransaction<T extends Contract> implement
   private final Base64String privateFrom;
   private final List<Base64String> privateFor;
 
-  public PrivateDeploySmartContractTransaction(
+  public DeployPrivateSmartContractTransaction(
       final Class<T> clazz,
       final String transactionSigningKey,
       final long chainId,

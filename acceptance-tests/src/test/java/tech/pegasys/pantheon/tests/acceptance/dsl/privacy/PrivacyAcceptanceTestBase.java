@@ -17,8 +17,8 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.Pri
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.account.PrivacyAccountSupplier;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractTransactions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractVerifier;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivacyTransactions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivateTransactionVerifier;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.PrivacyTransactions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.PrivateTransactionBuilder;
 
 import org.junit.After;

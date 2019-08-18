@@ -12,8 +12,6 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction;
 
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.PrivacyTransactions;
-
 public class PrivateTransactionVerifier {
 
   private final PrivacyTransactions transactions;

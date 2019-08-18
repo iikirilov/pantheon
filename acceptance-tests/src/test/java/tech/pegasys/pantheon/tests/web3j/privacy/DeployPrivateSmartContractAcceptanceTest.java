@@ -12,12 +12,19 @@
  */
 package tech.pegasys.pantheon.tests.web3j.privacy;
 
+import org.web3j.utils.Base64String;
+import org.web3j.utils.PrivacyGroupUtils;
+import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyAcceptanceTestBase;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 import tech.pegasys.pantheon.tests.web3j.generated.EventEmitter;
 
 import org.junit.Before;
 import org.junit.Test;
+import tech.pegasys.pantheon.util.bytes.BytesValue;
+import tech.pegasys.pantheon.util.bytes.BytesValues;
+
+import java.util.Collections;
 
 public class DeployPrivateSmartContractAcceptanceTest extends PrivacyAcceptanceTestBase {
 
@@ -33,7 +40,6 @@ public class DeployPrivateSmartContractAcceptanceTest extends PrivacyAcceptanceT
 
   @Test
   public void deployingMustGiveValidReceipt() {
-    // Contract address is generated from sender address and transaction nonce
     final String contractAddress = "0x89ce396d0f9f937ddfa71113e29b2081c4869555";
 
     final EventEmitter eventEmitter =
