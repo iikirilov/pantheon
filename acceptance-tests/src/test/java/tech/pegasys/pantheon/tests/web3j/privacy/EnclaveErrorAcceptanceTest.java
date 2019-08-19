@@ -12,86 +12,74 @@
  */
 package tech.pegasys.pantheon.tests.web3j.privacy;
 
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcError;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyAcceptanceTestBase;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
+import tech.pegasys.pantheon.tests.web3j.generated.EventEmitter;
+
+import java.util.Base64;
+
+import net.consensys.cava.crypto.sodium.Box;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class EnclaveErrorAcceptanceTest extends PrivacyAcceptanceTestBase {
-  //  protected static final String CONTRACT_NAME = "Event Emitter";
-  //
-  //  private EventEmitterHarness eventEmitterHarness;
-  //  private PrivacyNet privacyNet;
-  //  private BytesValue wrongPublicKey;
-  //  private BytesValue privacyGroup;
-  //
-  //  @Before
-  //  public void setUp() throws Exception {
-  //    privacyNet =
-  //        PrivacyNet.builder(privacy, privacyPantheon, cluster,
-  // false).addMinerNode("Alice").build();
-  //    privacyNet.startPrivacyNet();
-  //    privacyGroup = generatePrivacyGroup(privacyNet, "Alice");
-  //    eventEmitterHarness =
-  //        new EventEmitterHarness(
-  //            privateTransactionBuilder,
-  //            privacyNet,
-  //            privateTransactions,
-  //            privateTransactionVerifier,
-  //                privacyConditions);
-  //    wrongPublicKey =
-  //        BytesValues.fromBase64(
-  //            Base64.getEncoder().encode(Box.KeyPair.random().publicKey().bytesArray()));
-  //  }
-  //
-  //  @Test
-  //  @SuppressWarnings("MissingFail")
-  //  public void enclaveNoMatchingPrivateKeyError() {
-  //
-  //    final String invalidDeploy =
-  //        PrivateTransactionBuilder.builder()
-  //            .nonce(privacyNet.getNode("Alice").nextNonce(privacyGroup))
-  //            .from(privacyNet.getNode("Alice").getAddress())
-  //            .privateFrom(wrongPublicKey)
-  //            .keyPair(privacyNet.getNode("Alice").pantheon.keyPair())
-  //            .build(TransactionType.CREATE_CONTRACT);
-  //
-  //    final Throwable thrown =
-  //        catchThrowable(
-  //            () ->
-  //                privacyNet
-  //                    .getNode("Alice")
-  //                    .execute(privateTransactions.createPrivateRawTransaction(invalidDeploy)));
-  //
-  //    assertThat(thrown)
-  //        .hasMessageContaining(JsonRpcError.ENCLAVE_NO_MATCHING_PRIVATE_KEY.getMessage());
-  //  }
-  //
-  //  @Test
-  //  @SuppressWarnings("MissingFail")
-  //  public void enclaveNoPeerUrlError() {
-  //
-  //    eventEmitterHarness.deploy(CONTRACT_NAME, "Alice");
-  //
-  //    final String invalidStore =
-  //        PrivateTransactionBuilder.builder()
-  //            .nonce(privacyNet.getNode("Alice").nextNonce(privacyGroup))
-  //            .from(privacyNet.getNode("Alice").getAddress())
-  //            .privateFrom(
-  //                BytesValues.fromBase64(privacyNet.getEnclave("Alice").getPublicKeys().get(0)))
-  //            .privateFor(Lists.newArrayList(wrongPublicKey))
-  //            .keyPair(privacyNet.getNode("Alice").pantheon.keyPair())
-  //            .build(TransactionType.CREATE_CONTRACT);
-  //
-  //    final Throwable thrown =
-  //        catchThrowable(
-  //            () ->
-  //                privacyNet
-  //                    .getNode("Alice")
-  //                    .execute(privateTransactions.createPrivateRawTransaction(invalidStore)));
-  //
-  //    assertThat(thrown).hasMessageContaining(JsonRpcError.NODE_MISSING_PEER_URL.getMessage());
-  //  }
-  //
-  //  @After
-  //  public void tearDown() {
-  //    privacyNet.stopPrivacyNet();
-  //  }
+
+  private PrivacyNode alice;
+  private PrivacyNode bob;
+  private PrivacyNode charlie;
+  private String wrongPublicKey;
+
+  @Before
+  public void setUp() throws Exception {
+    alice = privacyPantheon.createIbft2NodePrivacyEnabled("node1", privacyAccountSupplier.get());
+    bob = privacyPantheon.createIbft2NodePrivacyEnabled("node2", privacyAccountSupplier.get());
+    charlie = privacyPantheon.createIbft2NodePrivacyEnabled("node3", privacyAccountSupplier.get());
+    privacyCluster.start(alice, bob, charlie);
+
+    wrongPublicKey =
+        Base64.getEncoder().encodeToString(Box.KeyPair.random().publicKey().bytesArray());
+  }
+
+  @Test
+  public void aliceCannotSendTransactionFromBobNode() {
+    final Throwable throwable =
+        catchThrowable(
+            () ->
+                alice.execute(
+                    privateContractTransactions.createSmartContract(
+                        EventEmitter.class,
+                        alice.getTransactionSigningKey(),
+                        IBFT2_CHAIN_ID,
+                        wrongPublicKey,
+                        bob.getEnclaveKey())));
+
+    assertThat(throwable)
+        .hasMessageContaining(JsonRpcError.ENCLAVE_NO_MATCHING_PRIVATE_KEY.getMessage());
+  }
+
+  @Test
+  public void enclaveNoPeerUrlError() {
+    final Throwable throwable =
+        catchThrowable(
+            () ->
+                alice.execute(
+                    privateContractTransactions.createSmartContract(
+                        EventEmitter.class,
+                        alice.getTransactionSigningKey(),
+                        IBFT2_CHAIN_ID,
+                        alice.getEnclaveKey(),
+                        wrongPublicKey)));
+
+    assertThat(throwable).hasMessageContaining(JsonRpcError.NODE_MISSING_PEER_URL.getMessage());
+  }
+
+  @After
+  public void tearDown() {
+    super.tearDownAcceptanceTestBase();
+  }
 }

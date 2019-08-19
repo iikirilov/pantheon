@@ -12,10 +12,6 @@
  */
 package tech.pegasys.pantheon.tests.web3j.privacy;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-
-import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcError;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyAcceptanceTestBase;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 import tech.pegasys.pantheon.tests.web3j.generated.EventEmitter;
@@ -80,33 +76,6 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
         privateTransactionVerifier.validPrivateTransactionReceipt(
             transactionHash, expectedReceipt));
     charlie.verify(privateTransactionVerifier.noPrivateTransactionReceipt(transactionHash));
-  }
-
-  @Test
-  public void aliceCannotSendTransactionFromBobNode() {
-    final EventEmitter eventEmitter =
-        alice.execute(
-            privateContractTransactions.createSmartContract(
-                EventEmitter.class,
-                alice.getTransactionSigningKey(),
-                POW_CHAIN_ID,
-                alice.getEnclaveKey(),
-                bob.getEnclaveKey()));
-
-    final Throwable throwable =
-        catchThrowable(
-            () ->
-                bob.execute(
-                    privateContractTransactions.callSmartContract(
-                        eventEmitter.getContractAddress(),
-                        eventEmitter.store(BigInteger.ONE).encodeFunctionCall(),
-                        bob.getTransactionSigningKey(),
-                        POW_CHAIN_ID,
-                        alice.getEnclaveKey(), // wrong key
-                        bob.getEnclaveKey())));
-
-    assertThat(throwable.getMessage())
-        .contains(JsonRpcError.ENCLAVE_NO_MATCHING_PRIVATE_KEY.getMessage());
   }
 
   @Test
