@@ -19,7 +19,6 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContra
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractVerifier;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivacyTransactions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivateTransactionVerifier;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.eea.PrivateTransactionBuilder;
 
 import org.junit.After;
 import org.junit.ClassRule;
@@ -31,7 +30,6 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
   @ClassRule public static final TemporaryFolder privacy = new TemporaryFolder();
 
   protected final PrivacyTransactions privacyTransactions;
-  protected final PrivateTransactionBuilder.Builder privateTransactionBuilder;
   protected final PrivateContractVerifier privateContractVerifier;
   protected final PrivateTransactionVerifier privateTransactionVerifier;
   protected final PrivacyPantheonNodeFactory privacyPantheon;
@@ -42,7 +40,6 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
   public PrivacyAcceptanceTestBase() {
 
     privacyTransactions = new PrivacyTransactions();
-    privateTransactionBuilder = PrivateTransactionBuilder.builder();
     privateContractVerifier = new PrivateContractVerifier();
     privateTransactionVerifier = new PrivateTransactionVerifier(privacyTransactions);
     privacyPantheon = new PrivacyPantheonNodeFactory();
