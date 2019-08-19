@@ -12,6 +12,8 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction;
 
+import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
+
 public class PrivateTransactionVerifier {
 
   private final PrivacyTransactions transactions;
@@ -22,6 +24,17 @@ public class PrivateTransactionVerifier {
 
   public ExpectNoPrivateTransactionsReceived noPrivateTransactionsReceived() {
     return new ExpectNoPrivateTransactionsReceived(transactions);
+  }
+
+  public ExpectValidPrivateTransactionReceipt validPrivateTransactionReceipt(
+      final String aliceExecutionTransactionHash, final PrivateTransactionReceipt receipt) {
+    return new ExpectValidPrivateTransactionReceipt(
+        transactions, aliceExecutionTransactionHash, receipt);
+  }
+
+  public ExpectNoPrivateTransactionReceipt noPrivateTransactionReceipt(
+      final String transactionHash) {
+    return new ExpectNoPrivateTransactionReceipt(transactions, transactionHash);
   }
 
   //    public ExpectValidPrivateContractTransactionReceipt validPrivateTransactionReceipt() {

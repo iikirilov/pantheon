@@ -13,6 +13,9 @@
 package tech.pegasys.pantheon.tests.web3j.privacy;
 
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyAcceptanceTestBase;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
+
+import org.junit.Before;
 
 public class Ibft2PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
   //  private static final String CONTRACT_NAME = "Event Emmiter";
@@ -37,6 +40,18 @@ public class Ibft2PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase
   //            privateTransactionVerifier,
   //                privacyConditions);
   //  }
+
+  private PrivacyNode alice;
+  private PrivacyNode bob;
+  private PrivacyNode charlie;
+
+  @Before
+  public void setUp() throws Exception {
+    alice = privacyPantheon.createIbft2NodePrivacyEnabled("node1", privacyAccountSupplier.get());
+    bob = privacyPantheon.createIbft2NodePrivacyEnabled("node2", privacyAccountSupplier.get());
+    charlie = privacyPantheon.createIbft2NodePrivacyEnabled("node3", privacyAccountSupplier.get());
+    privacyCluster.start(alice, bob, charlie);
+  }
   //
   //  @Test
   //  public void node2CanSeeContract() {

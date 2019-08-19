@@ -19,26 +19,30 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 
 import java.io.IOException;
 
-import org.web3j.protocol.eea.response.EeaGetTransactionReceipt;
 import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
+import org.web3j.protocol.exceptions.TransactionException;
+import org.web3j.protocol.pantheon.Pantheon;
+import org.web3j.tx.response.PollingPrivateTransactionReceiptProcessor;
 
 public class EeaGetTransactionReceiptTransaction implements Transaction<PrivateTransactionReceipt> {
 
-  private final String txHash;
+  private final String transactionHash;
 
-  public EeaGetTransactionReceiptTransaction(final String txHash) {
-    this.txHash = txHash;
+  public EeaGetTransactionReceiptTransaction(final String transactionHash) {
+    this.transactionHash = transactionHash;
   }
 
   @Override
   public PrivateTransactionReceipt execute(final NodeRequests node) {
+    final Pantheon pantheon = node.privacy().getPantheonClient();
+    final PollingPrivateTransactionReceiptProcessor receiptProcessor =
+        new PollingPrivateTransactionReceiptProcessor(pantheon, 3, 3);
     try {
-      final EeaGetTransactionReceipt result =
-          node.privacy().getPantheonClient().eeaGetTransactionReceipt(txHash).send();
+      final PrivateTransactionReceipt result =
+          receiptProcessor.waitForTransactionReceipt(transactionHash);
       assertThat(result).isNotNull();
-      assertThat(result.hasError()).isFalse();
-      return result.getResult();
-    } catch (IOException e) {
+      return result;
+    } catch (IOException | TransactionException e) {
       return null;
     }
   }

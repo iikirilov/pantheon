@@ -51,9 +51,31 @@ public class PrivateContractTransactions {
         clazz, transactionSigningKey, chainId, privateFrom, privateFor);
   }
 
-  public PrivateCallSmartContractFunction callSmartContract(
-      final String functionName, final String contractAddress) {
-    return new PrivateCallSmartContractFunction(functionName, contractAddress);
+  public CallPrivateSmartContractFunction callSmartContract(
+      final String contractAddress,
+      final String encodedFunction,
+      final String transactionSigningKey,
+      final long chainId,
+      final String privateFrom,
+      final String... privateFor) {
+    return callSmartContract(
+        contractAddress,
+        encodedFunction,
+        transactionSigningKey,
+        chainId,
+        privateFrom,
+        Arrays.asList(privateFor));
+  }
+
+  public CallPrivateSmartContractFunction callSmartContract(
+      final String contractAddress,
+      final String encodedFunction,
+      final String transactionSigningKey,
+      final long chainId,
+      final String privateFrom,
+      final List<String> privateFor) {
+    return new CallPrivateSmartContractFunction(
+        contractAddress, encodedFunction, transactionSigningKey, chainId, privateFrom, privateFor);
   }
 
   public <T extends Contract> PrivateLoadSmartContractTransaction<T> loadSmartContract(

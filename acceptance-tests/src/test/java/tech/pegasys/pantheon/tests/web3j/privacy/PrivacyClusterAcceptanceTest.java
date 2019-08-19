@@ -20,31 +20,9 @@ import java.math.BigInteger;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
 
 public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
-  //  private static final String CONTRACT_NAME = "Event Emmiter";
-  //
-  //  private EventEmitterHarness eventEmitterHarness;
-  //  private PrivacyNet privacyNet;
-  //
-  //  @Before
-  //  public void setUp() throws Exception {
-  //    privacyNet =
-  //        PrivacyNet.builder(privacy, privacyPantheon, cluster, false)
-  //            .addMinerNode("Alice")
-  //            .addMinerNode("Bob")
-  //            .addMinerNode("Charlie")
-  //            .build();
-  //    privacyNet.startPrivacyNet();
-  //    eventEmitterHarness =
-  //        new EventEmitterHarness(
-  //            privateTransactionBuilder,
-  //            privacyNet,
-  //            privateTransactions,
-  //            privateTransactionVerifier,
-  //                privacyConditions);
-  //  }
-  //
 
   private PrivacyNode alice;
   private PrivacyNode bob;
@@ -63,7 +41,7 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
   }
 
   @Test
-  public void onlyAliceAndBobCanExecuteContract() throws Exception {
+  public void onlyAliceAndBobCanExecuteContract() {
     // Contract address is generated from sender address and transaction nonce
     final String contractAddress = "0xebf56429e6500e84442467292183d4d621359838";
 
@@ -80,24 +58,23 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
         .validPrivateContractDeployed(contractAddress, alice.getAddress().toString())
         .verify(eventEmitter);
 
-    String transactionHash = eventEmitter.store(BigInteger.ONE).send().getTransactionHash();
-
-    //    privateContractVerifier.validPrivateEventEmitted(1, isIndexed?,
-    // transactionHash).verify(BigInteger.ONE);
-
-    final EventEmitter eventEmitter_1 =
-        bob.execute(
-            privateContractTransactions.loadSmartContract(
-                eventEmitter.getContractAddress(),
-                EventEmitter.class,
+    final String transactionHash =
+        alice.execute(
+            privateContractTransactions.callSmartContract(
+                contractAddress,
+                eventEmitter.store(BigInteger.ONE).encodeFunctionCall(),
                 alice.getTransactionSigningKey(),
                 POW_CHAIN_ID,
                 alice.getEnclaveKey(),
                 bob.getEnclaveKey()));
 
-    eventEmitter_1.store(BigInteger.TEN);
+    final PrivateTransactionReceipt expectedReceipt =
+        alice.execute(privacyTransactions.getPrivateTransactionReceipt(transactionHash));
 
-    privateTransactionVerifier.noPrivateTransactionsReceived().verify(charlie);
+    privateTransactionVerifier
+        .validPrivateTransactionReceipt(transactionHash, expectedReceipt)
+        .verify(bob);
+    privateTransactionVerifier.noPrivateTransactionReceipt(transactionHash).verify(charlie);
   }
   //
   //  @Test
