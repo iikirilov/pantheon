@@ -27,6 +27,7 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNodeRunner;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.NodeConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfiguration;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivateCondition;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 
 import java.io.IOException;
@@ -90,7 +91,14 @@ public class PrivacyNode implements AutoCloseable {
             otherNodes.stream()
                 .map(node -> node.orion.getDefaultPublicKey())
                 .collect(Collectors.toList()));
-    waitFor(() -> orionEnclave.send(sendRequest1));
+    waitFor(
+        () -> {
+          try {
+            orionEnclave.send(sendRequest1);
+          } catch (final Throwable e) {
+            // do nothing
+          }
+        });
   }
 
   public void stop() {
@@ -149,6 +157,10 @@ public class PrivacyNode implements AutoCloseable {
 
   public void verify(final Condition expected) {
     pantheon.verify(expected);
+  }
+
+  public void verify(final PrivateCondition expected) {
+    expected.verify(this);
   }
 
   public String getEnclaveKey() {

@@ -55,6 +55,7 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
   @Override
   public void tearDownAcceptanceTestBase() {
     privacyCluster.close();
+    privacyAccountSupplier.reset();
     super.tearDownAcceptanceTestBase();
   }
 }

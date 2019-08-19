@@ -12,29 +12,25 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.condition.eea;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static tech.pegasys.pantheon.tests.acceptance.dsl.WaitUtils.waitFor;
-
-import tech.pegasys.pantheon.tests.acceptance.dsl.condition.Condition;
-import tech.pegasys.pantheon.tests.acceptance.dsl.node.Node;
-
-import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
-
-public class ExpectSuccessfulEeaGetTransactionReceipt implements Condition {
-
-  private final EeaGetTransactionReceiptTransaction transaction;
-
-  public ExpectSuccessfulEeaGetTransactionReceipt(
-      final EeaGetTransactionReceiptTransaction transaction) {
-    this.transaction = transaction;
-  }
-
-  @Override
-  public void verify(final Node node) {
-    waitFor(
-        () -> {
-          final PrivateTransactionReceipt response = node.execute(transaction);
-          assertThat(response.getContractAddress()).isNotEqualTo("0x");
-        });
-  }
-}
+// import static org.assertj.core.api.Assertions.assertThat;
+//
+// import tech.pegasys.pantheon.tests.acceptance.dsl.condition.Condition;
+// import tech.pegasys.pantheon.tests.acceptance.dsl.node.Node;
+//
+// import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
+//
+// public class ExpectSuccessfulEeaGetTransactionReceipt implements Condition {
+//
+//  private final EeaGetTransactionReceiptTransaction transaction;
+//
+//  public ExpectSuccessfulEeaGetTransactionReceipt(
+//      final EeaGetTransactionReceiptTransaction transaction) {
+//    this.transaction = transaction;
+//  }
+//
+//  @Override
+//  public void verify(final Node node) {
+//    final PrivateTransactionReceipt response = node.execute(transaction);
+//    assertThat(response.getContractAddress()).isNotEqualTo("0x");
+//  }
+// }

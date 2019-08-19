@@ -12,12 +12,17 @@
  */
 package tech.pegasys.pantheon.tests.web3j.privacy;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcError;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyAcceptanceTestBase;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 import tech.pegasys.pantheon.tests.web3j.generated.EventEmitter;
 
 import java.math.BigInteger;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
@@ -47,7 +52,7 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
 
     final EventEmitter eventEmitter =
         alice.execute(
-            privateContractTransactions.createSmartContractWithPrivacyGroupId(
+            privateContractTransactions.createSmartContract(
                 EventEmitter.class,
                 alice.getTransactionSigningKey(),
                 POW_CHAIN_ID,
@@ -61,7 +66,7 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
     final String transactionHash =
         alice.execute(
             privateContractTransactions.callSmartContract(
-                contractAddress,
+                eventEmitter.getContractAddress(),
                 eventEmitter.store(BigInteger.ONE).encodeFunctionCall(),
                 alice.getTransactionSigningKey(),
                 POW_CHAIN_ID,
@@ -71,81 +76,158 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
     final PrivateTransactionReceipt expectedReceipt =
         alice.execute(privacyTransactions.getPrivateTransactionReceipt(transactionHash));
 
-    privateTransactionVerifier
-        .validPrivateTransactionReceipt(transactionHash, expectedReceipt)
-        .verify(bob);
-    privateTransactionVerifier.noPrivateTransactionReceipt(transactionHash).verify(charlie);
+    bob.verify(
+        privateTransactionVerifier.validPrivateTransactionReceipt(
+            transactionHash, expectedReceipt));
+    charlie.verify(privateTransactionVerifier.noPrivateTransactionReceipt(transactionHash));
   }
-  //
-  //  @Test
-  //  public void node2CanSeePrivateTransactionReceipt() {
-  //    eventEmitterHarness.deploy(CONTRACT_NAME, "Alice", "Bob");
-  //    eventEmitterHarness.store(CONTRACT_NAME, "Bob", "Alice");
-  //    eventEmitterHarness.get(CONTRACT_NAME, "Bob", "Alice");
-  //  }
-  //
-  //  @Test(expected = RuntimeException.class)
-  //  public void node2ExpectError() {
-  //    eventEmitterHarness.deploy(CONTRACT_NAME, "Alice", "Bob");
-  //
-  //    String invalidStoreValueFromNode2 =
-  //        PrivateTransactionBuilder.builder()
-  //            .nonce(0)
-  //            .from(privacyNet.getNode("Bob").getAddress())
-  //
-  // .to(Address.fromHexString(eventEmitterHarness.resolveContractAddress(CONTRACT_NAME)))
-  //            .privateFrom(
-  //                BytesValue.wrap(
-  //                    privacyNet
-  //                        .getEnclave("Alice")
-  //                        .getPublicKeys()
-  //                        .get(0)
-  //                        .getBytes(UTF_8))) // wrong public key
-  //            .privateFor(
-  //                Lists.newArrayList(
-  //                    BytesValue.wrap(
-  //                        privacyNet.getEnclave("Bob").getPublicKeys().get(0).getBytes(UTF_8))))
-  //            .keyPair(privacyNet.getNode("Bob").pantheon.keyPair())
-  //            .build(TransactionType.STORE);
-  //
-  //    privacyNet
-  //        .getNode("Bob")
-  //        .execute(privateTransactions.createPrivateRawTransaction(invalidStoreValueFromNode2));
-  //  }
-  //
-  //  @Test
-  //  public void node1CanDeployMultipleTimes() {
-  //
-  //    eventEmitterHarness.deploy(CONTRACT_NAME, "Alice", "Bob");
-  //    eventEmitterHarness.store(CONTRACT_NAME, "Bob", "Alice");
-  //
-  //    final String secondContract = "Event Emitter 2";
-  //
-  //    eventEmitterHarness.deploy(secondContract, "Alice", "Bob");
-  //    eventEmitterHarness.store(secondContract, "Bob", "Alice");
-  //  }
-  //
-  //  @Test
-  //  public void node1CanInteractWithMultiplePrivacyGroups() {
-  //
-  //    eventEmitterHarness.deploy(CONTRACT_NAME, "Alice", "Bob", "Charlie");
-  //    eventEmitterHarness.store(CONTRACT_NAME, "Alice", "Bob", "Charlie");
-  //
-  //    final String secondContract = "Event Emitter 2";
-  //
-  //    eventEmitterHarness.store(
-  //        secondContract,
-  //        privateTransactionVerifier.noValidEventReturned(),
-  //        privateTransactionVerifier.noValidEventReturned(),
-  //        "Alice",
-  //        "Bob");
-  //    eventEmitterHarness.deploy(secondContract, "Alice", "Bob");
-  //    eventEmitterHarness.store(secondContract, "Alice", "Bob");
-  //    eventEmitterHarness.get(secondContract, "Alice", "Bob");
-  //  }
-  //
-  //  @After
-  //  public void tearDown() {
-  //    privacyNet.stopPrivacyNet();
-  //  }
+
+  @Test
+  public void aliceCannotSendTransactionFromBobNode() {
+    final EventEmitter eventEmitter =
+        alice.execute(
+            privateContractTransactions.createSmartContract(
+                EventEmitter.class,
+                alice.getTransactionSigningKey(),
+                POW_CHAIN_ID,
+                alice.getEnclaveKey(),
+                bob.getEnclaveKey()));
+
+    final Throwable throwable =
+        catchThrowable(
+            () ->
+                bob.execute(
+                    privateContractTransactions.callSmartContract(
+                        eventEmitter.getContractAddress(),
+                        eventEmitter.store(BigInteger.ONE).encodeFunctionCall(),
+                        bob.getTransactionSigningKey(),
+                        POW_CHAIN_ID,
+                        alice.getEnclaveKey(), // wrong key
+                        bob.getEnclaveKey())));
+
+    assertThat(throwable.getMessage())
+        .contains(JsonRpcError.ENCLAVE_NO_MATCHING_PRIVATE_KEY.getMessage());
+  }
+
+  @Test
+  public void aliceCanDeployMultipleTimesInSingleGroup() {
+    final String firstDeployedAddress = "0xebf56429e6500e84442467292183d4d621359838";
+
+    final EventEmitter firstEventEmitter =
+        alice.execute(
+            privateContractTransactions.createSmartContract(
+                EventEmitter.class,
+                alice.getTransactionSigningKey(),
+                POW_CHAIN_ID,
+                alice.getEnclaveKey(),
+                bob.getEnclaveKey()));
+
+    privateContractVerifier
+        .validPrivateContractDeployed(firstDeployedAddress, alice.getAddress().toString())
+        .verify(firstEventEmitter);
+
+    final String secondDeployedAddress = "0x10f807f8a905da5bd319196da7523c6bd768690f";
+
+    final EventEmitter secondEventEmitter =
+        alice.execute(
+            privateContractTransactions.createSmartContract(
+                EventEmitter.class,
+                alice.getTransactionSigningKey(),
+                POW_CHAIN_ID,
+                alice.getEnclaveKey(),
+                bob.getEnclaveKey()));
+
+    privateContractVerifier
+        .validPrivateContractDeployed(secondDeployedAddress, alice.getAddress().toString())
+        .verify(secondEventEmitter);
+  }
+
+  @Test
+  public void canInteractWithMultiplePrivacyGroups() {
+    // alice deploys contract
+    final String firstDeployedAddress = "0xff206d21150a8da5b83629d8a722f3135ed532b1";
+
+    final EventEmitter firstEventEmitter =
+        alice.execute(
+            privateContractTransactions.createSmartContract(
+                EventEmitter.class,
+                alice.getTransactionSigningKey(),
+                POW_CHAIN_ID,
+                alice.getEnclaveKey(),
+                bob.getEnclaveKey(),
+                charlie.getEnclaveKey()));
+
+    privateContractVerifier
+        .validPrivateContractDeployed(firstDeployedAddress, alice.getAddress().toString())
+        .verify(firstEventEmitter);
+
+    // charlie interacts with contract
+    final String firstTransactionHash =
+        charlie.execute(
+            privateContractTransactions.callSmartContract(
+                firstEventEmitter.getContractAddress(),
+                firstEventEmitter.store(BigInteger.ONE).encodeFunctionCall(),
+                charlie.getTransactionSigningKey(),
+                POW_CHAIN_ID,
+                charlie.getEnclaveKey(),
+                alice.getEnclaveKey(),
+                bob.getEnclaveKey()));
+
+    // alice gets receipt from charlie's interaction
+    final PrivateTransactionReceipt firstExpectedReceipt =
+        alice.execute(privacyTransactions.getPrivateTransactionReceipt(firstTransactionHash));
+
+    // verify bob and charlie have access to the same receipt
+    bob.verify(
+        privateTransactionVerifier.validPrivateTransactionReceipt(
+            firstTransactionHash, firstExpectedReceipt));
+    charlie.verify(
+        privateTransactionVerifier.validPrivateTransactionReceipt(
+            firstTransactionHash, firstExpectedReceipt));
+
+    // alice deploys second contract
+    final String secondDeployedAddress = "0x10fa1c5c7bc964b3529b021d5288b1dade907313";
+
+    final EventEmitter secondEventEmitter =
+        alice.execute(
+            privateContractTransactions.createSmartContract(
+                EventEmitter.class,
+                alice.getTransactionSigningKey(),
+                POW_CHAIN_ID,
+                alice.getEnclaveKey(),
+                bob.getEnclaveKey(),
+                charlie.getEnclaveKey()));
+
+    privateContractVerifier
+        .validPrivateContractDeployed(secondDeployedAddress, alice.getAddress().toString())
+        .verify(secondEventEmitter);
+
+    // bob interacts with contract
+    final String secondTransactionHash =
+        bob.execute(
+            privateContractTransactions.callSmartContract(
+                secondEventEmitter.getContractAddress(),
+                secondEventEmitter.store(BigInteger.ONE).encodeFunctionCall(),
+                bob.getTransactionSigningKey(),
+                POW_CHAIN_ID,
+                bob.getEnclaveKey(),
+                alice.getEnclaveKey()));
+
+    // alice gets receipt from bob's interaction
+    final PrivateTransactionReceipt secondExpectedReceipt =
+        alice.execute(privacyTransactions.getPrivateTransactionReceipt(secondTransactionHash));
+
+    bob.verify(
+        privateTransactionVerifier.validPrivateTransactionReceipt(
+            secondTransactionHash, secondExpectedReceipt));
+
+    // charlie cannot see the receipt
+    charlie.verify(privateTransactionVerifier.noPrivateTransactionReceipt(secondTransactionHash));
+  }
+
+  @After
+  @Override
+  public void tearDownAcceptanceTestBase() {
+    super.tearDownAcceptanceTestBase();
+  }
 }

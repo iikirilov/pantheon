@@ -39,4 +39,8 @@ public class PrivacyAccountSupplier implements Supplier<PrivacyAccount> {
         throw new RuntimeException("The are only 3 know privacy accounts");
     }
   }
+
+  public void reset() {
+    counter = -1;
+  }
 }
