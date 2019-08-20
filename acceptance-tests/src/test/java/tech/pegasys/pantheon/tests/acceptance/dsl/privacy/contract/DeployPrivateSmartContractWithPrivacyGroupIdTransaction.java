@@ -32,17 +32,17 @@ import org.web3j.utils.Base64String;
 public class DeployPrivateSmartContractWithPrivacyGroupIdTransaction<T extends Contract>
     implements Transaction<T> {
 
-  private static PantheonPrivacyGasProvider GAS_POROVIDER =
+  private static PantheonPrivacyGasProvider GAS_PROVIDER =
       new PantheonPrivacyGasProvider(BigInteger.valueOf(1000));
   private static final Object METHOD_IS_STATIC = null;
 
-  private final Class clazz;
+  private final Class<T> clazz;
   private final Credentials senderCredentials;
   private final long chainId;
   private final Base64String privateFrom;
   private final Base64String privacyGroupId;
 
-  public <T extends Contract> DeployPrivateSmartContractWithPrivacyGroupIdTransaction(
+  public DeployPrivateSmartContractWithPrivacyGroupIdTransaction(
       Class<T> clazz,
       String transactionSigningKey,
       long chainId,
@@ -60,7 +60,7 @@ public class DeployPrivateSmartContractWithPrivacyGroupIdTransaction<T extends C
     final PrivateTransactionManager privateTransactionManager =
         new PantheonPrivateTransactionManager(
             node.privacy().getPantheonClient(),
-            GAS_POROVIDER,
+                GAS_PROVIDER,
             senderCredentials,
             chainId,
             privateFrom,
@@ -75,7 +75,7 @@ public class DeployPrivateSmartContractWithPrivacyGroupIdTransaction<T extends C
               METHOD_IS_STATIC,
               node.privacy().getPantheonClient(),
               privateTransactionManager,
-              GAS_POROVIDER);
+                  GAS_PROVIDER);
 
       return cast(invoked).send();
     } catch (final Exception e) {

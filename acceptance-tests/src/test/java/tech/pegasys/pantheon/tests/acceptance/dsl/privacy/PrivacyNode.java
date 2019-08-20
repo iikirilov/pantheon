@@ -155,10 +155,6 @@ public class PrivacyNode implements AutoCloseable {
     return pantheon.execute(transaction);
   }
 
-  public void verify(final Condition expected) {
-    pantheon.verify(expected);
-  }
-
   public void verify(final PrivateCondition expected) {
     expected.verify(this);
   }
