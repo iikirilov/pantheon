@@ -13,18 +13,8 @@
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction;
 
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
-import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.priv.PrivGetTransactionCountTransaction;
 
 public class PrivacyTransactions {
-
-  public EeaGetTransactionReceiptTransaction getTransactionReceipt(final String transactionHash) {
-    return new EeaGetTransactionReceiptTransaction(transactionHash);
-  }
-
-  public PrivGetTransactionCountTransaction getTransactionCount(
-      final String address, final String privacyGroupId) {
-    return new PrivGetTransactionCountTransaction(address, privacyGroupId);
-  }
 
   public EeaGetTransactionReceiptTransaction getPrivateTransactionReceipt(
       final String transactionHash) {
