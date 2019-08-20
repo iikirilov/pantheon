@@ -10,9 +10,9 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy.eea;
+package tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.methods.priv;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -21,8 +21,8 @@ import tech.pegasys.pantheon.enclave.Enclave;
 import tech.pegasys.pantheon.enclave.types.PrivacyGroup;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.JsonRpcRequest;
-import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy.priv.PrivCreatePrivacyGroup;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.parameters.JsonRpcParameter;
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.parameters.CreatePrivacyGroupParameter;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcSuccessResponse;
 
 import org.junit.Test;
@@ -41,20 +41,23 @@ public class PrivCreatePrivacyGroupTest {
         "A1aVtMxLCUHmBVHXoZzzBgPbW/wj5axDpW9X8l91SGo=",
         "Ko2bVqD+nNlNYL5EE7y3IdOnviftjiizpjRt+HTuFBs="
       };
-  private final String privacyGroupId =
-      "68/Cq0mVjB8FbXDLE1tbDRAvD/srluIok137uFOaClPU/dLFW34ovZebW+PTzy9wUawTXw==";
 
   @Test
   public void verifyCreatePrivacyGroup() throws Exception {
+    final String expected = "eBh8PRQYrZWK7T1uOIwtZWXFYaG1/MVhg+EBse8SxCU=";
     final PrivacyGroup privacyGroup =
-        new PrivacyGroup(privacyGroupId, PrivacyGroup.Type.PANTHEON, name, description, addresses);
+        new PrivacyGroup(expected, PrivacyGroup.Type.PANTHEON, name, description, addresses);
     when(enclave.createPrivacyGroup(any())).thenReturn(privacyGroup);
     when(privacyParameters.getEnclavePublicKey()).thenReturn(from);
 
     final PrivCreatePrivacyGroup eeaCreatePrivacyGroup =
         new PrivCreatePrivacyGroup(enclave, privacyParameters, parameters);
 
-    final Object[] params = new Object[] {addresses, name, description};
+    final CreatePrivacyGroupParameter param =
+        new CreatePrivacyGroupParameter(addresses, name, description);
+
+    final Object[] params = new Object[] {param};
+
     final JsonRpcRequest request = new JsonRpcRequest("1", "priv_createPrivacyGroup", params);
 
     final JsonRpcSuccessResponse response =
@@ -62,6 +65,6 @@ public class PrivCreatePrivacyGroupTest {
 
     final String result = (String) response.getResult();
 
-    assertEquals(privacyGroupId, result);
+    assertThat(result).isEqualTo(expected);
   }
 }
