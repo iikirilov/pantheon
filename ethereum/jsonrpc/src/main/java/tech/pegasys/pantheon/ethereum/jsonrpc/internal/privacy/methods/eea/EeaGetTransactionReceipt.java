@@ -102,8 +102,7 @@ public class EeaGetTransactionReceipt implements JsonRpcMethod {
       privacyGroupId = receiveResponse.getPrivacyGroupId();
     } catch (Exception e) {
       LOG.error("Failed to fetch transaction from Enclave with error " + e.getMessage());
-      return new JsonRpcSuccessResponse(
-          request.getId(), JsonRpcError.PRIVATE_TRANSACTION_RECEIPT_ERROR);
+      return new JsonRpcSuccessResponse(request.getId(), null);
     }
 
     final String contractAddress =
