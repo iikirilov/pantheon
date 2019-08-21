@@ -33,7 +33,7 @@ public class PrivCreatePrivacyGroupTransactionWithoutName implements Transaction
   @Override
   public String execute(final NodeRequests node) {
     try {
-      PrivRequestFactory.PrivCreatePrivacyGroupResponse result =
+      final PrivRequestFactory.PrivCreatePrivacyGroupResponse result =
           node.priv().privCreatePrivacyGroupWithoutName(addresses, description).send();
       assertThat(result).isNotNull();
       return result.getResult();
