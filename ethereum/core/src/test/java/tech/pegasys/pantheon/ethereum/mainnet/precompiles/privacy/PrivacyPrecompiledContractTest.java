@@ -20,6 +20,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import tech.pegasys.pantheon.enclave.Enclave;
+import tech.pegasys.pantheon.enclave.types.PushToHistoryRequest;
 import tech.pegasys.pantheon.enclave.EnclaveException;
 import tech.pegasys.pantheon.enclave.types.ReceiveRequest;
 import tech.pegasys.pantheon.enclave.types.ReceiveResponse;
@@ -80,6 +81,7 @@ public class PrivacyPrecompiledContractTest {
     Enclave mockEnclave = mock(Enclave.class);
     ReceiveResponse response = new ReceiveResponse(VALID_PRIVATE_TRANSACTION_RLP_BASE64, "");
     when(mockEnclave.receive(any(ReceiveRequest.class))).thenReturn(response);
+    when(mockEnclave.pushToHistory(any(PushToHistoryRequest.class))).thenReturn(true);
     return mockEnclave;
   }
 

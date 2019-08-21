@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkState;
 import tech.pegasys.pantheon.ethereum.chain.Blockchain;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.Gas;
+import tech.pegasys.pantheon.ethereum.core.Hash;
 import tech.pegasys.pantheon.ethereum.core.Log;
 import tech.pegasys.pantheon.ethereum.core.LogSeries;
 import tech.pegasys.pantheon.ethereum.core.ProcessableBlockHeader;
@@ -204,6 +205,7 @@ public class MessageFrame {
   private final Set<Address> selfDestructs;
 
   // Execution Environment fields.
+  private final Hash transactionHash;
   private final Address recipient;
   private final Address originator;
   private final Address contract;
@@ -237,6 +239,7 @@ public class MessageFrame {
       final Deque<MessageFrame> messageFrameStack,
       final WorldUpdater worldState,
       final Gas initialGas,
+      final Hash transactionHash,
       final Address recipient,
       final Address originator,
       final Address contract,
@@ -261,6 +264,7 @@ public class MessageFrame {
     this.messageFrameStack = messageFrameStack;
     this.worldState = worldState;
     this.gasRemaining = initialGas;
+    this.transactionHash = transactionHash;
     this.blockHashLookup = blockHashLookup;
     this.maxStackSize = maxStackSize;
     this.pc = 0;
@@ -718,6 +722,15 @@ public class MessageFrame {
   }
 
   /**
+   * Returns the transaction hash of the transaction being processed
+   *
+   * @return the transaction hash of the transaction being processed
+   */
+  public Hash getTransactionHash() {
+    return transactionHash;
+  }
+
+  /**
    * Returns the recipient account recipient
    *
    * @return the callee account recipient
@@ -861,6 +874,7 @@ public class MessageFrame {
     private Deque<MessageFrame> messageFrameStack;
     private WorldUpdater worldState;
     private Gas initialGas;
+    private Hash transactionHash;
     private Address address;
     private Address originator;
     private Address contract;
@@ -903,6 +917,11 @@ public class MessageFrame {
 
     public Builder initialGas(final Gas initialGas) {
       this.initialGas = initialGas;
+      return this;
+    }
+
+    public Builder transactionHash(final Hash transactionHash) {
+      this.transactionHash = transactionHash;
       return this;
     }
 
@@ -1008,6 +1027,7 @@ public class MessageFrame {
       checkState(messageFrameStack != null, "Missing message frame message frame stack");
       checkState(worldState != null, "Missing message frame world state");
       checkState(initialGas != null, "Missing message frame initial getGasRemaining");
+      checkState(transactionHash != null, "Missing message frame transactionHash");
       checkState(address != null, "Missing message frame recipient");
       checkState(originator != null, "Missing message frame originator");
       checkState(contract != null, "Missing message frame contract");
@@ -1035,6 +1055,7 @@ public class MessageFrame {
           messageFrameStack,
           worldState,
           initialGas,
+          transactionHash,
           address,
           originator,
           contract,

@@ -15,6 +15,7 @@ package tech.pegasys.pantheon.ethereum.mainnet.precompiles.privacy;
 import static tech.pegasys.pantheon.crypto.Hash.keccak256;
 
 import tech.pegasys.pantheon.enclave.Enclave;
+import tech.pegasys.pantheon.enclave.types.PushToHistoryRequest;
 import tech.pegasys.pantheon.enclave.types.ReceiveRequest;
 import tech.pegasys.pantheon.enclave.types.ReceiveResponse;
 import tech.pegasys.pantheon.ethereum.core.Gas;
@@ -144,6 +145,22 @@ public class PrivacyPrecompiledContract extends AbstractPrecompiledContract {
           "Persisting private state {} for privacyGroup {}",
           disposablePrivateState.rootHash(),
           privacyGroupId);
+
+      try {
+        enclave.pushToHistory(
+            new PushToHistoryRequest(
+                BytesValues.asBase64String(privacyGroupId),
+                messageFrame.getTransactionHash().toString(),
+                key));
+      } catch (Exception e) {
+        LOG.error(
+            "Enclave failed to push processed transaction {} to Orion {}.",
+            messageFrame.getTransactionHash().toString(),
+            key,
+            e);
+        return BytesValue.EMPTY;
+      }
+
       privateWorldStateUpdater.commit();
       disposablePrivateState.persist();
 

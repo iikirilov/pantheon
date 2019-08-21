@@ -38,6 +38,7 @@ public class MessageFrameTestFixture {
   private Optional<Blockchain> blockchain = Optional.empty();
   private Optional<WorldUpdater> worldState = Optional.empty();
   private Gas initialGas = Gas.MAX_VALUE;
+  private Hash transactionHash = Hash.EMPTY;
   private Address address = DEFAUT_ADDRESS;
   private Address sender = DEFAUT_ADDRESS;
   private Address originator = DEFAUT_ADDRESS;
@@ -91,6 +92,11 @@ public class MessageFrameTestFixture {
 
   public MessageFrameTestFixture sender(final Address sender) {
     this.sender = sender;
+    return this;
+  }
+
+  public MessageFrameTestFixture transactionHash(final Hash transactionHash) {
+    this.transactionHash = transactionHash;
     return this;
   }
 
@@ -165,6 +171,7 @@ public class MessageFrameTestFixture {
             .blockchain(blockchain)
             .worldState(worldState.orElseGet(this::createDefaultWorldState))
             .initialGas(initialGas)
+            .transactionHash(transactionHash)
             .address(address)
             .originator(originator)
             .gasPrice(gasPrice)

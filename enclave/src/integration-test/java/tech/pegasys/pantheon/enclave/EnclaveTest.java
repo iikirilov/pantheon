@@ -23,6 +23,7 @@ import tech.pegasys.pantheon.enclave.types.CreatePrivacyGroupRequest;
 import tech.pegasys.pantheon.enclave.types.DeletePrivacyGroupRequest;
 import tech.pegasys.pantheon.enclave.types.FindPrivacyGroupRequest;
 import tech.pegasys.pantheon.enclave.types.PrivacyGroup;
+import tech.pegasys.pantheon.enclave.types.PushToHistoryRequest;
 import tech.pegasys.pantheon.enclave.types.ReceiveRequest;
 import tech.pegasys.pantheon.enclave.types.ReceiveResponse;
 import tech.pegasys.pantheon.enclave.types.SendRequestLegacy;
@@ -162,6 +163,33 @@ public class EnclaveTest {
     findPrivacyGroupResponse = enclave.findPrivacyGroup(findPrivacyGroupRequest);
 
     assertThat(findPrivacyGroupResponse.length).isEqualTo(0);
+  }
+
+  @Test
+  public void testPushToHistory() throws Exception {
+    final List<String> publicKeys = testHarness.getPublicKeys();
+    final String name = "testName";
+    final String description = "testDesc";
+    final CreatePrivacyGroupRequest privacyGroupRequest =
+        new CreatePrivacyGroupRequest(
+            publicKeys.toArray(new String[0]), publicKeys.get(0), name, description);
+
+    final PrivacyGroup privacyGroupResponse = enclave.createPrivacyGroup(privacyGroupRequest);
+
+    final SendResponse sendResponse =
+        enclave.send(
+            new SendRequestLegacy(
+                PAYLOAD, publicKeys.get(0), Lists.newArrayList(publicKeys.get(0))));
+
+    final boolean pushResponse =
+        enclave.pushToHistory(
+            new PushToHistoryRequest(
+                privacyGroupResponse.getPrivacyGroupId(),
+                "0x35d862d86c294932cd6561ec5c061747b093a48138082eaad7175da0ea83feab",
+                sendResponse.getKey()));
+
+    assertThat(pushResponse).isNotNull();
+    assertThat(pushResponse).isTrue();
   }
 
   @Test
