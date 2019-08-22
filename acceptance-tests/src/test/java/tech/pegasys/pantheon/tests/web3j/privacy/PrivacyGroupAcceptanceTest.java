@@ -54,7 +54,7 @@ public class PrivacyGroupAcceptanceTest extends PrivacyAcceptanceTestBase {
         alice.execute(privacyTransactions.findPrivacyGroup(alice, bob));
 
     assertThat(privacyGroups.size()).isEqualTo(1);
-    assertThat(privacyGroups.get(0).getPrivacyGroupId()).isEqualTo(privacyGroupId);
+    assertThat(privacyGroups.get(0).getPrivacyGroupId().toString()).isEqualTo(privacyGroupId);
     assertThat(privacyGroups.get(0).getName()).isEqualTo("myGroupName");
     assertThat(privacyGroups.get(0).getDescription()).isEqualTo("my group description");
     assertThat(privacyGroups.get(0).getMembers().size()).isEqualTo(2);
@@ -72,7 +72,7 @@ public class PrivacyGroupAcceptanceTest extends PrivacyAcceptanceTestBase {
         alice.execute(privacyTransactions.findPrivacyGroup(alice, bob));
 
     assertThat(privacyGroups.size()).isEqualTo(1);
-    assertThat(privacyGroups.get(0).getPrivacyGroupId()).isEqualTo(privacyGroupId);
+    assertThat(privacyGroups.get(0).getPrivacyGroupId().toString()).isEqualTo(privacyGroupId);
     assertThat(privacyGroups.get(0).getName()).isEqualTo("Default Name");
     assertThat(privacyGroups.get(0).getDescription()).isEqualTo("my group description");
     assertThat(privacyGroups.get(0).getMembers().size()).isEqualTo(2);
@@ -89,7 +89,7 @@ public class PrivacyGroupAcceptanceTest extends PrivacyAcceptanceTestBase {
         alice.execute(privacyTransactions.findPrivacyGroup(alice, bob));
 
     assertThat(privacyGroups.size()).isEqualTo(1);
-    assertThat(privacyGroups.get(0).getPrivacyGroupId()).isEqualTo(privacyGroupId);
+    assertThat(privacyGroups.get(0).getPrivacyGroupId().toString()).isEqualTo(privacyGroupId);
     assertThat(privacyGroups.get(0).getName()).isEqualTo("myGroupName");
     assertThat(privacyGroups.get(0).getDescription()).isEqualTo("Default Description");
     assertThat(privacyGroups.get(0).getMembers().size()).isEqualTo(2);
@@ -106,7 +106,7 @@ public class PrivacyGroupAcceptanceTest extends PrivacyAcceptanceTestBase {
         alice.execute(privacyTransactions.findPrivacyGroup(alice, bob));
 
     assertThat(privacyGroups.size()).isEqualTo(1);
-    assertThat(privacyGroups.get(0).getPrivacyGroupId()).isEqualTo(privacyGroupId);
+    assertThat(privacyGroups.get(0).getPrivacyGroupId().toString()).isEqualTo(privacyGroupId);
     assertThat(privacyGroups.get(0).getName()).isEqualTo("Default Name");
     assertThat(privacyGroups.get(0).getDescription()).isEqualTo("Default Description");
     assertThat(privacyGroups.get(0).getMembers().size()).isEqualTo(2);
