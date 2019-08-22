@@ -13,6 +13,7 @@
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction;
 
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition.EeaGetTransactionReceiptTransaction;
 
 public class PrivacyTransactions {
 
@@ -21,11 +22,12 @@ public class PrivacyTransactions {
     return new EeaGetTransactionReceiptTransaction(transactionHash);
   }
 
-  public GetAllPrivacyMarkerTransactionHashes getPrivateTransactions() {
-    return new GetAllPrivacyMarkerTransactionHashes();
+  public CreatePrivacyGroupTransaction createPrivacyGroup(
+      final String name, final String description, final PrivacyNode... nodes) {
+    return new CreatePrivacyGroupTransaction(name, description, nodes);
   }
 
-  public CreatePrivacyGroup createPrivacyGroup(final PrivacyNode... nodes) {
-    return new CreatePrivacyGroup(nodes);
+  public FindPrivacyGroupTransaction findPrivacyGroup(final PrivacyNode... nodes) {
+    return new FindPrivacyGroupTransaction(nodes);
   }
 }

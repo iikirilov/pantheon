@@ -24,10 +24,15 @@ import java.util.stream.Collectors;
 import org.web3j.protocol.pantheon.Pantheon;
 import org.web3j.utils.Base64String;
 
-public class CreatePrivacyGroup implements Transaction<String> {
+public class CreatePrivacyGroupTransaction implements Transaction<String> {
+  private final String name;
+  private final String description;
   private final List<Base64String> addresses;
 
-  public CreatePrivacyGroup(final PrivacyNode... nodes) {
+  public CreatePrivacyGroupTransaction(
+      final String name, final String description, final PrivacyNode... nodes) {
+    this.name = name;
+    this.description = description;
     this.addresses =
         Arrays.stream(nodes)
             .map(n -> Base64String.wrap(n.orion.getDefaultPublicKey()))
@@ -39,7 +44,7 @@ public class CreatePrivacyGroup implements Transaction<String> {
     final Pantheon pantheon = node.privacy().getPantheonClient();
     try {
       return pantheon
-          .privCreatePrivacyGroup(addresses, null, null)
+          .privCreatePrivacyGroup(addresses, name, description)
           .send()
           .getPrivacyGroupId()
           .toString();

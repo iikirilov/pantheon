@@ -10,27 +10,33 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction;
+package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 
-public class ExpectNoPrivateTransactionsReceived implements PrivateCondition {
-  private PrivacyTransactions transactions;
+import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivacyTransactions;
 
-  public ExpectNoPrivateTransactionsReceived(final PrivacyTransactions transactions) {
+public class ExpectValidPrivateTransactionReceipt implements PrivateCondition {
+  private final PrivacyTransactions transactions;
+  private final String transactionHash;
+  private final PrivateTransactionReceipt receipt;
+
+  public ExpectValidPrivateTransactionReceipt(
+      final PrivacyTransactions transactions,
+      final String transactionHash,
+      final PrivateTransactionReceipt receipt) {
+
     this.transactions = transactions;
+    this.transactionHash = transactionHash;
+    this.receipt = receipt;
   }
 
   @Override
   public void verify(final PrivacyNode node) {
-    node.execute(transactions.getPrivateTransactions())
-        .forEach(
-            transactionHash ->
-                assertThat(
-                        node.execute(transactions.getPrivateTransactionReceipt(transactionHash))
-                            .getFrom())
-                    .isNull());
+    assertThat(node.execute(transactions.getPrivateTransactionReceipt(transactionHash)))
+        .isEqualTo(receipt);
   }
 }

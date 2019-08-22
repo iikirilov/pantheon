@@ -12,38 +12,37 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.NodeRequests;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
-import org.web3j.protocol.exceptions.TransactionException;
 import org.web3j.protocol.pantheon.Pantheon;
-import org.web3j.tx.response.PollingPrivateTransactionReceiptProcessor;
+import org.web3j.protocol.pantheon.response.privacy.PrivacyGroup;
+import org.web3j.utils.Base64String;
 
-public class EeaGetTransactionReceiptTransaction implements Transaction<PrivateTransactionReceipt> {
+public class FindPrivacyGroupTransaction implements Transaction<List<PrivacyGroup>> {
+  private List<Base64String> nodes;
 
-  private final String transactionHash;
+  public FindPrivacyGroupTransaction(final PrivacyNode... nodes) {
 
-  public EeaGetTransactionReceiptTransaction(final String transactionHash) {
-    this.transactionHash = transactionHash;
+    this.nodes =
+        Arrays.stream(nodes)
+            .map(n -> Base64String.wrap(n.orion.getDefaultPublicKey()))
+            .collect(Collectors.toList());
   }
 
   @Override
-  public PrivateTransactionReceipt execute(final NodeRequests node) {
+  public List<PrivacyGroup> execute(final NodeRequests node) {
     final Pantheon pantheon = node.privacy().getPantheonClient();
-    final PollingPrivateTransactionReceiptProcessor receiptProcessor =
-        new PollingPrivateTransactionReceiptProcessor(pantheon, 3, 3);
     try {
-      final PrivateTransactionReceipt result =
-          receiptProcessor.waitForTransactionReceipt(transactionHash);
-      assertThat(result).isNotNull();
-      return result;
-    } catch (IOException | TransactionException e) {
-      return null;
+      return pantheon.privFindPrivacyGroup(nodes).send().getGroups();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 }

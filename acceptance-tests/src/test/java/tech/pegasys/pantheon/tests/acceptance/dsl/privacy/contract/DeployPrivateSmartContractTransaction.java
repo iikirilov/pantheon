@@ -60,7 +60,7 @@ public class DeployPrivateSmartContractTransaction<T extends Contract> implement
     final PrivateTransactionManager privateTransactionManager =
         new LegacyPrivateTransactionManager(
             node.privacy().getPantheonClient(),
-                GAS_PROVIDER,
+            GAS_PROVIDER,
             senderCredentials,
             chainId,
             privateFrom,
@@ -75,7 +75,7 @@ public class DeployPrivateSmartContractTransaction<T extends Contract> implement
               METHOD_IS_STATIC,
               node.privacy().getPantheonClient(),
               privateTransactionManager,
-                  GAS_PROVIDER);
+              GAS_PROVIDER);
 
       return cast(invoked).send();
     } catch (final Exception e) {

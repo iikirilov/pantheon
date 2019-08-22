@@ -27,7 +27,7 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNodeRunner;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.NodeConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfiguration;
-import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivateCondition;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition.PrivateCondition;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 
 import java.io.IOException;

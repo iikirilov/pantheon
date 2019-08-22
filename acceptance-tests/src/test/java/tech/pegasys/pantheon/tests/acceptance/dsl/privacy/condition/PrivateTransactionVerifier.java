@@ -10,9 +10,10 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction;
+package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition;
 
 import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivacyTransactions;
 
 public class PrivateTransactionVerifier {
 
@@ -20,10 +21,6 @@ public class PrivateTransactionVerifier {
 
   public PrivateTransactionVerifier(final PrivacyTransactions transactions) {
     this.transactions = transactions;
-  }
-
-  public ExpectNoPrivateTransactionsReceived noPrivateTransactionsReceived() {
-    return new ExpectNoPrivateTransactionsReceived(transactions);
   }
 
   public ExpectValidPrivateTransactionReceipt validPrivateTransactionReceipt(
