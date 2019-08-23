@@ -31,15 +31,13 @@ public class EnclaveErrorAcceptanceTest extends PrivacyAcceptanceTestBase {
 
   private PrivacyNode alice;
   private PrivacyNode bob;
-  private PrivacyNode charlie;
   private String wrongPublicKey;
 
   @Before
   public void setUp() throws Exception {
     alice = privacyPantheon.createIbft2NodePrivacyEnabled("node1", privacyAccountSupplier.get());
     bob = privacyPantheon.createIbft2NodePrivacyEnabled("node2", privacyAccountSupplier.get());
-    charlie = privacyPantheon.createIbft2NodePrivacyEnabled("node3", privacyAccountSupplier.get());
-    privacyCluster.start(alice, bob, charlie);
+    privacyCluster.start(alice, bob);
 
     wrongPublicKey =
         Base64.getEncoder().encodeToString(Box.KeyPair.random().publicKey().bytesArray());
