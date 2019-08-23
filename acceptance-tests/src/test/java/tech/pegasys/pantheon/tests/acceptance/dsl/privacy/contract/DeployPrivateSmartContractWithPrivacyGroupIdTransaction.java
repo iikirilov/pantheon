@@ -43,11 +43,11 @@ public class DeployPrivateSmartContractWithPrivacyGroupIdTransaction<T extends C
   private final Base64String privacyGroupId;
 
   public DeployPrivateSmartContractWithPrivacyGroupIdTransaction(
-      Class<T> clazz,
-      String transactionSigningKey,
-      long chainId,
-      String privateFrom,
-      String privacyGroupId) {
+      final Class<T> clazz,
+      final String transactionSigningKey,
+      final long chainId,
+      final String privateFrom,
+      final String privacyGroupId) {
     this.clazz = clazz;
     this.senderCredentials = Credentials.create(transactionSigningKey);
     this.chainId = chainId;

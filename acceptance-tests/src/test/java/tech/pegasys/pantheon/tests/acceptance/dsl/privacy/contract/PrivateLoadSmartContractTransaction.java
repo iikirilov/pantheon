@@ -59,7 +59,7 @@ public class PrivateLoadSmartContractTransaction<T extends Contract> implements 
 
   @SuppressWarnings("unchecked")
   @Override
-  public T execute(NodeRequests node) {
+  public T execute(final NodeRequests node) {
     final PrivateTransactionManager privateTransactionManager =
         new LegacyPrivateTransactionManager(
             node.privacy().getPantheonClient(),

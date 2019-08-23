@@ -80,11 +80,11 @@ public class PrivateContractTransactions {
 
   public <T extends Contract> PrivateLoadSmartContractTransaction<T> loadSmartContract(
       final String contractAddress,
-      Class<T> clazz,
-      String transactionSigningKey,
-      long chainId,
-      String privateFrom,
-      String... privateFor) {
+      final Class<T> clazz,
+      final String transactionSigningKey,
+      final long chainId,
+      final String privateFrom,
+      final String... privateFor) {
     return loadSmartContract(
         contractAddress,
         clazz,
@@ -96,11 +96,11 @@ public class PrivateContractTransactions {
 
   private <T extends Contract> PrivateLoadSmartContractTransaction<T> loadSmartContract(
       final String contractAddress,
-      Class<T> clazz,
-      String transactionSigningKey,
-      long chainId,
-      String privateFrom,
-      List<String> privateFor) {
+      final Class<T> clazz,
+      final String transactionSigningKey,
+      final long chainId,
+      final String privateFrom,
+      final List<String> privateFor) {
     return new PrivateLoadSmartContractTransaction<>(
         contractAddress, clazz, transactionSigningKey, chainId, privateFrom, privateFor);
   }
