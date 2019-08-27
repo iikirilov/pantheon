@@ -13,17 +13,22 @@
 package tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.parameters;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CreatePrivacyGroupParameter {
 
   private final String[] addresses;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private final String name;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private final String description;
 
   @JsonCreator
   public CreatePrivacyGroupParameter(
-      @JsonProperty("addresses") final String[] addresses,
+      @JsonProperty(value = "addresses", required = true) final String[] addresses,
       @JsonProperty("name") final String name,
       @JsonProperty("description") final String description) {
     this.addresses = addresses;

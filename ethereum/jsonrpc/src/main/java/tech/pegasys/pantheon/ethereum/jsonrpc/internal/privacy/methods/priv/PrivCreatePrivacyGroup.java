@@ -24,6 +24,7 @@ import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.JsonRpcMethod;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.parameters.JsonRpcParameter;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.parameters.CreatePrivacyGroupParameter;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcError;
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcErrorResponse;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcResponse;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcSuccessResponse;
 
@@ -72,9 +73,7 @@ public class PrivCreatePrivacyGroup implements JsonRpcMethod {
     try {
       response = enclave.createPrivacyGroup(createPrivacyGroupRequest);
     } catch (Exception e) {
-      LOG.error("Failed to fetch transaction from Enclave with error " + e.getMessage());
-      LOG.error(e);
-      return new JsonRpcSuccessResponse(request.getId(), JsonRpcError.CREATE_PRIVACY_GROUP_ERROR);
+      return new JsonRpcErrorResponse(request.getId(), JsonRpcError.CREATE_PRIVACY_GROUP_ERROR);
     }
     return new JsonRpcSuccessResponse(request.getId(), response.getPrivacyGroupId());
   }
