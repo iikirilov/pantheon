@@ -46,13 +46,13 @@ public class PrivCreatePrivacyGroupTest {
   private final JsonRpcParameter parameters = new JsonRpcParameter();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(brokenEnclave.createPrivacyGroup(any(CreatePrivacyGroupRequest.class)))
         .thenThrow(new Exception());
   }
 
   @Test
-  public void verifyCreatePrivacyGroup() throws Exception {
+  public void verifyCreatePrivacyGroup() {
     final String expected = "a wonderful group";
     final PrivacyGroup privacyGroup =
         new PrivacyGroup(expected, PrivacyGroup.Type.PANTHEON, NAME, DESCRIPTION, ADDRESSES);
@@ -78,7 +78,7 @@ public class PrivCreatePrivacyGroupTest {
   }
 
   @Test
-  public void verifyCreatePrivacyGroupWithoutDescription() throws Exception {
+  public void verifyCreatePrivacyGroupWithoutDescription() {
 
     final String expected = "a wonderful group";
     final PrivacyGroup privacyGroup =

@@ -94,10 +94,10 @@ import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.permissioning.Per
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.permissioning.PermReloadPermissionsFromFile;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.permissioning.PermRemoveAccountsFromWhitelist;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.permissioning.PermRemoveNodesFromWhitelist;
-import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy.eea.EeaGetTransactionCount;
-import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.privacy.eea.EeaPrivateNonceProvider;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.parameters.JsonRpcParameter;
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.methods.eea.EeaGetTransactionCount;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.methods.eea.EeaGetTransactionReceipt;
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.methods.eea.EeaPrivateNonceProvider;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.methods.eea.EeaSendRawTransaction;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.methods.priv.PrivCreatePrivacyGroup;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.methods.priv.PrivDeletePrivacyGroup;
