@@ -50,7 +50,7 @@ public class PrivCreatePrivacyGroupTest {
     when(enclave.createPrivacyGroup(any())).thenReturn(privacyGroup);
     when(privacyParameters.getEnclavePublicKey()).thenReturn(from);
 
-    final PrivCreatePrivacyGroup eeaCreatePrivacyGroup =
+    final PrivCreatePrivacyGroup privCreatePrivacyGroup =
         new PrivCreatePrivacyGroup(enclave, privacyParameters, parameters);
 
     final CreatePrivacyGroupParameter param =
@@ -61,7 +61,7 @@ public class PrivCreatePrivacyGroupTest {
     final JsonRpcRequest request = new JsonRpcRequest("1", "priv_createPrivacyGroup", params);
 
     final JsonRpcSuccessResponse response =
-        (JsonRpcSuccessResponse) eeaCreatePrivacyGroup.response(request);
+        (JsonRpcSuccessResponse) privCreatePrivacyGroup.response(request);
 
     final String result = (String) response.getResult();
 
