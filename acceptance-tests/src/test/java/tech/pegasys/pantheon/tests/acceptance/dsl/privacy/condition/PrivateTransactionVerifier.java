@@ -12,8 +12,9 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition;
 
-import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivacyTransactions;
+
+import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
 
 public class PrivateTransactionVerifier {
 

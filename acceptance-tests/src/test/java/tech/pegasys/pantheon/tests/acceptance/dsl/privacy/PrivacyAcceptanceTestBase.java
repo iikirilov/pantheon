@@ -15,10 +15,10 @@ package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 import tech.pegasys.pantheon.tests.acceptance.dsl.AcceptanceTestBase;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyPantheonNodeFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.account.PrivacyAccountSupplier;
-import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractTransactions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition.PrivateContractVerifier;
-import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivacyTransactions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition.PrivateTransactionVerifier;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractTransactions;
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivacyTransactions;
 
 import org.junit.After;
 import org.junit.ClassRule;
