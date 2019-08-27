@@ -93,15 +93,12 @@ public class PrivCreatePrivacyGroupTest {
     final Object[] params =
         new Object[] {
           new Object() {
-            private final String[] addresses = ADDRESSES;
-            private final String name = NAME;
-
             public String[] getAddresses() {
-              return addresses;
+              return ADDRESSES;
             }
 
             public String getName() {
-              return name;
+              return NAME;
             }
           }
         };
@@ -117,7 +114,7 @@ public class PrivCreatePrivacyGroupTest {
   }
 
   @Test
-  public void verifyCreatePrivacyGroupWithoutName() throws Exception {
+  public void verifyCreatePrivacyGroupWithoutName() {
 
     final String expected = "a wonderful group";
     final PrivacyGroup privacyGroup =
@@ -131,15 +128,12 @@ public class PrivCreatePrivacyGroupTest {
     final Object[] params =
         new Object[] {
           new Object() {
-            private final String[] addresses = ADDRESSES;
-            private final String description = DESCRIPTION;
-
             public String[] getAddresses() {
-              return addresses;
+              return ADDRESSES;
             }
 
             public String getDescription() {
-              return description;
+              return DESCRIPTION;
             }
           }
         };
@@ -155,7 +149,7 @@ public class PrivCreatePrivacyGroupTest {
   }
 
   @Test
-  public void verifyCreatePrivacyGroupWithoutOptionalParams() throws Exception {
+  public void verifyCreatePrivacyGroupWithoutOptionalParams() {
 
     final String expected = "a wonderful group";
     final PrivacyGroup privacyGroup =
@@ -169,10 +163,8 @@ public class PrivCreatePrivacyGroupTest {
     final Object[] params =
         new Object[] {
           new Object() {
-            private final String[] addresses = PrivCreatePrivacyGroupTest.ADDRESSES;
-
             public String[] getAddresses() {
-              return addresses;
+              return ADDRESSES;
             }
           }
         };
@@ -188,7 +180,7 @@ public class PrivCreatePrivacyGroupTest {
   }
 
   @Test
-  public void returnsCorrectExceptionInvalidParam() throws Exception {
+  public void returnsCorrectExceptionInvalidParam() {
 
     final String expected = "a wonderful group";
     final PrivacyGroup privacyGroup =
@@ -202,15 +194,12 @@ public class PrivCreatePrivacyGroupTest {
     final Object[] params =
         new Object[] {
           new Object() {
-            private final String name = NAME;
-            private final String description = DESCRIPTION;
-
             public String getName() {
-              return name;
+              return NAME;
             }
 
             public String getDescription() {
-              return description;
+              return DESCRIPTION;
             }
           }
         };
