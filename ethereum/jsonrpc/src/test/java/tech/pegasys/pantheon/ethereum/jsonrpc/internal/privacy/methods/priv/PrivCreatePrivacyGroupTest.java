@@ -33,18 +33,18 @@ public class PrivCreatePrivacyGroupTest {
   private final PrivacyParameters privacyParameters = mock(PrivacyParameters.class);
   private final JsonRpcParameter parameters = new JsonRpcParameter();
 
-  private final String from = "A1aVtMxLCUHmBVHXoZzzBgPbW/wj5axDpW9X8l91SGo=";
+  private final String from = "first participant";
   private final String name = "testName";
   private final String description = "testDesc";
   private final String[] addresses =
       new String[] {
-        "A1aVtMxLCUHmBVHXoZzzBgPbW/wj5axDpW9X8l91SGo=",
-        "Ko2bVqD+nNlNYL5EE7y3IdOnviftjiizpjRt+HTuFBs="
+        from,
+        "second participant"
       };
 
   @Test
   public void verifyCreatePrivacyGroup() throws Exception {
-    final String expected = "eBh8PRQYrZWK7T1uOIwtZWXFYaG1/MVhg+EBse8SxCU=";
+    final String expected = "a wonderful group";
     final PrivacyGroup privacyGroup =
         new PrivacyGroup(expected, PrivacyGroup.Type.PANTHEON, name, description, addresses);
     when(enclave.createPrivacyGroup(any())).thenReturn(privacyGroup);
