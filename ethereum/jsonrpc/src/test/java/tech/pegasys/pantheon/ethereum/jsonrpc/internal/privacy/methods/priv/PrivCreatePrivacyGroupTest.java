@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import tech.pegasys.pantheon.enclave.Enclave;
+import tech.pegasys.pantheon.enclave.EnclaveException;
 import tech.pegasys.pantheon.enclave.types.CreatePrivacyGroupRequest;
 import tech.pegasys.pantheon.enclave.types.PrivacyGroup;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
@@ -48,7 +49,7 @@ public class PrivCreatePrivacyGroupTest {
   @Before
   public void setUp() {
     when(brokenEnclave.createPrivacyGroup(any(CreatePrivacyGroupRequest.class)))
-        .thenThrow(new Exception());
+        .thenThrow(new EnclaveException(""));
   }
 
   @Test
