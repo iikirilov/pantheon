@@ -18,6 +18,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import tech.pegasys.pantheon.enclave.Enclave;
+import tech.pegasys.pantheon.enclave.types.CreatePrivacyGroupRequest;
 import tech.pegasys.pantheon.enclave.types.PrivacyGroup;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.JsonRpcRequest;
@@ -36,18 +37,14 @@ public class PrivCreatePrivacyGroupTest {
   private final String from = "first participant";
   private final String name = "testName";
   private final String description = "testDesc";
-  private final String[] addresses =
-      new String[] {
-        from,
-        "second participant"
-      };
+  private final String[] addresses = new String[] {from, "second participant"};
 
   @Test
   public void verifyCreatePrivacyGroup() throws Exception {
     final String expected = "a wonderful group";
     final PrivacyGroup privacyGroup =
         new PrivacyGroup(expected, PrivacyGroup.Type.PANTHEON, name, description, addresses);
-    when(enclave.createPrivacyGroup(any())).thenReturn(privacyGroup);
+    when(enclave.createPrivacyGroup(any(CreatePrivacyGroupRequest.class))).thenReturn(privacyGroup);
     when(privacyParameters.getEnclavePublicKey()).thenReturn(from);
 
     final PrivCreatePrivacyGroup privCreatePrivacyGroup =
