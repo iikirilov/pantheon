@@ -41,14 +41,13 @@ public class EthSignerAcceptanceTest extends PrivacyAcceptanceTestBase {
         PrivacyNet.builder(privacy, privacyPantheon, cluster, false).addMinerNode("Alice").build();
     privacyNet.startPrivacyNet();
 
-    final EthSignerTestHarness ethsigner =
+    final EthSignerTestHarness ethSigner =
         EthSignerTestHarnessFactory.create(
             privacy.newFolder().toPath(),
             "ethSignerKey--fe3b557e8fb62b89f4916b721be55ceb828dbd73.json",
-            privacyNet.getNode("Alice").getJsonRpcSocketPort().orElse(8545),
-            23606,
+            privacyNet.getNode("Alice").getJsonRpcSocketPort().orElseThrow(),
             2018);
-    ethSignerClient = new EthSignerClient(ethsigner.getHttpListeningUrl());
+    ethSignerClient = new EthSignerClient(ethSigner.getHttpListeningUrl());
   }
 
   @Test
