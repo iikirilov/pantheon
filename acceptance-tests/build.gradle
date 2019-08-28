@@ -37,6 +37,7 @@ dependencies {
   testImplementation project(':testutil')
   testImplementation project(':util')
 
+  testImplementation 'com.github.tomakehurst:wiremock-jre8'
   testImplementation 'com.google.guava:guava'
   testImplementation 'com.squareup.okhttp3:okhttp'
   testImplementation 'info.picocli:picocli'
