@@ -151,7 +151,7 @@ public class Ibft2PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase
             firstTransactionHash, firstExpectedReceipt));
 
     // alice deploys second contract
-    final String secondDeployedAddress = "0x10fa1c5c7bc964b3529b021d5288b1dade907313";
+    final String secondDeployedAddress = "0xebf56429e6500e84442467292183d4d621359838";
 
     final EventEmitter secondEventEmitter =
         alice.execute(
@@ -160,8 +160,7 @@ public class Ibft2PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase
                 alice.getTransactionSigningKey(),
                 IBFT2_CHAIN_ID,
                 alice.getEnclaveKey(),
-                bob.getEnclaveKey(),
-                charlie.getEnclaveKey()));
+                bob.getEnclaveKey()));
 
     privateContractVerifier
         .validPrivateContractDeployed(secondDeployedAddress, alice.getAddress().toString())
