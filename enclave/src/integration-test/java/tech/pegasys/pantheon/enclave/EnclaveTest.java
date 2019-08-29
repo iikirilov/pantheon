@@ -92,12 +92,12 @@ public class EnclaveTest {
     final CreatePrivacyGroupRequest privacyGroupRequest =
         new CreatePrivacyGroupRequest(publicKeys.toArray(new String[0]), publicKeys.get(0), "", "");
 
-    final PrivacyGroup privacyGroupResponse = enclave.createPrivacyGroup(privacyGroupRequest);
+    final PrivacyGroup privacyGroup = enclave.createPrivacyGroup(privacyGroupRequest);
 
     final SendResponse sr =
         enclave.send(
             new SendRequestPantheon(
-                PAYLOAD, publicKeys.get(0), privacyGroupResponse.getPrivacyGroupId()));
+                PAYLOAD, publicKeys.get(0), privacyGroup.getPrivacyGroupId()));
     final ReceiveResponse rr = enclave.receive(new ReceiveRequest(sr.getKey(), publicKeys.get(0)));
     assertThat(rr).isNotNull();
     assertThat(new String(rr.getPayload(), UTF_8)).isEqualTo(PAYLOAD);
@@ -113,19 +113,19 @@ public class EnclaveTest {
         new CreatePrivacyGroupRequest(
             publicKeys.toArray(new String[0]), publicKeys.get(0), name, description);
 
-    final PrivacyGroup privacyGroupResponse = enclave.createPrivacyGroup(privacyGroupRequest);
+    final PrivacyGroup privacyGroup = enclave.createPrivacyGroup(privacyGroupRequest);
 
-    assertThat(privacyGroupResponse.getPrivacyGroupId()).isNotNull();
-    assertThat(privacyGroupResponse.getName()).isEqualTo(name);
-    assertThat(privacyGroupResponse.getDescription()).isEqualTo(description);
-    assertThat(privacyGroupResponse.getType()).isEqualByComparingTo(PrivacyGroup.Type.PANTHEON);
+    assertThat(privacyGroup.getPrivacyGroupId()).isNotNull();
+    assertThat(privacyGroup.getName()).isEqualTo(name);
+    assertThat(privacyGroup.getDescription()).isEqualTo(description);
+    assertThat(privacyGroup.getType()).isEqualByComparingTo(PrivacyGroup.Type.PANTHEON);
 
     final String response =
         enclave.deletePrivacyGroup(
             new DeletePrivacyGroupRequest(
-                privacyGroupResponse.getPrivacyGroupId(), publicKeys.get(0)));
+                privacyGroup.getPrivacyGroupId(), publicKeys.get(0)));
 
-    assertThat(privacyGroupResponse.getPrivacyGroupId()).isEqualTo(response);
+    assertThat(privacyGroup.getPrivacyGroupId()).isEqualTo(response);
   }
 
   @Test
@@ -137,32 +137,32 @@ public class EnclaveTest {
         new CreatePrivacyGroupRequest(
             publicKeys.toArray(new String[0]), publicKeys.get(0), name, description);
 
-    PrivacyGroup privacyGroupResponse = enclave.createPrivacyGroup(privacyGroupRequest);
+    PrivacyGroup privacyGroup = enclave.createPrivacyGroup(privacyGroupRequest);
 
-    assertThat(privacyGroupResponse.getPrivacyGroupId()).isNotNull();
-    assertThat(privacyGroupResponse.getName()).isEqualTo(name);
-    assertThat(privacyGroupResponse.getDescription()).isEqualTo(description);
-    assertThat(privacyGroupResponse.getType()).isEqualTo(PrivacyGroup.Type.PANTHEON);
+    assertThat(privacyGroup.getPrivacyGroupId()).isNotNull();
+    assertThat(privacyGroup.getName()).isEqualTo(name);
+    assertThat(privacyGroup.getDescription()).isEqualTo(description);
+    assertThat(privacyGroup.getType()).isEqualTo(PrivacyGroup.Type.PANTHEON);
 
     FindPrivacyGroupRequest findPrivacyGroupRequest =
         new FindPrivacyGroupRequest(publicKeys.toArray(new String[0]));
-    PrivacyGroup[] findPrivacyGroupResponse = enclave.findPrivacyGroup(findPrivacyGroupRequest);
+    PrivacyGroup[] findprivacyGroup = enclave.findPrivacyGroup(findPrivacyGroupRequest);
 
-    assertThat(findPrivacyGroupResponse.length).isEqualTo(1);
-    assertThat(findPrivacyGroupResponse[0].getPrivacyGroupId())
-        .isEqualTo(privacyGroupResponse.getPrivacyGroupId());
+    assertThat(findprivacyGroup.length).isEqualTo(1);
+    assertThat(findprivacyGroup[0].getPrivacyGroupId())
+        .isEqualTo(privacyGroup.getPrivacyGroupId());
 
     DeletePrivacyGroupRequest deletePrivacyGroupRequest =
-        new DeletePrivacyGroupRequest(privacyGroupResponse.getPrivacyGroupId(), publicKeys.get(0));
+        new DeletePrivacyGroupRequest(privacyGroup.getPrivacyGroupId(), publicKeys.get(0));
 
     String response = enclave.deletePrivacyGroup(deletePrivacyGroupRequest);
 
-    assertThat(privacyGroupResponse.getPrivacyGroupId()).isEqualTo(response);
+    assertThat(privacyGroup.getPrivacyGroupId()).isEqualTo(response);
 
     findPrivacyGroupRequest = new FindPrivacyGroupRequest(publicKeys.toArray(new String[0]));
-    findPrivacyGroupResponse = enclave.findPrivacyGroup(findPrivacyGroupRequest);
+    findprivacyGroup = enclave.findPrivacyGroup(findPrivacyGroupRequest);
 
-    assertThat(findPrivacyGroupResponse.length).isEqualTo(0);
+    assertThat(findprivacyGroup.length).isEqualTo(0);
   }
 
   @Test
@@ -174,7 +174,7 @@ public class EnclaveTest {
         new CreatePrivacyGroupRequest(
             publicKeys.toArray(new String[0]), publicKeys.get(0), name, description);
 
-    final PrivacyGroup privacyGroupResponse = enclave.createPrivacyGroup(privacyGroupRequest);
+    final PrivacyGroup privacyGroup = enclave.createPrivacyGroup(privacyGroupRequest);
 
     final SendResponse sendResponse =
         enclave.send(
@@ -184,7 +184,7 @@ public class EnclaveTest {
     final boolean pushResponse =
         enclave.pushToHistory(
             new PushToHistoryRequest(
-                privacyGroupResponse.getPrivacyGroupId(),
+                privacyGroup.getPrivacyGroupId(),
                 "0x35d862d86c294932cd6561ec5c061747b093a48138082eaad7175da0ea83feab",
                 sendResponse.getKey()));
 
