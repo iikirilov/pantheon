@@ -108,6 +108,7 @@ public abstract class AbstractCreateOperation extends AbstractOperation {
             .blockchain(frame.getBlockchain())
             .worldState(frame.getWorldState().updater())
             .initialGas(childGasStipend)
+            .transactionHash(frame.getTransactionHash())
             .address(contractAddress)
             .originator(frame.getOriginatorAddress())
             .contract(contractAddress)

@@ -15,6 +15,7 @@ package tech.pegasys.pantheon.ethereum.vm.operations;
 import tech.pegasys.pantheon.ethereum.core.Account;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.Gas;
+import tech.pegasys.pantheon.ethereum.core.Hash;
 import tech.pegasys.pantheon.ethereum.core.Wei;
 import tech.pegasys.pantheon.ethereum.vm.AbstractCallOperation;
 import tech.pegasys.pantheon.ethereum.vm.EVM;
@@ -71,6 +72,11 @@ public class CallOperation extends AbstractCallOperation {
   @Override
   protected UInt256 outputDataLength(final MessageFrame frame) {
     return frame.getStackItem(6).asUInt256();
+  }
+
+  @Override
+  protected Hash transactionHash(final MessageFrame frame) {
+    return frame.getTransactionHash();
   }
 
   @Override

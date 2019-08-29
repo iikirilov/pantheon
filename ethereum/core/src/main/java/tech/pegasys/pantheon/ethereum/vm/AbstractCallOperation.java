@@ -15,6 +15,7 @@ package tech.pegasys.pantheon.ethereum.vm;
 import tech.pegasys.pantheon.ethereum.core.Account;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.Gas;
+import tech.pegasys.pantheon.ethereum.core.Hash;
 import tech.pegasys.pantheon.ethereum.core.Wei;
 import tech.pegasys.pantheon.util.bytes.Bytes32;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
@@ -111,6 +112,14 @@ public abstract class AbstractCallOperation extends AbstractOperation {
   protected abstract UInt256 outputDataLength(MessageFrame frame);
 
   /**
+   * Returns the transaction hash call operation is being performed on
+   *
+   * @param frame The current message frame
+   * @return the transaction hash the call operation is being performed on
+   */
+  protected abstract Hash transactionHash(final MessageFrame frame);
+
+  /**
    * Returns the account address the call operation is being performed on
    *
    * @param frame The current message frame
@@ -169,6 +178,7 @@ public abstract class AbstractCallOperation extends AbstractOperation {
             .blockchain(frame.getBlockchain())
             .worldState(frame.getWorldState().updater())
             .initialGas(gasAvailableForChildCall(frame))
+            .transactionHash(transactionHash(frame))
             .address(address(frame))
             .originator(frame.getOriginatorAddress())
             .contract(to)

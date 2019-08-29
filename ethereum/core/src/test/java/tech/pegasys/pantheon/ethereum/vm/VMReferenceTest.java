@@ -20,6 +20,7 @@ import static tech.pegasys.pantheon.ethereum.vm.MessageFrame.DEFAULT_MAX_STACK_S
 import static tech.pegasys.pantheon.ethereum.vm.OperationTracer.NO_TRACING;
 
 import tech.pegasys.pantheon.ethereum.core.Gas;
+import tech.pegasys.pantheon.ethereum.core.Hash;
 import tech.pegasys.pantheon.ethereum.core.MutableWorldState;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.ethereum.mainnet.MainnetProtocolSpecs;
@@ -135,6 +136,7 @@ public class VMReferenceTest extends AbstractRetryingTest {
             .worldState(worldState.updater())
             .initialGas(spec.getExec().getGas())
             .contract(execEnv.getAccountAddress())
+            .transactionHash(Hash.EMPTY)
             .address(execEnv.getAccountAddress())
             .originator(execEnv.getOriginAddress())
             .gasPrice(execEnv.getGasPrice())
