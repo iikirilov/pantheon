@@ -17,7 +17,6 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.NodeRequests;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,10 +27,10 @@ import org.web3j.utils.Base64String;
 public class FindPrivacyGroupTransaction implements Transaction<List<PrivacyGroup>> {
   private List<Base64String> nodes;
 
-  public FindPrivacyGroupTransaction(final PrivacyNode... nodes) {
+  public FindPrivacyGroupTransaction(final List<PrivacyNode> nodes) {
 
     this.nodes =
-        Arrays.stream(nodes)
+        nodes.stream()
             .map(n -> Base64String.wrap(n.orion.getDefaultPublicKey()))
             .collect(Collectors.toList());
   }

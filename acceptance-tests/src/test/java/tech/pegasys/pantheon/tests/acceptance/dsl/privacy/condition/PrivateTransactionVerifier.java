@@ -12,7 +12,11 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition;
 
+import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivacyTransactions;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
 
@@ -33,6 +37,23 @@ public class PrivateTransactionVerifier {
   public ExpectNoPrivateTransactionReceipt noPrivateTransactionReceipt(
       final String transactionHash) {
     return new ExpectNoPrivateTransactionReceipt(transactions, transactionHash);
+  }
+
+  public ExpectValidPrivacyGroupCreated validPrivacyGroupCreated(
+      final String privacyGroupId,
+      final String name,
+      final String description,
+      final PrivacyNode... nodes) {
+    return validPrivacyGroupCreated(privacyGroupId, name, description, Arrays.asList(nodes));
+  }
+
+  public ExpectValidPrivacyGroupCreated validPrivacyGroupCreated(
+      final String privacyGroupId,
+      final String name,
+      final String description,
+      final List<PrivacyNode> nodes) {
+    return new ExpectValidPrivacyGroupCreated(
+        transactions, privacyGroupId, name, description, nodes);
   }
 
   //    public ExpectValidPrivateContractTransactionReceipt validPrivateTransactionReceipt() {
