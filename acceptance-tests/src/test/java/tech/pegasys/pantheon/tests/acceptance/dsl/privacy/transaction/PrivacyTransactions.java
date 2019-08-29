@@ -29,7 +29,7 @@ public class PrivacyTransactions {
     return new CreatePrivacyGroupTransaction(name, description, nodes);
   }
 
-  public FindPrivacyGroupTransaction findPrivacyGroup(final List<PrivacyNode> nodes) {
+  public FindPrivacyGroupTransaction findPrivacyGroup(final List<String> nodes) {
     return new FindPrivacyGroupTransaction(nodes);
   }
 }

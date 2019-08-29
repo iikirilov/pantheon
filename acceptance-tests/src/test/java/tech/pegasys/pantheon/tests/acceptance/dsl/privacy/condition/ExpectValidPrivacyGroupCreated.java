@@ -18,56 +18,33 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivacyTransactions;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.awaitility.Awaitility;
 import org.web3j.protocol.pantheon.response.privacy.PrivacyGroup;
 import org.web3j.utils.Base64String;
 
 public class ExpectValidPrivacyGroupCreated implements PrivateCondition {
+
   private final PrivacyTransactions transactions;
-  private final String privacyGroupId;
-  private final String name;
-  private final String description;
-  private final List<PrivacyNode> nodes;
+  private final PrivacyGroup expected;
 
   public ExpectValidPrivacyGroupCreated(
-      final PrivacyTransactions transactions,
-      final String privacyGroupId,
-      final String name,
-      final String description,
-      final List<PrivacyNode> nodes) {
+      final PrivacyTransactions transactions, final PrivacyGroup expected) {
+
     this.transactions = transactions;
-    this.privacyGroupId = privacyGroupId;
-    this.name = name;
-    this.description = description;
-    this.nodes = nodes;
+    this.expected = expected;
   }
 
   @Override
   public void verify(final PrivacyNode node) {
-    final PrivacyGroup privacyGroup =
-        Awaitility.await()
-            .until(
-                () -> {
-                  final List<PrivacyGroup> groups =
-                      node.execute(transactions.findPrivacyGroup(nodes));
-                  if (groups.size() > 1) {
-                    assertThat(groups.size()).isEqualTo(1);
-                    return groups.get(0);
-                  }
-                  return null;
-                },
-                Objects::nonNull);
-
-    assertThat(privacyGroup.getPrivacyGroupId().toString()).isEqualTo(privacyGroupId);
-    assertThat(privacyGroup.getName()).isEqualTo(name);
-    assertThat(privacyGroup.getDescription()).isEqualTo(description);
-    assertThat(privacyGroup.getMembers().size()).isEqualTo(nodes.size());
-
-    final List<String> members =
-        privacyGroup.getMembers().stream().map(Base64String::toString).collect(Collectors.toList());
-    nodes.forEach(n -> assertThat(members).contains(n.getEnclaveKey()));
+    Awaitility.await()
+        .untilAsserted(
+            () -> {
+              final List<PrivacyGroup> groups =
+                  node.execute(
+                      transactions.findPrivacyGroup(
+                          Base64String.unwrapList(expected.getMembers())));
+              assertThat(groups).contains(expected);
+            });
   }
 }

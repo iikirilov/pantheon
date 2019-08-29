@@ -19,6 +19,8 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.web3j.protocol.pantheon.response.privacy.PrivacyGroup;
+import org.web3j.utils.Base64String;
 
 public class PrivacyGroupAcceptanceTest extends PrivacyAcceptanceTestBase {
 
@@ -47,9 +49,17 @@ public class PrivacyGroupAcceptanceTest extends PrivacyAcceptanceTestBase {
 
     assertThat(privacyGroupId).isNotNull();
 
-    alice.verify(
-        privateTransactionVerifier.validPrivacyGroupCreated(
-            privacyGroupId, "myGroupName", "my group description", alice, bob));
+    final PrivacyGroup expected =
+        new PrivacyGroup(
+            privacyGroupId,
+            PrivacyGroup.Type.PANTHEON,
+            "myGroupName",
+            "my group description",
+            Base64String.wrapList(alice.getEnclaveKey(), bob.getEnclaveKey()));
+
+    alice.verify(privateTransactionVerifier.validPrivacyGroupCreated(expected));
+
+    bob.verify(privateTransactionVerifier.validPrivacyGroupCreated(expected));
   }
 
   @Test
@@ -60,9 +70,17 @@ public class PrivacyGroupAcceptanceTest extends PrivacyAcceptanceTestBase {
 
     assertThat(privacyGroupId).isNotNull();
 
-    alice.verify(
-        privateTransactionVerifier.validPrivacyGroupCreated(
-            privacyGroupId, "Default Name", "my group description", alice, bob));
+    final PrivacyGroup expected =
+        new PrivacyGroup(
+            privacyGroupId,
+            PrivacyGroup.Type.PANTHEON,
+            "Default Name",
+            "my group description",
+            Base64String.wrapList(alice.getEnclaveKey(), bob.getEnclaveKey()));
+
+    alice.verify(privateTransactionVerifier.validPrivacyGroupCreated(expected));
+
+    bob.verify(privateTransactionVerifier.validPrivacyGroupCreated(expected));
   }
 
   @Test
@@ -72,9 +90,17 @@ public class PrivacyGroupAcceptanceTest extends PrivacyAcceptanceTestBase {
 
     assertThat(privacyGroupId).isNotNull();
 
-    alice.verify(
-        privateTransactionVerifier.validPrivacyGroupCreated(
-            privacyGroupId, "myGroupName", "Default Description", alice, bob));
+    final PrivacyGroup expected =
+        new PrivacyGroup(
+            privacyGroupId,
+            PrivacyGroup.Type.PANTHEON,
+            "myGroupName",
+            "Default Description",
+            Base64String.wrapList(alice.getEnclaveKey(), bob.getEnclaveKey()));
+
+    alice.verify(privateTransactionVerifier.validPrivacyGroupCreated(expected));
+
+    bob.verify(privateTransactionVerifier.validPrivacyGroupCreated(expected));
   }
 
   @Test
@@ -84,8 +110,16 @@ public class PrivacyGroupAcceptanceTest extends PrivacyAcceptanceTestBase {
 
     assertThat(privacyGroupId).isNotNull();
 
-    alice.verify(
-        privateTransactionVerifier.validPrivacyGroupCreated(
-            privacyGroupId, "Default Name", "Default Description", alice, bob));
+    final PrivacyGroup expected =
+        new PrivacyGroup(
+            privacyGroupId,
+            PrivacyGroup.Type.PANTHEON,
+            "Default Name",
+            "Default Description",
+            Base64String.wrapList(alice.getEnclaveKey(), bob.getEnclaveKey()));
+
+    alice.verify(privateTransactionVerifier.validPrivacyGroupCreated(expected));
+
+    bob.verify(privateTransactionVerifier.validPrivacyGroupCreated(expected));
   }
 }
