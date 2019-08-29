@@ -42,13 +42,13 @@ public class PrivCreatePrivacyGroupTest {
   private static final String[] ADDRESSES = new String[] {FROM, "second participant"};
 
   private final Enclave enclave = mock(Enclave.class);
-  private final Enclave brokenEnclave = mock(Enclave.class);
+  private final Enclave failingEnclave = mock(Enclave.class);
   private final PrivacyParameters privacyParameters = mock(PrivacyParameters.class);
   private final JsonRpcParameter parameters = new JsonRpcParameter();
 
   @Before
   public void setUp() {
-    when(brokenEnclave.createPrivacyGroup(any(CreatePrivacyGroupRequest.class)))
+    when(failingEnclave.createPrivacyGroup(any(CreatePrivacyGroupRequest.class)))
         .thenThrow(new EnclaveException(""));
   }
 
@@ -233,7 +233,7 @@ public class PrivCreatePrivacyGroupTest {
   @Test
   public void returnsCorrectErrorEnclaveError() {
     final PrivCreatePrivacyGroup privCreatePrivacyGroup =
-        new PrivCreatePrivacyGroup(brokenEnclave, privacyParameters, parameters);
+        new PrivCreatePrivacyGroup(failingEnclave, privacyParameters, parameters);
 
     final CreatePrivacyGroupParameter param =
         new CreatePrivacyGroupParameter(ADDRESSES, NAME, DESCRIPTION);
