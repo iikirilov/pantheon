@@ -99,7 +99,7 @@ public class PrivacyPrecompiledContract extends AbstractPrecompiledContract {
     ReceiveResponse receiveResponse;
     try {
       receiveResponse = enclave.receive(receiveRequest);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       LOG.error("Enclave probably does not have private transaction with key {}.", key, e);
       return BytesValue.EMPTY;
     }
@@ -152,7 +152,7 @@ public class PrivacyPrecompiledContract extends AbstractPrecompiledContract {
                 BytesValues.asBase64String(privacyGroupId),
                 messageFrame.getTransactionHash().toString(),
                 key));
-      } catch (Exception e) {
+      } catch (final Exception e) {
         LOG.error(
             "Enclave failed to push processed transaction {} to Orion {}.",
             messageFrame.getTransactionHash().toString(),
