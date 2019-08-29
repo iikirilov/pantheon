@@ -15,7 +15,6 @@ package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition.EeaGetTransactionReceiptTransaction;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class PrivacyTransactions {
