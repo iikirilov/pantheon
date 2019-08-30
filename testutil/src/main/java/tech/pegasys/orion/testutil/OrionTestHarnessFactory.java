@@ -31,9 +31,6 @@ import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 
 public class OrionTestHarnessFactory {
 
-  //  private static final Logger LOG = LogManager.getLogger();
-  //  protected static final String HOST = "127.0.0.1";
-
   public static OrionTestHarness create(
       final Path tempDir,
       final Ed25519PublicKeyParameters pubKey,
