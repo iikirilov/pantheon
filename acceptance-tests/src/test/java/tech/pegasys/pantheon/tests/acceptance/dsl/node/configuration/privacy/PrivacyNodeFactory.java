@@ -12,66 +12,68 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy;
 
-import tech.pegasys.orion.testutil.OrionFactoryKeyConfiguration;
+import tech.pegasys.orion.testutil.OrionKeyConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.NodeConfigurationFactory;
-import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfiguration;
-import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfigurationBuilder;
+import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonNodeConfigurationBuilder;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.genesis.GenesisConfigurationFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.account.PrivacyAccount;
 
 import java.io.IOException;
 
-public class PrivacyPantheonNodeFactory {
+public class PrivacyNodeFactory {
 
   private final GenesisConfigurationFactory genesis = new GenesisConfigurationFactory();
   private final NodeConfigurationFactory node = new NodeConfigurationFactory();
 
-  private static PrivacyNode create(
-      final PantheonFactoryConfiguration pantheonConfig,
-      final OrionFactoryKeyConfiguration orionConfig)
+  private static PrivacyNode create(final PrivacyNodeConfiguration privacyNodeConfig)
       throws IOException {
-    return new PrivacyNode(pantheonConfig, orionConfig);
+    return new PrivacyNode(privacyNodeConfig);
   }
 
   public PrivacyNode createPrivateTransactionEnabledMinerNode(
       final String name, final PrivacyAccount privacyAccount) throws IOException {
     return create(
-        new PantheonFactoryConfigurationBuilder()
-            .name(name)
-            .miningEnabled()
-            .jsonRpcEnabled()
-            .webSocketEnabled()
-            .enablePrivateTransactions()
-            .keyFilePath(privacyAccount.getPrivateKeyPath())
-            .build(),
-        new OrionFactoryKeyConfiguration(
-            privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath()));
+        new PrivacyNodeConfigurationBuilder()
+            .setPantheonConfig(
+                new PantheonNodeConfigurationBuilder()
+                    .name(name)
+                    .miningEnabled()
+                    .jsonRpcEnabled()
+                    .webSocketEnabled()
+                    .enablePrivateTransactions()
+                    .keyFilePath(privacyAccount.getPrivateKeyPath())
+                    .build())
+            .setOrionKeyConfig(
+                new OrionKeyConfiguration(
+                    privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath()))
+            .build());
   }
 
   public PrivacyNode createPrivateTransactionEnabledNode(
       final String name, final PrivacyAccount privacyAccount) throws IOException {
     return create(
-        new PrivacyPantheonFactoryConfigurationBuilder()
+        new PrivacyNodeConfigurationBuilder()
             .setPantheonConfig(
-                new PantheonFactoryConfigurationBuilder()
+                new PantheonNodeConfigurationBuilder()
                     .name(name)
                     .jsonRpcEnabled()
                     .keyFilePath(privacyAccount.getPrivateKeyPath())
                     .enablePrivateTransactions()
                     .webSocketEnabled()
                     .build())
-            .build(),
-        new OrionFactoryKeyConfiguration(
-            privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath()));
+            .setOrionKeyConfig(
+                new OrionKeyConfiguration(
+                    privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath()))
+            .build());
   }
 
   public PrivacyNode createIbft2NodePrivacyEnabled(
       final String name, final PrivacyAccount privacyAccount) throws IOException {
     return create(
-        new PrivacyPantheonFactoryConfigurationBuilder()
+        new PrivacyNodeConfigurationBuilder()
             .setPantheonConfig(
-                new PantheonFactoryConfigurationBuilder()
+                new PantheonNodeConfigurationBuilder()
                     .name(name)
                     .miningEnabled()
                     .jsonRpcConfiguration(node.createJsonRpcWithIbft2EnabledConfig())
@@ -81,8 +83,9 @@ public class PrivacyPantheonNodeFactory {
                     .keyFilePath(privacyAccount.getPrivateKeyPath())
                     .enablePrivateTransactions()
                     .build())
-            .build(),
-        new OrionFactoryKeyConfiguration(
-            privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath()));
+            .setOrionKeyConfig(
+                new OrionKeyConfiguration(
+                    privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath()))
+            .build());
   }
 }

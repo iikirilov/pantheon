@@ -12,7 +12,6 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
-import tech.pegasys.orion.testutil.OrionFactoryKeyConfiguration;
 import tech.pegasys.orion.testutil.OrionTestHarness;
 import tech.pegasys.orion.testutil.OrionTestHarnessFactory;
 import tech.pegasys.pantheon.controller.KeyPairUtil;
@@ -26,7 +25,8 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.condition.Condition;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNodeRunner;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.NodeConfiguration;
-import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonFactoryConfiguration;
+import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.PantheonNodeConfiguration;
+import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyNodeConfiguration;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition.PrivateCondition;
 import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 
@@ -48,11 +48,10 @@ public class PrivacyNode implements AutoCloseable {
   public final OrionTestHarness orion;
   public final PantheonNode pantheon;
 
-  public PrivacyNode(
-      final PantheonFactoryConfiguration pantheonConfig,
-      final OrionFactoryKeyConfiguration orionConfig)
-      throws IOException {
-    this.orion = OrionTestHarnessFactory.create(orionConfig);
+  public PrivacyNode(final PrivacyNodeConfiguration privacyConfiguration) throws IOException {
+    this.orion = OrionTestHarnessFactory.create(privacyConfiguration.getOrionKeyConfig());
+
+    final PantheonNodeConfiguration pantheonConfig = privacyConfiguration.getPantheonConfig();
 
     this.pantheon =
         new PantheonNode(

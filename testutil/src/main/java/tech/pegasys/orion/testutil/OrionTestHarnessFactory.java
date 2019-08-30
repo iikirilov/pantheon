@@ -76,7 +76,7 @@ public class OrionTestHarnessFactory {
     return create(tempDir, pubKeyFile, privKeyFile, Arrays.asList(othernodes));
   }
 
-  public static OrionTestHarness create(final OrionFactoryKeyConfiguration orionConfig)
+  public static OrionTestHarness create(final OrionKeyConfiguration orionConfig)
       throws IOException {
     return create(
         java.nio.file.Files.createTempDirectory("acctest-orion"),

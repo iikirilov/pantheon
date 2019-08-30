@@ -13,7 +13,7 @@
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
 import tech.pegasys.pantheon.tests.acceptance.dsl.AcceptanceTestBase;
-import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyPantheonNodeFactory;
+import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyNodeFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.account.PrivacyAccountSupplier;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition.PrivateContractVerifier;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition.PrivateTransactionVerifier;
@@ -32,7 +32,7 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
   protected final PrivacyTransactions privacyTransactions;
   protected final PrivateContractVerifier privateContractVerifier;
   protected final PrivateTransactionVerifier privateTransactionVerifier;
-  protected final PrivacyPantheonNodeFactory privacyPantheon;
+  protected final PrivacyNodeFactory privacyPantheon;
   protected final PrivateContractTransactions privateContractTransactions;
   protected final PrivacyCluster privacyCluster;
   protected final PrivacyAccountSupplier privacyAccountSupplier;
@@ -42,7 +42,7 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
     privacyTransactions = new PrivacyTransactions();
     privateContractVerifier = new PrivateContractVerifier();
     privateTransactionVerifier = new PrivateTransactionVerifier(privacyTransactions);
-    privacyPantheon = new PrivacyPantheonNodeFactory();
+    privacyPantheon = new PrivacyNodeFactory();
     privateContractTransactions = new PrivateContractTransactions();
     privacyCluster = new PrivacyCluster(net);
     privacyAccountSupplier = new PrivacyAccountSupplier();

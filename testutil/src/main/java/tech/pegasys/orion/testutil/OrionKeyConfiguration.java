@@ -12,11 +12,11 @@
  */
 package tech.pegasys.orion.testutil;
 
-public class OrionFactoryKeyConfiguration {
+public class OrionKeyConfiguration {
   private final String pubKeyPath;
   private final String privKeyPath;
 
-  public OrionFactoryKeyConfiguration(final String pubKeyPath, final String privKeyPath) {
+  public OrionKeyConfiguration(final String pubKeyPath, final String privKeyPath) {
     this.pubKeyPath = pubKeyPath;
     this.privKeyPath = privKeyPath;
   }

@@ -24,7 +24,7 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.genesis.Gen
 import java.util.List;
 import java.util.Optional;
 
-public class PantheonFactoryConfiguration {
+public class PantheonNodeConfiguration {
 
   private final String name;
   private final MiningParameters miningParameters;
@@ -45,7 +45,7 @@ public class PantheonFactoryConfiguration {
   private final List<String> extraCLIOptions;
   private final List<String> staticNodes;
 
-  public PantheonFactoryConfiguration(
+  public PantheonNodeConfiguration(
       final String name,
       final MiningParameters miningParameters,
       final PrivacyParameters privacyParameters,
