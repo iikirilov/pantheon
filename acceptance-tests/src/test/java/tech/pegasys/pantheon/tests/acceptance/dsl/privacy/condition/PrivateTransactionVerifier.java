@@ -39,8 +39,4 @@ public class PrivateTransactionVerifier {
   public ExpectValidPrivacyGroupCreated validPrivacyGroupCreated(final PrivacyGroup expected) {
     return new ExpectValidPrivacyGroupCreated(transactions, expected);
   }
-
-  //    public ExpectValidPrivateContractTransactionReceipt validPrivateTransactionReceipt() {
-  //      return new ExpectValidPrivateContractTransactionReceipt(eea, transactions);
-  //    }
 }
