@@ -20,32 +20,4 @@ public class PrivateContractVerifier {
       final String contractAddress, final String senderAddress) {
     return new ExpectValidPrivateContractDeployedReceipt(contractAddress, senderAddress);
   }
-
-  //  public ExpectNoPrivateContractContractDeployedReceipt noPrivateContractDeployed() {
-  //    return new ExpectNoPrivateContractContractDeployedReceipt(privacyConditions,
-  // privacyTransactions);
-  //  }
-  //
-  //  public ExpectValidPrivateContractContractEventsEmitted validEventReturned(final String
-  // eventValue) {
-  //    return new ExpectValidPrivateContractContractEventsEmitted(eventValue, privacyConditions,
-  // privacyTransactions);
-  //  }
-  //
-  //  public ExpectNoValidPrivateContractContractEventsEmitted noValidEventReturned() {
-  //    return new ExpectNoValidPrivateContractContractEventsEmitted(privacyConditions,
-  // privacyTransactions);
-  //  }
-  //
-  //  public ExpectValidPrivateContractContractValuesReturned validOutputReturned(final String
-  // returnValue) {
-  //    return new ExpectValidPrivateContractContractValuesReturned(returnValue, privacyConditions,
-  // privacyTransactions);
-  //  }
-  //
-  //  public ExpectNoValidPrivateContractContractValuesReturned noValidOutputReturned() {
-  //    return new ExpectNoValidPrivateContractContractValuesReturned(privacyConditions,
-  // privacyTransactions);
-  //  }
-
 }
