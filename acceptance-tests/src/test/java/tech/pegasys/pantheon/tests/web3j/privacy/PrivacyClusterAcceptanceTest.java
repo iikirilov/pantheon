@@ -18,7 +18,6 @@ import tech.pegasys.pantheon.tests.web3j.generated.EventEmitter;
 
 import java.math.BigInteger;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
@@ -192,11 +191,5 @@ public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
 
     // charlie cannot see the receipt
     charlie.verify(privateTransactionVerifier.noPrivateTransactionReceipt(secondTransactionHash));
-  }
-
-  @After
-  @Override
-  public void tearDownAcceptanceTestBase() {
-    super.tearDownAcceptanceTestBase();
   }
 }

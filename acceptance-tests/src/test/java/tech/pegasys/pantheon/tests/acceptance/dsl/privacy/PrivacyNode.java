@@ -12,13 +12,12 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
-import static tech.pegasys.pantheon.tests.acceptance.dsl.WaitUtils.waitFor;
-
 import tech.pegasys.orion.testutil.OrionFactoryKeyConfiguration;
 import tech.pegasys.orion.testutil.OrionTestHarness;
 import tech.pegasys.orion.testutil.OrionTestHarnessFactory;
 import tech.pegasys.pantheon.controller.KeyPairUtil;
 import tech.pegasys.pantheon.enclave.Enclave;
+import tech.pegasys.pantheon.enclave.EnclaveException;
 import tech.pegasys.pantheon.enclave.types.SendRequest;
 import tech.pegasys.pantheon.enclave.types.SendRequestLegacy;
 import tech.pegasys.pantheon.ethereum.core.Address;
@@ -41,6 +40,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.awaitility.Awaitility;
 
 public class PrivacyNode implements AutoCloseable {
   private static final Logger LOG = LogManager.getLogger();
@@ -84,7 +84,7 @@ public class PrivacyNode implements AutoCloseable {
             orion.nodeUrl(),
             Arrays.toString(otherNodes.stream().map(node -> node.pantheon.getName()).toArray()),
             Arrays.toString(otherNodes.stream().map(node -> node.orion.nodeUrl()).toArray())));
-    Enclave orionEnclave = new Enclave(orion.clientUrl());
+    Enclave enclaveClient = new Enclave(orion.clientUrl());
     SendRequest sendRequest1 =
         new SendRequestLegacy(
             "SGVsbG8sIFdvcmxkIQ==",
@@ -92,14 +92,18 @@ public class PrivacyNode implements AutoCloseable {
             otherNodes.stream()
                 .map(node -> node.orion.getDefaultPublicKey())
                 .collect(Collectors.toList()));
-    waitFor(
-        () -> {
-          try {
-            orionEnclave.send(sendRequest1);
-          } catch (final Throwable e) {
-            // do nothing
-          }
-        });
+
+    Awaitility.await()
+        .until(
+            () -> {
+              try {
+                enclaveClient.send(sendRequest1);
+                return true;
+              } catch (final EnclaveException e) {
+                LOG.info("Waiting for enclave connectivity");
+                return false;
+              }
+            });
   }
 
   public void stop() {
