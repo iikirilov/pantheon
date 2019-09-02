@@ -59,6 +59,8 @@ public class EnclaveTest {
             folder.newFolder().toPath(),
             new OrionKeyConfiguration("orion_key_0.pub", "orion_key_0.key"));
 
+    testHarness.start();
+
     enclave = new Enclave(testHarness.clientUrl());
   }
 
@@ -73,7 +75,7 @@ public class EnclaveTest {
   }
 
   @Test
-  public void testSendAndReceive() throws Exception {
+  public void testSendAndReceive() {
     final List<String> publicKeys = testHarness.getPublicKeys();
 
     final SendResponse sr =
@@ -87,7 +89,7 @@ public class EnclaveTest {
   }
 
   @Test
-  public void testSendWithPrivacyGroupAndReceive() throws Exception {
+  public void testSendWithPrivacyGroupAndReceive() {
     final List<String> publicKeys = testHarness.getPublicKeys();
 
     final CreatePrivacyGroupRequest privacyGroupRequest =
@@ -106,7 +108,7 @@ public class EnclaveTest {
   }
 
   @Test
-  public void testCreateAndDeletePrivacyGroup() throws Exception {
+  public void testCreateAndDeletePrivacyGroup() {
     final List<String> publicKeys = testHarness.getPublicKeys();
     final String name = "testName";
     final String description = "testDesc";
@@ -130,7 +132,7 @@ public class EnclaveTest {
   }
 
   @Test
-  public void testCreateFindDeleteFindPrivacyGroup() throws Exception {
+  public void testCreateFindDeleteFindPrivacyGroup() {
     List<String> publicKeys = testHarness.getPublicKeys();
     String name = "name";
     String description = "desc";
@@ -171,5 +173,10 @@ public class EnclaveTest {
     final Throwable thrown = catchThrowable(() -> new Enclave(URI.create("http://null")).upCheck());
     assertThat(thrown).isInstanceOf(IOException.class);
     assertThat(thrown).hasMessageContaining("Failed to perform upcheck");
+  }
+
+  @After
+  public void tearDown() {
+    testHarness.close();
   }
 }
