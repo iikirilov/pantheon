@@ -38,7 +38,6 @@ public class PantheonNodeFactory {
     return new PantheonNode(
         config.getName(),
         config.getMiningParameters(),
-        config.getPrivacyParameters(),
         config.getJsonRpcConfiguration(),
         config.getWebSocketConfiguration(),
         config.getMetricsConfiguration(),

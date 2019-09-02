@@ -57,7 +57,6 @@ public class PrivacyNode implements AutoCloseable {
         new PantheonNode(
             pantheonConfig.getName(),
             pantheonConfig.getMiningParameters(),
-            pantheonConfig.getPrivacyParameters(),
             pantheonConfig.getJsonRpcConfiguration(),
             pantheonConfig.getWebSocketConfiguration(),
             pantheonConfig.getMetricsConfiguration(),

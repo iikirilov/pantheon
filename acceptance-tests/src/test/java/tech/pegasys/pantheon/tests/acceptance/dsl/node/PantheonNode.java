@@ -85,7 +85,7 @@ public class PantheonNode implements NodeConfiguration, RunnableNode, AutoClosea
 
   private final String name;
   private final MiningParameters miningParameters;
-  private PrivacyParameters privacyParameters;
+  private PrivacyParameters privacyParameters = PrivacyParameters.DEFAULT;
   private final JsonRpcConfiguration jsonRpcConfiguration;
   private final WebSocketConfiguration webSocketConfiguration;
   private final MetricsConfiguration metricsConfiguration;
@@ -107,7 +107,6 @@ public class PantheonNode implements NodeConfiguration, RunnableNode, AutoClosea
   public PantheonNode(
       final String name,
       final MiningParameters miningParameters,
-      final PrivacyParameters privacyParameters,
       final JsonRpcConfiguration jsonRpcConfiguration,
       final WebSocketConfiguration webSocketConfiguration,
       final MetricsConfiguration metricsConfiguration,
@@ -138,8 +137,6 @@ public class PantheonNode implements NodeConfiguration, RunnableNode, AutoClosea
     this.keyPair = KeyPairUtil.loadKeyPair(homeDirectory);
     this.name = name;
     this.miningParameters = miningParameters;
-    this.privacyParameters = privacyParameters;
-    this.privacyParameters.setSigningKeyPair(keyPair);
     this.jsonRpcConfiguration = jsonRpcConfiguration;
     this.webSocketConfiguration = webSocketConfiguration;
     this.metricsConfiguration = metricsConfiguration;

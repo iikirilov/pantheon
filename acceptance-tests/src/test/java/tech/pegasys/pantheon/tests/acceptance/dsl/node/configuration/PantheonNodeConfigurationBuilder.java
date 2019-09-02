@@ -37,7 +37,6 @@ public class PantheonNodeConfigurationBuilder {
   private String name;
   private MiningParameters miningParameters =
       new MiningParametersTestBuilder().enabled(false).build();
-  private PrivacyParameters privacyParameters = PrivacyParameters.DEFAULT;
   private JsonRpcConfiguration jsonRpcConfiguration = JsonRpcConfiguration.createDefault();
   private WebSocketConfiguration webSocketConfiguration = WebSocketConfiguration.createDefault();
   private MetricsConfiguration metricsConfiguration = MetricsConfiguration.builder().build();
@@ -201,7 +200,6 @@ public class PantheonNodeConfigurationBuilder {
     return new PantheonNodeConfiguration(
         name,
         miningParameters,
-        privacyParameters,
         jsonRpcConfiguration,
         webSocketConfiguration,
         metricsConfiguration,

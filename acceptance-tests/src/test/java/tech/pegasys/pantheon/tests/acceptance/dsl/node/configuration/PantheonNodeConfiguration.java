@@ -28,7 +28,6 @@ public class PantheonNodeConfiguration {
 
   private final String name;
   private final MiningParameters miningParameters;
-  private final PrivacyParameters privacyParameters;
   private final JsonRpcConfiguration jsonRpcConfiguration;
   private final WebSocketConfiguration webSocketConfiguration;
   private final MetricsConfiguration metricsConfiguration;
@@ -48,7 +47,6 @@ public class PantheonNodeConfiguration {
   public PantheonNodeConfiguration(
       final String name,
       final MiningParameters miningParameters,
-      final PrivacyParameters privacyParameters,
       final JsonRpcConfiguration jsonRpcConfiguration,
       final WebSocketConfiguration webSocketConfiguration,
       final MetricsConfiguration metricsConfiguration,
@@ -66,7 +64,6 @@ public class PantheonNodeConfiguration {
       final List<String> staticNodes) {
     this.name = name;
     this.miningParameters = miningParameters;
-    this.privacyParameters = privacyParameters;
     this.jsonRpcConfiguration = jsonRpcConfiguration;
     this.webSocketConfiguration = webSocketConfiguration;
     this.metricsConfiguration = metricsConfiguration;
@@ -90,10 +87,6 @@ public class PantheonNodeConfiguration {
 
   public MiningParameters getMiningParameters() {
     return miningParameters;
-  }
-
-  public PrivacyParameters getPrivacyParameters() {
-    return privacyParameters;
   }
 
   public JsonRpcConfiguration getJsonRpcConfiguration() {
