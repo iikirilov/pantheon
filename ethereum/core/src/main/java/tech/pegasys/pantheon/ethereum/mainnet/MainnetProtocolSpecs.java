@@ -246,20 +246,20 @@ public abstract class MainnetProtocolSpecs {
         .blockReward(BYZANTIUM_BLOCK_REWARD)
         .privateTransactionValidatorBuilder(() -> new PrivateTransactionValidator(chainId))
         .privateTransactionProcessorBuilder(
-                (gasCalculator,
-                 transactionValidator,
-                 contractCreationProcessor,
-                 messageCallProcessor,
-                 privateTransactionValidator) ->
-                        new PrivateTransactionProcessor(
-                                gasCalculator,
-                                transactionValidator,
-                                contractCreationProcessor,
-                                messageCallProcessor,
-                                false,
-                                stackSizeLimit,
-                                Account.DEFAULT_VERSION,
-                                privateTransactionValidator))
+            (gasCalculator,
+                transactionValidator,
+                contractCreationProcessor,
+                messageCallProcessor,
+                privateTransactionValidator) ->
+                new PrivateTransactionProcessor(
+                    gasCalculator,
+                    transactionValidator,
+                    contractCreationProcessor,
+                    messageCallProcessor,
+                    false,
+                    stackSizeLimit,
+                    Account.DEFAULT_VERSION,
+                    privateTransactionValidator))
         .name("Byzantium");
   }
 

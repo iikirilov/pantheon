@@ -15,7 +15,6 @@ package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 import static java.util.Collections.emptyList;
 
 import tech.pegasys.pantheon.tests.acceptance.dsl.condition.net.NetConditions;
-import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNode;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNodeRunner;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.RunnableNode;
 
