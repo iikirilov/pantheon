@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.Assert.assertTrue;
 
+import tech.pegasys.orion.testutil.OrionKeyConfiguration;
 import tech.pegasys.orion.testutil.OrionTestHarness;
 import tech.pegasys.orion.testutil.OrionTestHarnessFactory;
 import tech.pegasys.pantheon.enclave.types.CreatePrivacyGroupRequest;
@@ -55,7 +56,8 @@ public class EnclaveTest {
 
     testHarness =
         OrionTestHarnessFactory.create(
-            folder.newFolder().toPath(), "orion_key_0.pub", "orion_key_0.key");
+            folder.newFolder().toPath(),
+            new OrionKeyConfiguration("orion_key_0.pub", "orion_key_0.key"));
 
     enclave = new Enclave(testHarness.clientUrl());
   }

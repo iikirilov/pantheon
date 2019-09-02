@@ -33,6 +33,7 @@ import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +50,8 @@ public class PrivacyNode implements AutoCloseable {
   private final PantheonNode pantheon;
 
   public PrivacyNode(final PrivacyNodeConfiguration privacyConfiguration) throws IOException {
-    this.orion = OrionTestHarnessFactory.create(privacyConfiguration.getOrionKeyConfig());
+    final Path orionDir = Files.createTempDirectory("acctest-orion");
+    this.orion = OrionTestHarnessFactory.create(orionDir, privacyConfiguration.getOrionKeyConfig());
 
     final PantheonNodeConfiguration pantheonConfig = privacyConfiguration.getPantheonConfig();
 
