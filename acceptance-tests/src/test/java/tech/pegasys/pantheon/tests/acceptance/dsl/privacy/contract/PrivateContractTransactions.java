@@ -89,8 +89,7 @@ public class PrivateContractTransactions {
         contractAddress,
         clazz,
         transactionSigningKey,
-
-    chainId,
+        chainId,
         privateFrom,
         Arrays.asList(privateFor));
   }

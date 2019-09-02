@@ -24,6 +24,8 @@ import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
 
 public class Ibft2PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
 
+  private static final long IBFT2_CHAIN_ID = 4;
+
   private PrivacyNode alice;
   private PrivacyNode bob;
   private PrivacyNode charlie;

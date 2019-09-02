@@ -12,37 +12,39 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.account;
 
+import java.net.URL;
+
 public class PrivacyAccount {
 
-  private final String privateKeyPath;
-  private final String enclaveKeyPath;
-  private final String enclavePrivateKeyPath;
+  private final URL privateKeyPath;
+  private final URL enclaveKeyPath;
+  private final URL enclavePrivateKeyPath;
 
   private PrivacyAccount(
-      final String privateKeyPath,
-      final String enclavePublicKeyPath,
-      final String enclavePrivateKeyPath) {
+      final URL privateKeyPath, final URL enclavePublicKeyPath, final URL enclavePrivateKeyPath) {
     this.privateKeyPath = privateKeyPath;
     this.enclaveKeyPath = enclavePublicKeyPath;
     this.enclavePrivateKeyPath = enclavePrivateKeyPath;
   }
 
   public static PrivacyAccount create(
-      final String privateKeyPath,
-      final String enclavePublicKeyPath,
-      final String enclavePrivateKeyPath) {
+      final URL privateKeyPath, final URL enclavePublicKeyPath, final URL enclavePrivateKeyPath) {
     return new PrivacyAccount(privateKeyPath, enclavePublicKeyPath, enclavePrivateKeyPath);
   }
 
   public String getPrivateKeyPath() {
-    return privateKeyPath;
+    return toStringResource(privateKeyPath);
   }
 
   public String getEnclaveKeyPath() {
-    return enclaveKeyPath;
+    return toStringResource(enclaveKeyPath);
   }
 
   public String getEnclavePrivateKeyPath() {
-    return enclavePrivateKeyPath;
+    return toStringResource(enclavePrivateKeyPath);
+  }
+
+  private String toStringResource(final URL path) {
+    return path.getPath().substring(path.getPath().lastIndexOf("/") + 1);
   }
 }

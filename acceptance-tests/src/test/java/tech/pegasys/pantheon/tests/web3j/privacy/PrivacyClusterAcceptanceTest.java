@@ -24,6 +24,8 @@ import org.web3j.protocol.eea.response.PrivateTransactionReceipt;
 
 public class PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase {
 
+  private static final long POW_CHAIN_ID = 2018;
+
   private PrivacyNode alice;
   private PrivacyNode bob;
   private PrivacyNode charlie;

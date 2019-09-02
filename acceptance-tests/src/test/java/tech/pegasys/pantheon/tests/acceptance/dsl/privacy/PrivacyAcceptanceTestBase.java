@@ -12,21 +12,20 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy;
 
-import tech.pegasys.pantheon.tests.acceptance.dsl.AcceptanceTestBase;
+import tech.pegasys.pantheon.tests.acceptance.dsl.condition.net.NetConditions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.configuration.privacy.PrivacyNodeFactory;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.account.PrivacyAccountResolver;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition.PrivateContractVerifier;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition.PrivateTransactionVerifier;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.contract.PrivateContractTransactions;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.transaction.PrivacyTransactions;
+import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.net.NetTransactions;
 
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 
-public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
-  protected final long POW_CHAIN_ID = 2018;
-  protected final long IBFT2_CHAIN_ID = 4;
+public class PrivacyAcceptanceTestBase {
   @ClassRule public static final TemporaryFolder privacy = new TemporaryFolder();
 
   protected final PrivacyTransactions privacyTransactions;
@@ -37,7 +36,10 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
   protected final PrivacyCluster privacyCluster;
   protected final PrivacyAccountResolver privacyAccountResolver;
 
+  protected final NetConditions net;
+
   public PrivacyAcceptanceTestBase() {
+    net = new NetConditions(new NetTransactions());
     privacyTransactions = new PrivacyTransactions();
     privateContractVerifier = new PrivateContractVerifier();
     privateTransactionVerifier = new PrivateTransactionVerifier(privacyTransactions);
@@ -48,9 +50,7 @@ public class PrivacyAcceptanceTestBase extends AcceptanceTestBase {
   }
 
   @After
-  @Override
   public void tearDownAcceptanceTestBase() {
     privacyCluster.close();
-    super.tearDownAcceptanceTestBase();
   }
 }

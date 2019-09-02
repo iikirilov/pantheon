@@ -21,6 +21,8 @@ import org.junit.Test;
 
 public class DeployPrivateSmartContractAcceptanceTest extends PrivacyAcceptanceTestBase {
 
+  private static final long POW_CHAIN_ID = 2018;
+
   private PrivacyNode minerNode;
 
   @Before

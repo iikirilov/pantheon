@@ -28,6 +28,8 @@ import org.junit.Test;
 
 public class EnclaveErrorAcceptanceTest extends PrivacyAcceptanceTestBase {
 
+  private static final long IBFT2_CHAIN_ID = 4;
+
   private PrivacyNode alice;
   private PrivacyNode bob;
   private String wrongPublicKey;

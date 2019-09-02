@@ -12,15 +12,32 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.account;
 
+import java.net.URL;
+
 /** Supplier of known funded accounts defined in dev.json */
 public class PrivacyAccountResolver {
 
   public static final PrivacyAccount ALICE =
-      PrivacyAccount.create("key", "orion_key_0.pub", "orion_key_0.key");
+      PrivacyAccount.create(
+          resolveResource("key"),
+          resolveResource("orion_key_0.pub"),
+          resolveResource("orion_key_0.key"));
+
   public static final PrivacyAccount BOB =
-      PrivacyAccount.create("key1", "orion_key_1.pub", "orion_key_1.key");
+      PrivacyAccount.create(
+          resolveResource("key1"),
+          resolveResource("orion_key_1.pub"),
+          resolveResource("orion_key_1.key"));
+
   public static final PrivacyAccount CHARLIE =
-      PrivacyAccount.create("key2", "orion_key_2.pub", "orion_key_2.key");
+      PrivacyAccount.create(
+          resolveResource("key2"),
+          resolveResource("orion_key_2.pub"),
+          resolveResource("orion_key_2.key"));
+
+  private static URL resolveResource(final String resource) {
+    return PrivacyAccountResolver.class.getClassLoader().getResource(resource);
+  }
 
   public PrivacyAccountResolver() {}
 
