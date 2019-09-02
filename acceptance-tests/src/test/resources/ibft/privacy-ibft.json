@@ -6,7 +6,7 @@
     "eip150Block": 0,
     "eip155Block": 0,
     "eip158Block": 0,
-    "spuriousDragon": 0,
+    "byzantium": 0,
     "ibft2": {
       "blockperiodseconds": 1,
       "epochlength": 30000,

@@ -81,6 +81,8 @@ public class Ibft2PrivacyClusterAcceptanceTest extends PrivacyAcceptanceTestBase
   public void aliceCanDeployMultipleTimesInSingleGroup() {
     final String firstDeployedAddress = "0xebf56429e6500e84442467292183d4d621359838";
 
+    privacyCluster.stopNode(charlie);
+
     final EventEmitter firstEventEmitter =
         alice.execute(
             privateContractTransactions.createSmartContract(

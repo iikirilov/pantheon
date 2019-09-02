@@ -226,22 +226,6 @@ public abstract class MainnetProtocolSpecs {
                     true,
                     stackSizeLimit,
                     Account.DEFAULT_VERSION))
-        .privateTransactionValidatorBuilder(() -> new PrivateTransactionValidator(chainId))
-        .privateTransactionProcessorBuilder(
-            (gasCalculator,
-                transactionValidator,
-                contractCreationProcessor,
-                messageCallProcessor,
-                privateTransactionValidator) ->
-                new PrivateTransactionProcessor(
-                    gasCalculator,
-                    transactionValidator,
-                    contractCreationProcessor,
-                    messageCallProcessor,
-                    false,
-                    stackSizeLimit,
-                    Account.DEFAULT_VERSION,
-                    privateTransactionValidator))
         .name("SpuriousDragon");
   }
 
@@ -250,6 +234,7 @@ public abstract class MainnetProtocolSpecs {
       final OptionalInt contractSizeLimit,
       final OptionalInt configStackSizeLimit,
       final boolean enableRevertReason) {
+    final int stackSizeLimit = configStackSizeLimit.orElse(DEFAULT_MAX_STACK_SIZE);
     return spuriousDragonDefinition(chainId, contractSizeLimit, configStackSizeLimit)
         .evmBuilder(MainnetEvmRegistries::byzantium)
         .precompileContractRegistryBuilder(MainnetPrecompiledContractRegistries::byzantium)
@@ -259,6 +244,22 @@ public abstract class MainnetProtocolSpecs {
                 ? MainnetProtocolSpecs::byzantiumTransactionReceiptFactoryWithReasonEnabled
                 : MainnetProtocolSpecs::byzantiumTransactionReceiptFactory)
         .blockReward(BYZANTIUM_BLOCK_REWARD)
+        .privateTransactionValidatorBuilder(() -> new PrivateTransactionValidator(chainId))
+        .privateTransactionProcessorBuilder(
+                (gasCalculator,
+                 transactionValidator,
+                 contractCreationProcessor,
+                 messageCallProcessor,
+                 privateTransactionValidator) ->
+                        new PrivateTransactionProcessor(
+                                gasCalculator,
+                                transactionValidator,
+                                contractCreationProcessor,
+                                messageCallProcessor,
+                                false,
+                                stackSizeLimit,
+                                Account.DEFAULT_VERSION,
+                                privateTransactionValidator))
         .name("Byzantium");
   }
 

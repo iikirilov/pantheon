@@ -84,8 +84,9 @@ public class PrivacyCluster {
     }
   }
 
-  public void stopNode(final PantheonNode node) {
-    pantheonNodeRunner.stopNode(node);
+  public void stopNode(final PrivacyNode node) {
+    node.getOrion().stop();
+    pantheonNodeRunner.stopNode(node.getPantheon());
   }
 
   public void close() {
