@@ -29,8 +29,8 @@ import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.PantheonPrivacyGasProvider;
 import org.web3j.utils.Base64String;
 
-public class PrivateLoadSmartContractTransaction<T extends Contract> implements Transaction<T> {
-  private static PantheonPrivacyGasProvider GAS_POROVIDER =
+public class LoadPrivateSmartContractTransaction<T extends Contract> implements Transaction<T> {
+  private static final PantheonPrivacyGasProvider GAS_PROVIDER =
       new PantheonPrivacyGasProvider(BigInteger.valueOf(1000));
   private static final Object METHOD_IS_STATIC = null;
 
@@ -41,7 +41,7 @@ public class PrivateLoadSmartContractTransaction<T extends Contract> implements 
   private final List<Base64String> privateFor;
   private String contractAddress;
 
-  public PrivateLoadSmartContractTransaction(
+  public LoadPrivateSmartContractTransaction(
       final String contractAddress,
       final Class<T> clazz,
       final String transactionSigningKey,
@@ -63,7 +63,7 @@ public class PrivateLoadSmartContractTransaction<T extends Contract> implements 
     final PrivateTransactionManager privateTransactionManager =
         new LegacyPrivateTransactionManager(
             node.privacy().getPantheonClient(),
-            GAS_POROVIDER,
+            GAS_PROVIDER,
             senderCredentials,
             chainId,
             privateFrom,
@@ -83,7 +83,7 @@ public class PrivateLoadSmartContractTransaction<T extends Contract> implements 
               contractAddress,
               node.privacy().getPantheonClient(),
               privateTransactionManager,
-              GAS_POROVIDER);
+              GAS_PROVIDER);
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }

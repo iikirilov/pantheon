@@ -45,8 +45,8 @@ import org.awaitility.Awaitility;
 public class PrivacyNode implements AutoCloseable {
   private static final Logger LOG = LogManager.getLogger();
 
-  public final OrionTestHarness orion;
-  public final PantheonNode pantheon;
+  private final OrionTestHarness orion;
+  private final PantheonNode pantheon;
 
   public PrivacyNode(final PrivacyNodeConfiguration privacyConfiguration) throws IOException {
     this.orion = OrionTestHarnessFactory.create(privacyConfiguration.getOrionKeyConfig());
@@ -103,6 +103,14 @@ public class PrivacyNode implements AutoCloseable {
                 return false;
               }
             });
+  }
+
+  public OrionTestHarness getOrion() {
+    return orion;
+  }
+
+  public PantheonNode getPantheon() {
+    return pantheon;
   }
 
   public void stop() {
@@ -173,7 +181,7 @@ public class PrivacyNode implements AutoCloseable {
   }
 
   public void addOtherEnclaveNode(final URI otherNode) {
-    this.orion.addOtherNode(otherNode);
+    orion.addOtherNode(otherNode);
   }
 
   public NodeConfiguration getConfiguration() {

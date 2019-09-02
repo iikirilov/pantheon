@@ -15,6 +15,5 @@ package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.condition;
 import tech.pegasys.pantheon.tests.acceptance.dsl.privacy.PrivacyNode;
 
 public interface PrivateCondition {
-
   void verify(PrivacyNode node);
 }

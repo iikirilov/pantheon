@@ -12,23 +12,20 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.account;
 
-import java.util.function.Supplier;
-
 /** Supplier of known funded accounts defined in dev.json */
-public class PrivacyAccountSupplier implements Supplier<PrivacyAccount> {
+public class PrivacyAccountResolver {
 
-  public static final PrivacyAccount ALICE = PrivacyAccount.create("key", "orion_key_0.pub");
-  public static final PrivacyAccount BOB = PrivacyAccount.create("key1", "orion_key_1.pub");
-  public static final PrivacyAccount CHARLIE = PrivacyAccount.create("key2", "orion_key_2.pub");
+  public static final PrivacyAccount ALICE =
+      PrivacyAccount.create("key", "orion_key_0.pub", "orion_key_0.key");
+  public static final PrivacyAccount BOB =
+      PrivacyAccount.create("key1", "orion_key_1.pub", "orion_key_1.key");
+  public static final PrivacyAccount CHARLIE =
+      PrivacyAccount.create("key2", "orion_key_2.pub", "orion_key_2.key");
 
-  public static int counter = -1;
+  public PrivacyAccountResolver() {}
 
-  public PrivacyAccountSupplier() {}
-
-  @Override
-  public PrivacyAccount get() {
-    counter++;
-    switch (counter) {
+  public PrivacyAccount resolve(final Integer account) {
+    switch (account) {
       case 0:
         return ALICE;
       case 1:
@@ -36,11 +33,7 @@ public class PrivacyAccountSupplier implements Supplier<PrivacyAccount> {
       case 2:
         return CHARLIE;
       default:
-        throw new RuntimeException("The are only 3 know privacy accounts");
+        throw new RuntimeException("Unknown privacy account");
     }
-  }
-
-  public void reset() {
-    counter = -1;
   }
 }

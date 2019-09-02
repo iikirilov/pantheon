@@ -32,11 +32,13 @@ public class PrivacyGroupAcceptanceTest extends PrivacyAcceptanceTestBase {
   public void setUp() throws Exception {
     alice =
         privacyPantheon.createPrivateTransactionEnabledMinerNode(
-            "node1", privacyAccountSupplier.get());
+            "node1", privacyAccountResolver.resolve(0));
     bob =
-        privacyPantheon.createPrivateTransactionEnabledNode("node2", privacyAccountSupplier.get());
+        privacyPantheon.createPrivateTransactionEnabledNode(
+            "node2", privacyAccountResolver.resolve(1));
     charlie =
-        privacyPantheon.createPrivateTransactionEnabledNode("node3", privacyAccountSupplier.get());
+        privacyPantheon.createPrivateTransactionEnabledNode(
+            "node3", privacyAccountResolver.resolve(2));
     privacyCluster.start(alice, bob, charlie);
   }
 

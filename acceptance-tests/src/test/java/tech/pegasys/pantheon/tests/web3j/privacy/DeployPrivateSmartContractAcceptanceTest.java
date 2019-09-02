@@ -27,7 +27,7 @@ public class DeployPrivateSmartContractAcceptanceTest extends PrivacyAcceptanceT
   public void setUp() throws Exception {
     minerNode =
         privacyPantheon.createPrivateTransactionEnabledMinerNode(
-            "miner-node", privacyAccountSupplier.get());
+            "miner-node", privacyAccountResolver.resolve(0));
     privacyCluster.start(minerNode);
   }
 

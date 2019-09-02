@@ -78,7 +78,7 @@ public class PrivateContractTransactions {
         contractAddress, encodedFunction, transactionSigningKey, chainId, privateFrom, privateFor);
   }
 
-  public <T extends Contract> PrivateLoadSmartContractTransaction<T> loadSmartContract(
+  public <T extends Contract> LoadPrivateSmartContractTransaction<T> loadSmartContract(
       final String contractAddress,
       final Class<T> clazz,
       final String transactionSigningKey,
@@ -89,19 +89,20 @@ public class PrivateContractTransactions {
         contractAddress,
         clazz,
         transactionSigningKey,
-        chainId,
+
+    chainId,
         privateFrom,
         Arrays.asList(privateFor));
   }
 
-  private <T extends Contract> PrivateLoadSmartContractTransaction<T> loadSmartContract(
+  private <T extends Contract> LoadPrivateSmartContractTransaction<T> loadSmartContract(
       final String contractAddress,
       final Class<T> clazz,
       final String transactionSigningKey,
       final long chainId,
       final String privateFrom,
       final List<String> privateFor) {
-    return new PrivateLoadSmartContractTransaction<>(
+    return new LoadPrivateSmartContractTransaction<>(
         contractAddress, clazz, transactionSigningKey, chainId, privateFrom, privateFor);
   }
 }

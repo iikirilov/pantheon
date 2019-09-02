@@ -51,7 +51,7 @@ public class PrivacyCluster {
       throw new IllegalArgumentException("Can't start a cluster with no nodes");
     }
     this.nodes = nodes;
-    this.runnableNodes = nodes.stream().map(n -> n.pantheon).collect(Collectors.toList());
+    this.runnableNodes = nodes.stream().map(n -> n.getPantheon()).collect(Collectors.toList());
 
     final Optional<PrivacyNode> bootNode = selectAndStartBootnode(nodes);
 
@@ -80,8 +80,7 @@ public class PrivacyCluster {
 
   public void stop() {
     for (final PrivacyNode node : nodes) {
-      pantheonNodeRunner.stopNode(node.pantheon);
-      node.stop();
+      pantheonNodeRunner.stopNode(node.getPantheon());
     }
   }
 
@@ -116,7 +115,7 @@ public class PrivacyCluster {
   }
 
   private void startNode(final PrivacyNode node) {
-    this.startNode(node, false);
+    startNode(node, false);
   }
 
   private void startNode(final PrivacyNode node, final boolean isBootNode) {
@@ -129,7 +128,7 @@ public class PrivacyCluster {
         .ifPresent(node.getConfiguration()::setGenesisConfig);
 
     if (!isBootNode) {
-      node.addOtherEnclaveNode(bootNode.orion.nodeUrl());
+      node.addOtherEnclaveNode(bootNode.getOrion().nodeUrl());
     }
 
     LOG.info(

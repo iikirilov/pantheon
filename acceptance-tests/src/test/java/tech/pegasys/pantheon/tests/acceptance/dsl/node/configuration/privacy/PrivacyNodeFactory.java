@@ -34,58 +34,49 @@ public class PrivacyNodeFactory {
   public PrivacyNode createPrivateTransactionEnabledMinerNode(
       final String name, final PrivacyAccount privacyAccount) throws IOException {
     return create(
-        new PrivacyNodeConfigurationBuilder()
-            .setPantheonConfig(
-                new PantheonNodeConfigurationBuilder()
-                    .name(name)
-                    .miningEnabled()
-                    .jsonRpcEnabled()
-                    .webSocketEnabled()
-                    .enablePrivateTransactions()
-                    .keyFilePath(privacyAccount.getPrivateKeyPath())
-                    .build())
-            .setOrionKeyConfig(
-                new OrionKeyConfiguration(
-                    privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath()))
-            .build());
+        new PrivacyNodeConfiguration(
+            new PantheonNodeConfigurationBuilder()
+                .name(name)
+                .miningEnabled()
+                .jsonRpcEnabled()
+                .webSocketEnabled()
+                .enablePrivateTransactions()
+                .keyFilePath(privacyAccount.getPrivateKeyPath())
+                .build(),
+            new OrionKeyConfiguration(
+                privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath())));
   }
 
   public PrivacyNode createPrivateTransactionEnabledNode(
       final String name, final PrivacyAccount privacyAccount) throws IOException {
     return create(
-        new PrivacyNodeConfigurationBuilder()
-            .setPantheonConfig(
-                new PantheonNodeConfigurationBuilder()
-                    .name(name)
-                    .jsonRpcEnabled()
-                    .keyFilePath(privacyAccount.getPrivateKeyPath())
-                    .enablePrivateTransactions()
-                    .webSocketEnabled()
-                    .build())
-            .setOrionKeyConfig(
-                new OrionKeyConfiguration(
-                    privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath()))
-            .build());
+        new PrivacyNodeConfiguration(
+            new PantheonNodeConfigurationBuilder()
+                .name(name)
+                .jsonRpcEnabled()
+                .keyFilePath(privacyAccount.getPrivateKeyPath())
+                .enablePrivateTransactions()
+                .webSocketEnabled()
+                .build(),
+            new OrionKeyConfiguration(
+                privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath())));
   }
 
   public PrivacyNode createIbft2NodePrivacyEnabled(
       final String name, final PrivacyAccount privacyAccount) throws IOException {
     return create(
-        new PrivacyNodeConfigurationBuilder()
-            .setPantheonConfig(
-                new PantheonNodeConfigurationBuilder()
-                    .name(name)
-                    .miningEnabled()
-                    .jsonRpcConfiguration(node.createJsonRpcWithIbft2EnabledConfig())
-                    .webSocketConfiguration(node.createWebSocketEnabledConfig())
-                    .devMode(false)
-                    .genesisConfigProvider(genesis::createIbft2GenesisConfig)
-                    .keyFilePath(privacyAccount.getPrivateKeyPath())
-                    .enablePrivateTransactions()
-                    .build())
-            .setOrionKeyConfig(
-                new OrionKeyConfiguration(
-                    privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath()))
-            .build());
+        new PrivacyNodeConfiguration(
+            new PantheonNodeConfigurationBuilder()
+                .name(name)
+                .miningEnabled()
+                .jsonRpcConfiguration(node.createJsonRpcWithIbft2EnabledConfig())
+                .webSocketConfiguration(node.createWebSocketEnabledConfig())
+                .devMode(false)
+                .genesisConfigProvider(genesis::createPrivacyIbft2GenesisConfig)
+                .keyFilePath(privacyAccount.getPrivateKeyPath())
+                .enablePrivateTransactions()
+                .build(),
+            new OrionKeyConfiguration(
+                privacyAccount.getEnclaveKeyPath(), privacyAccount.getEnclavePrivateKeyPath())));
   }
 }

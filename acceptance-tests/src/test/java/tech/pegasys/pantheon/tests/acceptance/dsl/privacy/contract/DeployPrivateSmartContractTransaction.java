@@ -32,7 +32,7 @@ import org.web3j.utils.Base64String;
 
 public class DeployPrivateSmartContractTransaction<T extends Contract> implements Transaction<T> {
 
-  private static PantheonPrivacyGasProvider GAS_PROVIDER =
+  private static final PantheonPrivacyGasProvider GAS_PROVIDER =
       new PantheonPrivacyGasProvider(BigInteger.valueOf(1000));
   private static final Object METHOD_IS_STATIC = null;
 

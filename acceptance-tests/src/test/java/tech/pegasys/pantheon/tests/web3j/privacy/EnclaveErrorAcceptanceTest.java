@@ -34,8 +34,9 @@ public class EnclaveErrorAcceptanceTest extends PrivacyAcceptanceTestBase {
 
   @Before
   public void setUp() throws Exception {
-    alice = privacyPantheon.createIbft2NodePrivacyEnabled("node1", privacyAccountSupplier.get());
-    bob = privacyPantheon.createIbft2NodePrivacyEnabled("node2", privacyAccountSupplier.get());
+    alice =
+        privacyPantheon.createIbft2NodePrivacyEnabled("node1", privacyAccountResolver.resolve(0));
+    bob = privacyPantheon.createIbft2NodePrivacyEnabled("node2", privacyAccountResolver.resolve(1));
     privacyCluster.start(alice, bob);
 
     wrongPublicKey =

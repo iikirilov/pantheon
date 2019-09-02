@@ -18,15 +18,20 @@ public class PrivacyAccount {
   private final String enclaveKeyPath;
   private final String enclavePrivateKeyPath;
 
-  private PrivacyAccount(final String privateKeyPath, final String enclaveKeyPath) {
-
+  private PrivacyAccount(
+      final String privateKeyPath,
+      final String enclavePublicKeyPath,
+      final String enclavePrivateKeyPath) {
     this.privateKeyPath = privateKeyPath;
-    this.enclaveKeyPath = enclaveKeyPath;
-    this.enclavePrivateKeyPath = resolveEnclavePrivateKey(enclaveKeyPath);
+    this.enclaveKeyPath = enclavePublicKeyPath;
+    this.enclavePrivateKeyPath = enclavePrivateKeyPath;
   }
 
-  public static PrivacyAccount create(final String privateKeyPath, final String enclaveKeyPath) {
-    return new PrivacyAccount(privateKeyPath, enclaveKeyPath);
+  public static PrivacyAccount create(
+      final String privateKeyPath,
+      final String enclavePublicKeyPath,
+      final String enclavePrivateKeyPath) {
+    return new PrivacyAccount(privateKeyPath, enclavePublicKeyPath, enclavePrivateKeyPath);
   }
 
   public String getPrivateKeyPath() {
@@ -39,9 +44,5 @@ public class PrivacyAccount {
 
   public String getEnclavePrivateKeyPath() {
     return enclavePrivateKeyPath;
-  }
-
-  private String resolveEnclavePrivateKey(final String enclaveKeyFilePath) {
-    return enclaveKeyFilePath.substring(0, enclaveKeyFilePath.length() - 3) + "key";
   }
 }

@@ -28,7 +28,7 @@ import org.web3j.utils.Base64String;
 
 public class CallPrivateSmartContractFunction implements Transaction<String> {
 
-  private static PantheonPrivacyGasProvider GAS_POROVIDER =
+  private static final PantheonPrivacyGasProvider GAS_PROVIDER =
       new PantheonPrivacyGasProvider(BigInteger.valueOf(1000));
   private final String contractAddress;
   private final String encodedFunction;
@@ -59,13 +59,13 @@ public class CallPrivateSmartContractFunction implements Transaction<String> {
 
     final PrivateTransactionManager privateTransactionManager =
         new LegacyPrivateTransactionManager(
-            pantheon, GAS_POROVIDER, senderCredentials, chainId, privateFrom, privateFor);
+            pantheon, GAS_PROVIDER, senderCredentials, chainId, privateFrom, privateFor);
 
     try {
       return privateTransactionManager
           .sendTransaction(
-              GAS_POROVIDER.getGasPrice(),
-              GAS_POROVIDER.getGasLimit(),
+              GAS_PROVIDER.getGasPrice(),
+              GAS_PROVIDER.getGasLimit(),
               contractAddress,
               encodedFunction,
               null)

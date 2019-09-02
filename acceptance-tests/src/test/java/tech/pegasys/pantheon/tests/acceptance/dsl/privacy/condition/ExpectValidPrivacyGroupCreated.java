@@ -30,7 +30,6 @@ public class ExpectValidPrivacyGroupCreated implements PrivateCondition {
 
   public ExpectValidPrivacyGroupCreated(
       final PrivacyTransactions transactions, final PrivacyGroup expected) {
-
     this.transactions = transactions;
     this.expected = expected;
   }
