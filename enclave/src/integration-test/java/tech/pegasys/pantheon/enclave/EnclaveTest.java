@@ -51,7 +51,7 @@ public class EnclaveTest {
   private static OrionTestHarness testHarness;
 
   @Before
-  public void setUpOnce() throws Exception {
+  public void setUp() throws Exception {
     folder.create();
 
     testHarness =
@@ -65,8 +65,8 @@ public class EnclaveTest {
   }
 
   @After
-  public void tearDownOnce() {
-    testHarness.getOrion().stop();
+  public void tearDown() {
+    testHarness.close();
   }
 
   @Test
@@ -173,10 +173,5 @@ public class EnclaveTest {
     final Throwable thrown = catchThrowable(() -> new Enclave(URI.create("http://null")).upCheck());
     assertThat(thrown).isInstanceOf(IOException.class);
     assertThat(thrown).hasMessageContaining("Failed to perform upcheck");
-  }
-
-  @After
-  public void tearDown() {
-    testHarness.close();
   }
 }
