@@ -1,12 +1,7 @@
 {
   "config": {
     "chainId": 4,
-    "homesteadBlock": 0,
-    "daoForkBlock": 0,
-    "eip150Block": 0,
-    "eip155Block": 0,
-    "eip158Block": 0,
-    "byzantium": 0,
+    "byzantiumBlock": 0,
     "ibft2": {
       "blockperiodseconds": 1,
       "epochlength": 30000,
