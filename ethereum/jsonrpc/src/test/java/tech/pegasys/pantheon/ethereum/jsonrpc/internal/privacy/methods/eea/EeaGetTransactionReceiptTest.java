@@ -13,6 +13,7 @@
 package tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.methods.eea;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -126,7 +127,7 @@ public class EeaGetTransactionReceiptTest {
   private final PrivacyParameters privacyParameters = mock(PrivacyParameters.class);
 
   @Test
-  public void createsPrivateTransactionReceipt() throws Exception {
+  public void returnReceiptIfTransactionExists() {
     final BytesValue mockBytesValue = mock(BytesValue.class);
     final Block chainBlock = mock(Block.class);
     final long mockLong = 10;
@@ -159,7 +160,6 @@ public class EeaGetTransactionReceiptTest {
     final JsonRpcRequest request = new JsonRpcRequest("1", "eea_getTransactionReceipt", params);
 
     when(blockchainQueries.getBlockchain()).thenReturn(blockchain);
-    when(blockchain.getTransactionByHash(transaction.hash())).thenReturn(Optional.of(transaction));
     when(blockchain.getTransactionLocation(nullable(Hash.class)))
         .thenReturn(Optional.of(transactionLocation));
     final BytesValueRLPOutput bvrlp = new BytesValueRLPOutput();
@@ -182,6 +182,64 @@ public class EeaGetTransactionReceiptTest {
     final PrivateTransactionReceiptResult result =
         (PrivateTransactionReceiptResult) response.getResult();
 
-    assertEquals("0x0bac79b78b9866ef11c989ad21a7fcf15f7a18d7", result.getContractAddress());
+    assertThat(result.getContractAddress()).isEqualTo("0x0bac79b78b9866ef11c989ad21a7fcf15f7a18d7");
+  }
+
+  @Test
+  public void returnNullIfTransactionDoesNotExist() {
+    final BytesValue mockBytesValue = mock(BytesValue.class);
+    final Block chainBlock = mock(Block.class);
+    final long mockLong = 10;
+    final BlockBody blockBody = mock(BlockBody.class);
+    final Transaction mockTx = mock(Transaction.class);
+    final BlockHeader mockBlockHeader = mock(BlockHeader.class);
+
+    final Log mockLog = mock(Log.class);
+    final Address mockAddress = mock(Address.class);
+    when(mockLog.getLogger()).thenReturn(mockAddress);
+    final LogTopic mockLogTopic = mock(LogTopic.class);
+    final List<LogTopic> listLogTopic = Arrays.asList(mockLogTopic);
+    when(mockLog.getTopics()).thenReturn(listLogTopic);
+    when(mockLog.getData()).thenReturn(mockBytesValue);
+    final List<Log> mockLogList = Arrays.asList(mockLog);
+    final PrivateTransactionStorage privateTransactionStorage =
+            mock(PrivateTransactionStorage.class);
+    final List<Transaction> mockListTx = Arrays.asList(mockTx, transaction);
+
+    doReturn(privateTransactionStorage).when(privacyParameters).getPrivateTransactionStorage();
+    when(privateTransactionStorage.getEvents(any(Bytes32.class)))
+            .thenReturn(Optional.of(mockLogList));
+    when(privateTransactionStorage.getOutput(any(Bytes32.class)))
+            .thenReturn(Optional.of(mockBytesValue));
+
+    final EeaGetTransactionReceipt eeaGetTransactionReceipt =
+            new EeaGetTransactionReceipt(blockchainQueries, enclave, parameters, privacyParameters);
+    final Object[] params = new Object[] {transaction.hash()};
+    final JsonRpcRequest request = new JsonRpcRequest("1", "eea_getTransactionReceipt", params);
+
+    when(blockchainQueries.getBlockchain()).thenReturn(blockchain);
+    when(blockchain.getTransactionLocation(nullable(Hash.class)))
+            .thenReturn(Optional.empty());
+    final BytesValueRLPOutput bvrlp = new BytesValueRLPOutput();
+    privateTransaction.writeTo(bvrlp);
+    when(enclave.receive(any(ReceiveRequest.class)))
+            .thenReturn(
+                    new ReceiveResponse(
+                            Base64.getEncoder().encodeToString(bvrlp.encoded().extractArray()).getBytes(UTF_8),
+                            ""));
+
+    when(blockchain.getChainHeadBlock()).thenReturn(chainBlock);
+    when(chainBlock.getHash()).thenReturn(mockTransactionHash);
+    when(blockchainQueries.getBlockchain().getChainHeadBlockNumber()).thenReturn(mockLong);
+    when(blockBody.getTransactions()).thenReturn(mockListTx);
+    when(blockchain.getBlockHeader(mockBlockHash)).thenReturn(Optional.of(mockBlockHeader));
+    when(mockBlockHeader.getHash()).thenReturn(mockTransactionHash);
+    when(blockchain.getBlockBody(mockBlockHash)).thenReturn(Optional.of(blockBody));
+    final JsonRpcSuccessResponse response =
+            (JsonRpcSuccessResponse) eeaGetTransactionReceipt.response(request);
+    final PrivateTransactionReceiptResult result =
+            (PrivateTransactionReceiptResult) response.getResult();
+
+    assertThat(result).isNull();
   }
 }
