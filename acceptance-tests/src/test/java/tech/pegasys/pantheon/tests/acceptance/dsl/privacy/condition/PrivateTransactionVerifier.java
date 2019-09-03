@@ -26,9 +26,8 @@ public class PrivateTransactionVerifier {
   }
 
   public ExpectValidPrivateTransactionReceipt validPrivateTransactionReceipt(
-      final String aliceExecutionTransactionHash, final PrivateTransactionReceipt receipt) {
-    return new ExpectValidPrivateTransactionReceipt(
-        transactions, aliceExecutionTransactionHash, receipt);
+      final String transactionHash, final PrivateTransactionReceipt receipt) {
+    return new ExpectValidPrivateTransactionReceipt(transactions, transactionHash, receipt);
   }
 
   public ExpectNoPrivateTransactionReceipt noPrivateTransactionReceipt(

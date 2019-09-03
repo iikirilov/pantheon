@@ -26,8 +26,7 @@ public class PrivacyNodeFactory {
   private final GenesisConfigurationFactory genesis = new GenesisConfigurationFactory();
   private final NodeConfigurationFactory node = new NodeConfigurationFactory();
 
-  private static PrivacyNode create(final PrivacyNodeConfiguration privacyNodeConfig)
-      throws IOException {
+  private PrivacyNode create(final PrivacyNodeConfiguration privacyNodeConfig) throws IOException {
     return new PrivacyNode(privacyNodeConfig);
   }
 

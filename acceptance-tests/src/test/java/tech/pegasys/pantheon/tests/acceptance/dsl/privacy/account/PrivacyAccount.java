@@ -12,6 +12,7 @@
  */
 package tech.pegasys.pantheon.tests.acceptance.dsl.privacy.account;
 
+import java.io.File;
 import java.net.URL;
 
 public class PrivacyAccount {
@@ -45,6 +46,6 @@ public class PrivacyAccount {
   }
 
   private String toStringResource(final URL path) {
-    return path.getPath().substring(path.getPath().lastIndexOf("/") + 1);
+    return path.getPath().substring(path.getPath().lastIndexOf(File.separator) + 1);
   }
 }
