@@ -69,17 +69,17 @@ public class EeaPrivateNonceProviderTest {
     PrivacyGroup[] returnedGroups = new PrivacyGroup[0];
 
     final ArgumentCaptor<FindPrivacyGroupRequest> groupMembersCaptor =
-            ArgumentCaptor.forClass(FindPrivacyGroupRequest.class);
+        ArgumentCaptor.forClass(FindPrivacyGroupRequest.class);
 
     when(enclave.findPrivacyGroup(groupMembersCaptor.capture())).thenReturn(returnedGroups);
     when(privateTransactionHandler.getSenderNonce(address, "Group1")).thenReturn(reportedNonce);
 
     final long nonce =
-            nonceProvider.determineNonce("privateFrom", new String[] {"first", "second"}, address);
+        nonceProvider.determineNonce("privateFrom", new String[] {"first", "second"}, address);
 
     assertThat(nonce).isEqualTo(reportedNonce);
     assertThat(groupMembersCaptor.getValue().addresses())
-            .containsAll(Lists.newArrayList("privateFrom", "first", "second"));
+        .containsAll(Lists.newArrayList("privateFrom", "first", "second"));
   }
 
   @Test
