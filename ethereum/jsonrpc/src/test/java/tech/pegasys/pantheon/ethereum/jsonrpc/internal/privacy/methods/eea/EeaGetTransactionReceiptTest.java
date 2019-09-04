@@ -14,6 +14,7 @@ package tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.methods.eea;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
@@ -174,7 +175,10 @@ public class EeaGetTransactionReceiptTest {
   }
 
   @Test
-  public void returnNullIfPMTDoesNotExist() {
+  public void enclavePayloadNotFoundResultsInSuccessButNullResponse() {
+    when(failingEnclave.receive(any(ReceiveRequest.class)))
+        .thenThrow(new EnclaveException("EnclavePayloadNotFound"));
+
     final EeaGetTransactionReceipt eeaGetTransactionReceipt =
         new EeaGetTransactionReceipt(
             blockchainQueries, failingEnclave, parameters, privacyParameters);
@@ -190,7 +194,7 @@ public class EeaGetTransactionReceiptTest {
   }
 
   @Test
-  public void returnNullIfPrivateTransactionIsNotAvailable() {
+  public void markerTransactionNotAvailableResultsInNullResponse() {
     when(blockchain.getTransactionLocation(nullable(Hash.class))).thenReturn(Optional.empty());
 
     final EeaGetTransactionReceipt eeaGetTransactionReceipt =
@@ -204,5 +208,17 @@ public class EeaGetTransactionReceiptTest {
         (PrivateTransactionReceiptResult) response.getResult();
 
     assertThat(result).isNull();
+  }
+
+  @Test
+  public void enclaveConnectionIssueThrowsRuntimeException() {
+    final EeaGetTransactionReceipt eeaGetTransactionReceipt =
+        new EeaGetTransactionReceipt(
+            blockchainQueries, failingEnclave, parameters, privacyParameters);
+    final Object[] params = new Object[] {transaction.hash()};
+    final JsonRpcRequest request = new JsonRpcRequest("1", "eea_getTransactionReceipt", params);
+
+    final Throwable t = catchThrowable(() -> eeaGetTransactionReceipt.response(request));
+    assertThat(t).isInstanceOf(RuntimeException.class);
   }
 }

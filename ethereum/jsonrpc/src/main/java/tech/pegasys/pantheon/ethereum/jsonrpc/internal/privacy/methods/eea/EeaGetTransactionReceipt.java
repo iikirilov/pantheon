@@ -15,6 +15,7 @@ package tech.pegasys.pantheon.ethereum.jsonrpc.internal.privacy.methods.eea;
 import static org.apache.logging.log4j.LogManager.getLogger;
 
 import tech.pegasys.pantheon.enclave.Enclave;
+import tech.pegasys.pantheon.enclave.EnclaveException;
 import tech.pegasys.pantheon.enclave.types.ReceiveRequest;
 import tech.pegasys.pantheon.enclave.types.ReceiveResponse;
 import tech.pegasys.pantheon.ethereum.chain.TransactionLocation;
@@ -91,7 +92,7 @@ public class EeaGetTransactionReceipt implements JsonRpcMethod {
     PrivateTransaction privateTransaction;
     String privacyGroupId;
     try {
-      ReceiveResponse receiveResponse = getReceiveResponseFromEnclave(transaction, publicKey);
+      final ReceiveResponse receiveResponse = getReceiveResponseFromEnclave(transaction, publicKey);
       LOG.trace("Received transaction information from Enclave");
 
       final BytesValueRLPInput bytesValueRLPInput =
@@ -99,8 +100,11 @@ public class EeaGetTransactionReceipt implements JsonRpcMethod {
 
       privateTransaction = PrivateTransaction.readFrom(bytesValueRLPInput);
       privacyGroupId = receiveResponse.getPrivacyGroupId();
-    } catch (Exception e) {
-      return new JsonRpcSuccessResponse(request.getId(), null);
+    } catch (final EnclaveException e) {
+      if (e.getMessage() != null && e.getMessage().equals("EnclavePayloadNotFound")) {
+        return new JsonRpcSuccessResponse(request.getId(), null);
+      }
+      throw e;
     }
 
     final String contractAddress =
@@ -153,11 +157,11 @@ public class EeaGetTransactionReceipt implements JsonRpcMethod {
   }
 
   private ReceiveResponse getReceiveResponseFromEnclave(
-      final Transaction transaction, final String publicKey) throws Exception {
+      final Transaction transaction, final String publicKey) {
     LOG.trace("Fetching transaction information from Enclave");
     final ReceiveRequest enclaveRequest =
         new ReceiveRequest(BytesValues.asBase64String(transaction.getPayload()), publicKey);
-    ReceiveResponse enclaveResponse = enclave.receive(enclaveRequest);
+    final ReceiveResponse enclaveResponse = enclave.receive(enclaveRequest);
     LOG.trace("Received transaction information from Enclave");
     return enclaveResponse;
   }
