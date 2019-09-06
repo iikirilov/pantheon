@@ -42,7 +42,7 @@ public class EeaGetTransactionReceiptTransaction implements Transaction<PrivateT
           receiptProcessor.waitForTransactionReceipt(transactionHash);
       assertThat(result).isNotNull();
       return result;
-    } catch (IOException | TransactionException e) {
+    } catch (final IOException | TransactionException e) {
       throw new RuntimeException(e);
     }
   }
