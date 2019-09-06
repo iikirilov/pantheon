@@ -259,6 +259,10 @@ public abstract class BytesValues {
     return Base64.getEncoder().encodeToString(bytesValue.extractArray());
   }
 
+  public static byte[] asBase64(final BytesValue bytesValue) {
+    return Base64.getEncoder().encode(bytesValue.extractArray());
+  }
+
   public static BytesValue fromBase64(final byte[] bytes) {
     return BytesValue.wrap(Base64.getDecoder().decode(bytes));
   }

@@ -410,7 +410,7 @@ public class DefaultBlockchain implements MutableBlockchain {
       final Optional<BlockBody> oldBlockBody = blockchainStorage.getBlockBody(blockHash.get());
       final Block block = new Block(oldBlockHeader.get(), oldBlockBody.get());
 
-      handleChainReorg(updater, block);
+      notifyBlockAdded(handleChainReorg(updater, block));
       updater.commit();
 
       updateCacheForNewCanonicalHead(block, calculateTotalDifficulty(block));
