@@ -21,6 +21,7 @@ import static tech.pegasys.pantheon.controller.KeyPairUtil.loadKeyPair;
 import static tech.pegasys.pantheon.crypto.Hash.keccak256;
 import static tech.pegasys.pantheon.ethereum.chain.BlockAddedEvent.EventType.CHAIN_REORG;
 
+import net.consensys.cava.io.file.Files;
 import tech.pegasys.pantheon.config.GenesisConfigFile;
 import tech.pegasys.pantheon.controller.MainnetPantheonControllerBuilder;
 import tech.pegasys.pantheon.controller.PantheonController;
@@ -67,6 +68,7 @@ import tech.pegasys.pantheon.testutil.TestClock;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 import tech.pegasys.pantheon.util.bytes.BytesValues;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
@@ -99,7 +101,7 @@ public class PrivacyReorgTest {
   private static final PrivateTransaction PRIVATE_TRANSACTION =
       PrivateTransaction.readFrom(
           new BytesValueRLPInput(
-              BytesValues.fromBase64(PRIVATE_TRANSACTION_RLP_BASE_64),
+              BytesValues.fromBase64("+QJKgIID6IMtxsCAgLkBy2CAYEBSNIAVYQAQV2AAgP1bUGAAgFRgAWCgYAIKAxkWMxeQVWEBmYBhADJgADlgAPP+YIBgQFJgBDYQYQBWV2P/////fAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAA1BBZjP6TyRYEUYQBbV4BjYFc2HRRhAIJXgGNn5ATOFGEArldbYACA/Vs0gBVhAGdXYACA/VtQYQBwYQDsVltgQIBRkYJSUZCBkANgIAGQ81s0gBVhAI5XYACA/VtQYQCsYASANgNgIIEQFWEApVdgAID9W1A1YQDyVlsAWzSAFWEAuldgAID9W1BhAMNhAVFWW2BAgFFz//////////////////////////+QkhaCUlGQgZADYCABkPNbYAJUkFZbYECAUTOBUmAggQGDkFKBUX/J2yCt7cbPK10lJSsQGrA+EkkCpz/LErdT89Gqotj59ZKRgZADkJEBkKFgAlVgAYBUc///////////////////////////GRYzF5BVVltgAVRz//////////////////////////8WkFb+oWVienpyMFggx/cpyyTgXCIfWqkTcAeTmUZW8jP+LOO5/ZpQXqF+jYoAKYIP56DaT5zoMI91JnWylCaG3He+kVxJaZ4sCKrHucckau0TlqBUetcjtyv04LRZmCBTyPVDbq7L7QoEHCKoBFzDBAgwjaADVpW0zEsJQeYFUdehnPMGA9tb/CPlrEOlb1fyX3VIasCKcmVzdHJpY3RlZA=="),
               false));
 
   private PrivacyParameters privacyParameters;
@@ -110,6 +112,7 @@ public class PrivacyReorgTest {
   public void setUp() throws IOException {
     final Path dataDir = FOLDER.newFolder().toPath();
     final Path dbPath = dataDir.resolve("database");
+    Files.copyResource("key", dataDir.resolve("key"));
     final SECP256K1.KeyPair nodeKeys = loadKeyPair(dbPath);
     final SynchronizerConfiguration syncConfigAhead =
         SynchronizerConfiguration.builder().syncMode(SyncMode.FULL).build();
@@ -122,6 +125,8 @@ public class PrivacyReorgTest {
             .setEnabled(true)
             .setDataDir(dataDir)
             .build();
+
+    privacyParameters.setSigningKeyPair(SECP256K1.KeyPair.load(dataDir.resolve("key").toFile()));
 
     stubFor(
         post("/receive")
@@ -151,17 +156,14 @@ public class PrivacyReorgTest {
             controller.getProtocolContext().getBlockchain(),
             controller.getProtocolContext().getWorldStateArchive());
 
-    final PrivateMarkerTransactionFactory markerTransactionFactory =
-        createPrivateMarkerTransactionFactory(
-            privacyParameters,
-            blockchainQueries,
-            new PendingTransactions(1, 1, Clock.systemUTC(), new NoOpMetricsSystem()));
-
     this.privateTransactionHandler =
         new PrivateTransactionHandler(
             privacyParameters,
             controller.getProtocolSchedule().getChainId(),
-            markerTransactionFactory);
+                new FixedKeySigningPrivateMarkerTransactionFactory(
+                        Address.privacyPrecompiled(privacyParameters.getPrivacyAddress()),
+                        new LatestNonceProvider(blockchainQueries, new PendingTransactions(1, 1, Clock.systemUTC(), new NoOpMetricsSystem())),
+                        privacyParameters.getSigningKeyPair().get()));
   }
 
   @Test
@@ -285,23 +287,6 @@ public class PrivacyReorgTest {
         .isEqualTo(
             Hash.fromHexString(
                 "0x2121b68f1333e93bae8cd717a3ca68c9d7e7003f6b288c36dfc59b0f87be9590"));
-  }
-
-  private PrivateMarkerTransactionFactory createPrivateMarkerTransactionFactory(
-      final PrivacyParameters privacyParameters,
-      final BlockchainQueries blockchainQueries,
-      final PendingTransactions pendingTransactions) {
-
-    final Address privateContractAddress =
-        Address.privacyPrecompiled(privacyParameters.getPrivacyAddress());
-
-    if (privacyParameters.getSigningKeyPair().isPresent()) {
-      return new FixedKeySigningPrivateMarkerTransactionFactory(
-          privateContractAddress,
-          new LatestNonceProvider(blockchainQueries, pendingTransactions),
-          privacyParameters.getSigningKeyPair().get());
-    }
-    return new RandomSigningPrivateMarkerTransactionFactory(privateContractAddress);
   }
 
   private Block buildBlock(
