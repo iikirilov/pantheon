@@ -25,6 +25,9 @@ import tech.pegasys.pantheon.config.GenesisConfigFile;
 import tech.pegasys.pantheon.controller.MainnetPantheonControllerBuilder;
 import tech.pegasys.pantheon.controller.PantheonController;
 import tech.pegasys.pantheon.crypto.SECP256K1;
+import tech.pegasys.pantheon.enclave.Enclave;
+import tech.pegasys.pantheon.enclave.types.ReceiveRequest;
+import tech.pegasys.pantheon.enclave.types.ReceiveResponse;
 import tech.pegasys.pantheon.ethereum.ProtocolContext;
 import tech.pegasys.pantheon.ethereum.chain.BlockAddedEvent;
 import tech.pegasys.pantheon.ethereum.chain.BlockAddedObserver;
@@ -38,14 +41,22 @@ import tech.pegasys.pantheon.ethereum.core.LogsBloomFilter;
 import tech.pegasys.pantheon.ethereum.core.MiningParametersTestBuilder;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.ethereum.core.Transaction;
-import tech.pegasys.pantheon.ethereum.core.Wei;
 import tech.pegasys.pantheon.ethereum.eth.EthProtocolConfiguration;
 import tech.pegasys.pantheon.ethereum.eth.sync.SyncMode;
 import tech.pegasys.pantheon.ethereum.eth.sync.SynchronizerConfiguration;
+import tech.pegasys.pantheon.ethereum.eth.transactions.PendingTransactions;
 import tech.pegasys.pantheon.ethereum.eth.transactions.TransactionPoolConfiguration;
+import tech.pegasys.pantheon.ethereum.jsonrpc.LatestNonceProvider;
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.queries.BlockchainQueries;
 import tech.pegasys.pantheon.ethereum.mainnet.HeaderValidationMode;
 import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSchedule;
 import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSpec;
+import tech.pegasys.pantheon.ethereum.privacy.PrivateTransaction;
+import tech.pegasys.pantheon.ethereum.privacy.PrivateTransactionHandler;
+import tech.pegasys.pantheon.ethereum.privacy.markertransaction.FixedKeySigningPrivateMarkerTransactionFactory;
+import tech.pegasys.pantheon.ethereum.privacy.markertransaction.PrivateMarkerTransactionFactory;
+import tech.pegasys.pantheon.ethereum.privacy.markertransaction.RandomSigningPrivateMarkerTransactionFactory;
+import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPInput;
 import tech.pegasys.pantheon.ethereum.rlp.RLP;
 import tech.pegasys.pantheon.ethereum.storage.StorageProvider;
 import tech.pegasys.pantheon.ethereum.storage.keyvalue.RocksDbStorageProvider;
@@ -53,15 +64,19 @@ import tech.pegasys.pantheon.metrics.ObservableMetricsSystem;
 import tech.pegasys.pantheon.metrics.noop.NoOpMetricsSystem;
 import tech.pegasys.pantheon.services.kvstore.RocksDbConfiguration;
 import tech.pegasys.pantheon.testutil.TestClock;
+import tech.pegasys.pantheon.util.bytes.BytesValue;
 import tech.pegasys.pantheon.util.bytes.BytesValues;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.concurrent.TimeUnit;
+import java.time.Clock;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -75,27 +90,24 @@ public class PrivacyReorgTest {
 
   private static final BlockDataGenerator GENERATOR = new BlockDataGenerator();
 
+  private static final String PRIVACY_GROUP_ID = "8lDVI66RZHIrBsolz6Kn88Rd+WsJ4hUjb4hsh29xW/o=";
+
   private static final String TRANSACTION_KEY = "93Ky7lXwFkMc7+ckoFgUMku5bpr9tz4zhmWmk9RlNng=";
-  private static final SECP256K1.KeyPair KEY_PAIR =
-      SECP256K1.KeyPair.create(
-          SECP256K1.PrivateKey.create(
-              new BigInteger(
-                  "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63", 16)));
 
-  private static final Transaction PUBLIC_TRANSACTION =
-      Transaction.builder()
-          .nonce(0)
-          .gasPrice(Wei.of(1000))
-          .gasLimit(3000000)
-          .to(Address.DEFAULT_PRIVACY)
-          .value(Wei.ZERO)
-          .payload(BytesValues.fromBase64(TRANSACTION_KEY))
-          .sender(Address.fromHexString("0xfe3b557e8fb62b89f4916b721be55ceb828dbd73"))
-          .chainId(BigInteger.valueOf(2018))
-          .signAndBuild(KEY_PAIR);
+  private static final String PRIVATE_TRANSACTION_RLP_BASE_64 = "K1FKS2dJSUQ2SU10eHNDQWdMa0J5MkNBWUVCU05JQVZZUUFRVjJBQWdQMWJVR0FBZ0ZSZ0FXQ2dZQUlLQXhrV014ZVFWV0VCbVlCaEFESmdBRGxnQVBQK1lJQmdRRkpnQkRZUVlRQldWMlAvLy8vL2ZBRUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFZQUExQkJaalA2VHlSWUVVWVFCYlY0QmpZRmMySFJSaEFJSlhnR05uNUFUT0ZHRUFybGRiWUFDQS9WczBnQlZoQUdkWFlBQ0EvVnRRWVFCd1lRRHNWbHRnUUlCUmtZSlNVWkNCa0FOZ0lBR1E4MXMwZ0JWaEFJNVhZQUNBL1Z0UVlRQ3NZQVNBTmdOZ0lJRVFGV0VBcFZkZ0FJRDlXMUExWVFEeVZsc0FXelNBRldFQXVsZGdBSUQ5VzFCaEFNTmhBVkZXVzJCQWdGRnovLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLytRa2hhQ1VsR1FnWkFEWUNBQmtQTmJZQUpVa0ZaYllFQ0FVVE9CVW1BZ2dRR0RrRktCVVgvSjJ5Q3Q3Y2JQSzEwbEpTc1FHckErRWtrQ3B6L0xFcmRUODlHcW90ajU5WktSZ1pBRGtKRUJrS0ZnQWxWZ0FZQlVjLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vR1JZekY1QlZWbHRnQVZSei8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vOFdrRmIrb1dWaWVucHlNRmdneC9jcHl5VGdYQ0lmV3FrVGNBZVRtVVpXOGpQK0xPTzUvWnBRWHFGK2pZb0FLWUlQNTZEYVQ1em9NSTkxSm5XeWxDYUczSGUra1Z4SmFaNHNDS3JIdWNja2F1MFRscUJVZXRjanR5djA0TFJabUNCVHlQVkRicTdMN1FvRUhDS29CRnpEQkFnd2phQURWcFcwekVzSlFlWUZVZGVoblBNR0E5dGIvQ1BsckVPbGIxZnlYM1ZJYXNDS2NtVnpkSEpwWTNSbFpBPT0=";
 
-  @Test
-  public void privacyReorgTest() throws IOException {
+  private static final PrivateTransaction PRIVATE_TRANSACTION =
+      PrivateTransaction.readFrom(
+          new BytesValueRLPInput(
+              BytesValues.fromBase64(PRIVATE_TRANSACTION_RLP_BASE_64),
+              false));
+
+  private PrivacyParameters privacyParameters;
+  private PantheonController<Void> controller;
+  private PrivateTransactionHandler privateTransactionHandler;
+
+  @Before
+  public void setUp() throws IOException {
     final Path dataDir = FOLDER.newFolder().toPath();
     final Path dbPath = dataDir.resolve("database");
     final SECP256K1.KeyPair nodeKeys = loadKeyPair(dbPath);
@@ -104,7 +116,7 @@ public class PrivacyReorgTest {
     final ObservableMetricsSystem noOpMetricsSystem = new NoOpMetricsSystem();
     final BigInteger networkId = BigInteger.valueOf(2929);
 
-    final PrivacyParameters privacyParameters =
+    this.privacyParameters =
         new PrivacyParameters.Builder()
             .setEnclaveUrl(URI.create(WIRE_MOCK_RULE.baseUrl()))
             .setEnabled(true)
@@ -116,9 +128,9 @@ public class PrivacyReorgTest {
             .willReturn(
                 aResponse()
                     .withBody(
-                        "{\"payload\":\"K1FKS2dJSUQ2SU10eHNDQWdMa0J5MkNBWUVCU05JQVZZUUFRVjJBQWdQMWJVR0FBZ0ZSZ0FXQ2dZQUlLQXhrV014ZVFWV0VCbVlCaEFESmdBRGxnQVBQK1lJQmdRRkpnQkRZUVlRQldWMlAvLy8vL2ZBRUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFZQUExQkJaalA2VHlSWUVVWVFCYlY0QmpZRmMySFJSaEFJSlhnR05uNUFUT0ZHRUFybGRiWUFDQS9WczBnQlZoQUdkWFlBQ0EvVnRRWVFCd1lRRHNWbHRnUUlCUmtZSlNVWkNCa0FOZ0lBR1E4MXMwZ0JWaEFJNVhZQUNBL1Z0UVlRQ3NZQVNBTmdOZ0lJRVFGV0VBcFZkZ0FJRDlXMUExWVFEeVZsc0FXelNBRldFQXVsZGdBSUQ5VzFCaEFNTmhBVkZXVzJCQWdGRnovLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLytRa2hhQ1VsR1FnWkFEWUNBQmtQTmJZQUpVa0ZaYllFQ0FVVE9CVW1BZ2dRR0RrRktCVVgvSjJ5Q3Q3Y2JQSzEwbEpTc1FHckErRWtrQ3B6L0xFcmRUODlHcW90ajU5WktSZ1pBRGtKRUJrS0ZnQWxWZ0FZQlVjLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vR1JZekY1QlZWbHRnQVZSei8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vOFdrRmIrb1dWaWVucHlNRmdneC9jcHl5VGdYQ0lmV3FrVGNBZVRtVVpXOGpQK0xPTzUvWnBRWHFGK2pZb0FLWUlQNTZEYVQ1em9NSTkxSm5XeWxDYUczSGUra1Z4SmFaNHNDS3JIdWNja2F1MFRscUJVZXRjanR5djA0TFJabUNCVHlQVkRicTdMN1FvRUhDS29CRnpEQkFnd2phQURWcFcwekVzSlFlWUZVZGVoblBNR0E5dGIvQ1BsckVPbGIxZnlYM1ZJYXNDS2NtVnpkSEpwWTNSbFpBPT0=\",\"privacyGroupId\":\"8lDVI66RZHIrBsolz6Kn88Rd+WsJ4hUjb4hsh29xW/o=\"}")));
+                        "{\"payload\":\"" + PRIVATE_TRANSACTION_RLP_BASE_64 + "\",\"privacyGroupId\":\"" + PRIVACY_GROUP_ID + "\"}")));
 
-    final PantheonController<Void> controller =
+    this.controller =
         new MainnetPantheonControllerBuilder()
             .genesisConfigFile(GenesisConfigFile.development())
             .synchronizerConfiguration(syncConfigAhead)
@@ -134,23 +146,43 @@ public class PrivacyReorgTest {
             .storageProvider(createKeyValueStorageProvider(dbPath))
             .build();
 
-    final BlockAddedObserver privacyBlockAddedObserver = (event, blockchain) -> {
-      System.out.println(event.getEventType());
-      if (event.getEventType() == CHAIN_REORG) {
-        // FIXME need to reverse this list in handleChainReorg
-        event.getRemovedTransactions().stream().filter(t -> t.getTo().isPresent()).filter(t -> t.getTo().get().equals(Address.DEFAULT_PRIVACY));
-        event.getAddedTransactions();
-      }
-    };
+    final BlockchainQueries blockchainQueries =
+        new BlockchainQueries(
+            controller.getProtocolContext().getBlockchain(),
+            controller.getProtocolContext().getWorldStateArchive());
+
+    final PrivateMarkerTransactionFactory markerTransactionFactory =
+        createPrivateMarkerTransactionFactory(
+            privacyParameters,
+            blockchainQueries,
+            new PendingTransactions(1, 1, Clock.systemUTC(), new NoOpMetricsSystem()));
+
+    this.privateTransactionHandler =
+        new PrivateTransactionHandler(
+            privacyParameters,
+            controller.getProtocolSchedule().getChainId(),
+            markerTransactionFactory);
+  }
+
+  @Test
+  public void privacyReorgTest() {
+
+    final BlockAddedObserver privacyBlockAddedObserver =
+        new PrivacyReorgBlockAddedObserved(privacyParameters);
 
     controller.getProtocolContext().getBlockchain().observeBlockAdded(privacyBlockAddedObserver);
 
-    //make sure the blockchain and private states are empty
+    // assert blockchain and private states are empty
 
     assertThat(controller.getProtocolContext().getBlockchain().getChainHeadBlockNumber())
         .isEqualTo(0);
 
-    assertThat(privacyParameters.getPrivateStateStorage().getPrivateAccountState(BytesValues.fromBase64("8lDVI66RZHIrBsolz6Kn88Rd+WsJ4hUjb4hsh29xW/o="))).isNotPresent();
+    assertThat(
+            privacyParameters
+                .getPrivateStateStorage()
+                .getPrivateAccountState(
+                    BytesValues.fromBase64(PRIVACY_GROUP_ID)))
+        .isNotPresent();
 
     // add block with private transaction
 
@@ -160,8 +192,10 @@ public class PrivacyReorgTest {
             "0xc8267b3f9ed36df3ff8adb51a6d030716f23eeb50270e7fce8d9822ffa7f0461",
             "0x6e71c501e5c7ea61c81f787c7c8512c95efffba9294eaa6be8a587773f95d825",
             LogsBloomFilter.empty().getHexString(),
-                23176,
-            PUBLIC_TRANSACTION);
+            23176,
+            privateTransactionHandler.createPrivacyMarkerTransaction(
+                TRANSACTION_KEY,
+                PRIVATE_TRANSACTION));
 
     addBlock(controller.getProtocolSchedule(), controller.getProtocolContext(), forkBlock);
 
@@ -170,8 +204,22 @@ public class PrivacyReorgTest {
     assertThat(controller.getProtocolContext().getBlockchain().getChainHeadBlockNumber())
         .isEqualTo(1);
 
-    assertThat(privacyParameters.getPrivateStateStorage().getPrivateAccountState(BytesValues.fromBase64("8lDVI66RZHIrBsolz6Kn88Rd+WsJ4hUjb4hsh29xW/o="))).isPresent();
-    assertThat(privacyParameters.getPrivateStateStorage().getPrivateAccountState(BytesValues.fromBase64("8lDVI66RZHIrBsolz6Kn88Rd+WsJ4hUjb4hsh29xW/o=")).get()).isEqualTo(Hash.fromHexString("0x2121b68f1333e93bae8cd717a3ca68c9d7e7003f6b288c36dfc59b0f87be9590"));
+    assertThat(
+            privacyParameters
+                .getPrivateStateStorage()
+                .getPrivateAccountState(
+                    BytesValues.fromBase64(PRIVACY_GROUP_ID)))
+        .isPresent();
+
+    assertThat(
+            privacyParameters
+                .getPrivateStateStorage()
+                .getPrivateAccountState(
+                    BytesValues.fromBase64(PRIVACY_GROUP_ID))
+                .get())
+        .isEqualTo(
+            Hash.fromHexString(
+                "0x2121b68f1333e93bae8cd717a3ca68c9d7e7003f6b288c36dfc59b0f87be9590"));
 
     // rewind block to simulate reorg
 
@@ -184,58 +232,76 @@ public class PrivacyReorgTest {
     assertThat(controller.getProtocolContext().getBlockchain().getChainHeadBlockNumber())
         .isEqualTo(0);
 
-    // assertThat(privacyParameters.getPrivateStateStorage().getPrivateAccountState(BytesValues.fromBase64("8lDVI66RZHIrBsolz6Kn88Rd+WsJ4hUjb4hsh29xW/o="))).isPresent();
-    // assertThat(privacyParameters.getPrivateStateStorage().getPrivateAccountState(BytesValues.fromBase64("8lDVI66RZHIrBsolz6Kn88Rd+WsJ4hUjb4hsh29xW/o=")).get()).isEqualTo(Hash.wrap(keccak256(RLP.NULL)));
+    assertThat(controller.getProtocolContext().getBlockchain().getChainHeadBlock().getHeader().getStateRoot().toString()).isEqualTo(keccak256(RLP.NULL).toString());
+
+    assertThat(
+            privacyParameters
+                .getPrivateStateStorage()
+                .getPrivateAccountState(
+                    BytesValues.fromBase64(PRIVACY_GROUP_ID)))
+        .isPresent();
+
+    assertThat(
+            privacyParameters
+                .getPrivateStateStorage()
+                .getPrivateAccountState(
+                    BytesValues.fromBase64(PRIVACY_GROUP_ID))
+                .get())
+        .isEqualTo(Hash.wrap(keccak256(RLP.NULL)));
 
     // add block without private transaction
 
     final Block newBlock =
-            buildBlock(
-                    controller.getProtocolContext().getBlockchain().getGenesisBlock(),
-                    "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-                    "0x044372c79fd9eb58d6ae3ad89877eaaba02807efa8a29a58c22f46ce0b3e606d",
-                    LogsBloomFilter.empty().getHexString(),
-                    0);
+        buildBlock(
+            controller.getProtocolContext().getBlockchain().getGenesisBlock(),
+            "0xc8267b3f9ed36df3ff8adb51a6d030716f23eeb50270e7fce8d9822ffa7f0461",
+            "0x6e71c501e5c7ea61c81f787c7c8512c95efffba9294eaa6be8a587773f95d825",
+            LogsBloomFilter.empty().getHexString(),
+            23176,
+            privateTransactionHandler.createPrivacyMarkerTransaction(
+                TRANSACTION_KEY,
+                PRIVATE_TRANSACTION));
 
     addBlock(controller.getProtocolSchedule(), controller.getProtocolContext(), newBlock);
 
-    try {
-      TimeUnit.SECONDS.sleep(10);
-    } catch (InterruptedException e) {
-      //
+    // assert that the block has been added and private state has changed
+
+    assertThat(controller.getProtocolContext().getBlockchain().getChainHeadBlockNumber())
+        .isEqualTo(1);
+
+    assertThat(
+            privacyParameters
+                .getPrivateStateStorage()
+                .getPrivateAccountState(
+                    BytesValues.fromBase64(PRIVACY_GROUP_ID)))
+        .isPresent();
+
+    assertThat(
+            privacyParameters
+                .getPrivateStateStorage()
+                .getPrivateAccountState(
+                    BytesValues.fromBase64(PRIVACY_GROUP_ID))
+                .get())
+        .isEqualTo(
+            Hash.fromHexString(
+                "0x2121b68f1333e93bae8cd717a3ca68c9d7e7003f6b288c36dfc59b0f87be9590"));
+  }
+
+  private PrivateMarkerTransactionFactory createPrivateMarkerTransactionFactory(
+      final PrivacyParameters privacyParameters,
+      final BlockchainQueries blockchainQueries,
+      final PendingTransactions pendingTransactions) {
+
+    final Address privateContractAddress =
+        Address.privacyPrecompiled(privacyParameters.getPrivacyAddress());
+
+    if (privacyParameters.getSigningKeyPair().isPresent()) {
+      return new FixedKeySigningPrivateMarkerTransactionFactory(
+          privateContractAddress,
+          new LatestNonceProvider(blockchainQueries, pendingTransactions),
+          privacyParameters.getSigningKeyPair().get());
     }
-
-    // FIXME: Might need this in the future
-
-    //    final String listenHost = InetAddress.getLoopbackAddress().getHostAddress();
-    //    final JsonRpcConfiguration aheadJsonRpcConfiguration = jsonRpcConfiguration();
-    //    final GraphQLConfiguration aheadGraphQLConfiguration = graphQLConfiguration();
-    //    final WebSocketConfiguration aheadWebSocketConfiguration = wsRpcConfiguration();
-    //    final MetricsConfiguration aheadMetricsConfiguration = metricsConfiguration();
-    //    final RunnerBuilder runnerBuilder =
-    //            new RunnerBuilder()
-    //                    .vertx(Vertx.vertx())
-    //                    .discovery(true)
-    //                    .p2pAdvertisedHost(listenHost)
-    //                    .p2pListenPort(0)
-    //                    .maxPeers(3)
-    //                    .metricsSystem(noOpMetricsSystem)
-    //                    .staticNodes(emptySet());
-    //
-    //    final Runner runnerAhead =
-    //            runnerBuilder
-    //                    .pantheonController(controllerAhead)
-    //                    .ethNetworkConfig(EthNetworkConfig.getNetworkConfig(DEV))
-    //                    .jsonRpcConfiguration(aheadJsonRpcConfiguration)
-    //                    .graphQLConfiguration(aheadGraphQLConfiguration)
-    //                    .webSocketConfiguration(aheadWebSocketConfiguration)
-    //                    .metricsConfiguration(aheadMetricsConfiguration)
-    //                    .dataDir(dbAhead)
-    //                    .build();
-    //
-    //      runnerAhead.start();
-    //
-
+    return new RandomSigningPrivateMarkerTransactionFactory(privateContractAddress);
   }
 
   private Block buildBlock(
@@ -275,6 +341,57 @@ public class PrivacyReorgTest {
         blockImporter.importBlock(protocolContext, block, HeaderValidationMode.NONE);
     if (!result) {
       throw new IllegalStateException("Unable to import block " + block.getHeader().getNumber());
+    }
+  }
+
+  static class PrivacyReorgBlockAddedObserved implements BlockAddedObserver {
+
+    private final Enclave enclaveClient;
+    private final PrivacyParameters privacyParameters;
+
+    public PrivacyReorgBlockAddedObserved(final PrivacyParameters privacyParameters) {
+
+      this.privacyParameters = privacyParameters;
+      this.enclaveClient = new Enclave(privacyParameters.getEnclaveUri());
+    }
+
+    @Override
+    public void onBlockAdded(final BlockAddedEvent event, final Blockchain blockchain) {
+      if (event.getEventType() == CHAIN_REORG) {
+        // FIXME need to reverse this list in handleChainReorg
+        final List<Transaction> privacyTransactionsRemoved =
+            event.getRemovedTransactions().stream()
+                .filter(t -> t.getTo().isPresent())
+                .filter(
+                    t ->
+                        t.getTo()
+                            .get()
+                            .equals(
+                                Address.privacyPrecompiled(privacyParameters.getPrivacyAddress())))
+                .collect(Collectors.toList());
+        assertThat(privacyTransactionsRemoved.size()).isEqualTo(1);
+        privacyTransactionsRemoved.forEach(
+            t -> {
+              final ReceiveResponse rr =
+                  enclaveClient.receive(
+                      new ReceiveRequest(
+                          privacyParameters.getEnclavePublicKey(),
+                          BytesValues.asBase64String(t.getPayload())));
+              final BytesValue privacyGroupId = BytesValues.fromBase64(rr.getPrivacyGroupId());
+
+              // update latest state for that group with this state
+              privacyParameters
+                  .getPrivateStateStorage()
+                  .updater()
+                  .putPrivateAccountState(
+                      privacyGroupId,
+                      Hash.wrap(
+                          keccak256(
+                              RLP.NULL))) // FIXME this needs to be dynamically loaded from the
+                  // transaction.
+                  .commit();
+            });
+      }
     }
   }
 }

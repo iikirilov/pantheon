@@ -112,6 +112,9 @@ public class PrivacyPrecompiledContract extends AbstractPrecompiledContract {
 
     final BytesValue privacyGroupId = BytesValues.fromBase64(receiveResponse.getPrivacyGroupId());
 
+    // if currentBlockNumber > last private group block number
+    // I'm good
+
     // get the last world state root hash - or create a new one
     final Hash lastRootHash =
         privateStateStorage.getPrivateAccountState(privacyGroupId).orElse(EMPTY_ROOT_HASH);
