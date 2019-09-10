@@ -25,11 +25,13 @@ import tech.pegasys.pantheon.ethereum.core.Hash;
 import tech.pegasys.pantheon.ethereum.core.Log;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.ethereum.core.Transaction;
+import tech.pegasys.pantheon.ethereum.jsonrpc.JsonRpcEnclaveErrorConverter;
 import tech.pegasys.pantheon.ethereum.jsonrpc.RpcMethod;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.JsonRpcRequest;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.JsonRpcMethod;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.parameters.JsonRpcParameter;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.queries.BlockchainQueries;
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcError;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcResponse;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcSuccessResponse;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.results.privacy.PrivateTransactionReceiptResult;
@@ -101,7 +103,8 @@ public class EeaGetTransactionReceipt implements JsonRpcMethod {
       privateTransaction = PrivateTransaction.readFrom(bytesValueRLPInput);
       privacyGroupId = receiveResponse.getPrivacyGroupId();
     } catch (final EnclaveException e) {
-      if (e.getMessage() != null && e.getMessage().equals("EnclavePayloadNotFound")) {
+      if (JsonRpcEnclaveErrorConverter.convertEnclaveInvalidReason(e.getMessage())
+          == JsonRpcError.ENCLAVE_PAYLOAD_NOT_FOUND) {
         return new JsonRpcSuccessResponse(request.getId(), null);
       }
       throw e;

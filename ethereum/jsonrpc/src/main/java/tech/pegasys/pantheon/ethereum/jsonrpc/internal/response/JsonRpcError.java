@@ -138,6 +138,7 @@ public enum JsonRpcError {
   ENCLAVE_UNSUPPORTED_PRIVATE_KEY_TYPE(-50200, "EnclaveUnsupportedPrivateKeyType"),
   ENCLAVE_STORAGE_DECRYPT(-50200, "EnclaveStorageDecrypt"),
   ENCLAVE_PRIVACY_GROUP_CREATION(-50200, "EnclavePrivacyGroupIdCreation"),
+  ENCLAVE_PAYLOAD_NOT_FOUND(-50200, "EnclavePayloadNotFound"),
   CREATE_GROUP_INCLUDE_SELF(-50200, "CreatePrivacyGroupShouldIncludeSelf"),
 
   /** Storing privacy group issue */
@@ -147,7 +148,6 @@ public enum JsonRpcError {
   ENCLAVE_PRIVACY_GROUP_MISSING(-50200, "PrivacyGroupNotFound"),
   ENCLAVE_PRIVACY_QUERY_ERROR(-50200, "PrivacyGroupQueryError"),
   METHOD_UNIMPLEMENTED(-50200, "MethodUnimplemented");
-
   private final int code;
   private final String message;
 
