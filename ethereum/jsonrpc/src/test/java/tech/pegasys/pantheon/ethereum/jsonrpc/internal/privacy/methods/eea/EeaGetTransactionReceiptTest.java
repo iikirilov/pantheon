@@ -41,8 +41,8 @@ import tech.pegasys.pantheon.ethereum.jsonrpc.internal.parameters.JsonRpcParamet
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.queries.BlockchainQueries;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcSuccessResponse;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.results.privacy.PrivateTransactionReceiptResult;
+import tech.pegasys.pantheon.ethereum.privacy.PrivateStateStorage;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateTransaction;
-import tech.pegasys.pantheon.ethereum.privacy.PrivateTransactionStorage;
 import tech.pegasys.pantheon.ethereum.privacy.Restriction;
 import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPOutput;
 import tech.pegasys.pantheon.util.bytes.Bytes32;
@@ -142,15 +142,14 @@ public class EeaGetTransactionReceiptTest {
     when(mockLog.getTopics()).thenReturn(listLogTopic);
     when(mockLog.getData()).thenReturn(mockBytesValue);
     final List<Log> mockLogList = Arrays.asList(mockLog);
-    final PrivateTransactionStorage privateTransactionStorage =
-        mock(PrivateTransactionStorage.class);
+    final PrivateStateStorage privateStateStorage = mock(PrivateStateStorage.class);
     final List<Transaction> mockListTx = Arrays.asList(mockTx, transaction);
     final TransactionLocation transactionLocation = new TransactionLocation(mockBlockHash, 1);
 
-    doReturn(privateTransactionStorage).when(privacyParameters).getPrivateTransactionStorage();
-    when(privateTransactionStorage.getEvents(any(Bytes32.class)))
+    doReturn(privateStateStorage).when(privacyParameters).getPrivateStateStorage();
+    when(privateStateStorage.getTransactionLogs(any(Bytes32.class)))
         .thenReturn(Optional.of(mockLogList));
-    when(privateTransactionStorage.getOutput(any(Bytes32.class)))
+    when(privateStateStorage.getTransactionOutput(any(Bytes32.class)))
         .thenReturn(Optional.of(mockBytesValue));
 
     final EeaGetTransactionReceipt eeaGetTransactionReceipt =

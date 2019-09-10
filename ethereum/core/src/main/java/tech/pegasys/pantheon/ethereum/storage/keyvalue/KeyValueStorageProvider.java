@@ -17,8 +17,6 @@ import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSchedule;
 import tech.pegasys.pantheon.ethereum.mainnet.ScheduleBasedBlockHeaderFunctions;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateStateKeyValueStorage;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateStateStorage;
-import tech.pegasys.pantheon.ethereum.privacy.PrivateTransactionKeyValueStorage;
-import tech.pegasys.pantheon.ethereum.privacy.PrivateTransactionStorage;
 import tech.pegasys.pantheon.ethereum.storage.StorageProvider;
 import tech.pegasys.pantheon.ethereum.worldstate.WorldStatePreimageStorage;
 import tech.pegasys.pantheon.ethereum.worldstate.WorldStateStorage;
@@ -31,7 +29,6 @@ public class KeyValueStorageProvider implements StorageProvider {
   private final KeyValueStorage blockchainStorage;
   private final KeyValueStorage worldStateStorage;
   private final KeyValueStorage worldStatePreimageStorage;
-  private final KeyValueStorage privateTransactionStorage;
   private final KeyValueStorage privateStateStorage;
   private final KeyValueStorage pruningStorage;
   private final boolean isWorldStateIterable;
@@ -40,14 +37,12 @@ public class KeyValueStorageProvider implements StorageProvider {
       final KeyValueStorage blockchainStorage,
       final KeyValueStorage worldStateStorage,
       final KeyValueStorage worldStatePreimageStorage,
-      final KeyValueStorage privateTransactionStorage,
       final KeyValueStorage privateStateStorage,
       final KeyValueStorage pruningStorage,
       final boolean isWorldStateIterable) {
     this.blockchainStorage = blockchainStorage;
     this.worldStateStorage = worldStateStorage;
     this.worldStatePreimageStorage = worldStatePreimageStorage;
-    this.privateTransactionStorage = privateTransactionStorage;
     this.privateStateStorage = privateStateStorage;
     this.pruningStorage = pruningStorage;
     this.isWorldStateIterable = isWorldStateIterable;
@@ -70,11 +65,6 @@ public class KeyValueStorageProvider implements StorageProvider {
   }
 
   @Override
-  public PrivateTransactionStorage createPrivateTransactionStorage() {
-    return new PrivateTransactionKeyValueStorage(privateTransactionStorage);
-  }
-
-  @Override
   public PrivateStateStorage createPrivateStateStorage() {
     return new PrivateStateKeyValueStorage(privateStateStorage);
   }
@@ -93,7 +83,6 @@ public class KeyValueStorageProvider implements StorageProvider {
   public void close() throws IOException {
     blockchainStorage.close();
     worldStateStorage.close();
-    privateTransactionStorage.close();
     privateStateStorage.close();
     pruningStorage.close();
   }

@@ -28,7 +28,6 @@ import tech.pegasys.pantheon.ethereum.mainnet.AbstractPrecompiledContract;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateStateStorage;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateTransaction;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateTransactionProcessor;
-import tech.pegasys.pantheon.ethereum.privacy.PrivateTransactionStorage;
 import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPInput;
 import tech.pegasys.pantheon.ethereum.rlp.RLP;
 import tech.pegasys.pantheon.ethereum.trie.MerklePatriciaTrie;
@@ -47,7 +46,6 @@ public class PrivacyPrecompiledContract extends AbstractPrecompiledContract {
   private final Enclave enclave;
   private final String enclavePublicKey;
   private final WorldStateArchive privateWorldStateArchive;
-  private final PrivateTransactionStorage privateTransactionStorage;
   private final PrivateStateStorage privateStateStorage;
   private PrivateTransactionProcessor privateTransactionProcessor;
   private static final Hash EMPTY_ROOT_HASH = Hash.wrap(MerklePatriciaTrie.EMPTY_TRIE_NODE_HASH);
@@ -61,7 +59,6 @@ public class PrivacyPrecompiledContract extends AbstractPrecompiledContract {
         privacyParameters.getEnclavePublicKey(),
         new Enclave(privacyParameters.getEnclaveUri()),
         privacyParameters.getPrivateWorldStateArchive(),
-        privacyParameters.getPrivateTransactionStorage(),
         privacyParameters.getPrivateStateStorage());
   }
 
@@ -70,13 +67,11 @@ public class PrivacyPrecompiledContract extends AbstractPrecompiledContract {
       final String publicKey,
       final Enclave enclave,
       final WorldStateArchive worldStateArchive,
-      final PrivateTransactionStorage privateTransactionStorage,
       final PrivateStateStorage privateStateStorage) {
     super("Privacy", gasCalculator);
     this.enclave = enclave;
     this.enclavePublicKey = publicKey;
     this.privateWorldStateArchive = worldStateArchive;
-    this.privateTransactionStorage = privateTransactionStorage;
     this.privateStateStorage = privateStateStorage;
   }
 
@@ -114,7 +109,7 @@ public class PrivacyPrecompiledContract extends AbstractPrecompiledContract {
 
     // get the last world state root hash - or create a new one
     final Hash lastRootHash =
-        privateStateStorage.getPrivateAccountState(privacyGroupId).orElse(EMPTY_ROOT_HASH);
+        privateStateStorage.getPrivacyGroupLatestRootHash(privacyGroupId).orElse(EMPTY_ROOT_HASH);
 
     final MutableWorldState disposablePrivateState =
         privateWorldStateArchive.getMutable(lastRootHash).get();
@@ -148,17 +143,16 @@ public class PrivacyPrecompiledContract extends AbstractPrecompiledContract {
       disposablePrivateState.persist();
 
       final PrivateStateStorage.Updater privateStateUpdater = privateStateStorage.updater();
-      privateStateUpdater.putPrivateAccountState(privacyGroupId, disposablePrivateState.rootHash());
-      privateStateUpdater.commit();
+      privateStateUpdater.putPrivacyGroupLatestRootHash(
+          privacyGroupId, disposablePrivateState.rootHash());
 
       final Bytes32 txHash = keccak256(RLP.encode(privateTransaction::writeTo));
-      final PrivateTransactionStorage.Updater privateUpdater = privateTransactionStorage.updater();
       final LogSeries logs = result.getLogs();
       if (!logs.isEmpty()) {
-        privateUpdater.putTransactionLogs(txHash, result.getLogs());
+        privateStateUpdater.putTransactionLogs(txHash, result.getLogs());
       }
-      privateUpdater.putTransactionResult(txHash, result.getOutput());
-      privateUpdater.commit();
+      privateStateUpdater.putTransactionOutput(txHash, result.getOutput());
+      privateStateUpdater.commit();
     }
 
     return result.getOutput();

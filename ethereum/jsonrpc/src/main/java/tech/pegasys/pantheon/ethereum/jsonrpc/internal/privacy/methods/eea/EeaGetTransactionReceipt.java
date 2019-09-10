@@ -122,18 +122,18 @@ public class EeaGetTransactionReceipt implements JsonRpcMethod {
 
     LOG.trace("Calculated private transaction hash: {}", txHash);
 
-    List<Log> events =
+    List<Log> logs =
         privacyParameters
-            .getPrivateTransactionStorage()
-            .getEvents(txHash)
+            .getPrivateStateStorage()
+            .getTransactionLogs(txHash)
             .orElse(Collections.emptyList());
 
     LOG.trace("Processed private transaction events");
 
     BytesValue output =
         privacyParameters
-            .getPrivateTransactionStorage()
-            .getOutput(txHash)
+            .getPrivateStateStorage()
+            .getTransactionOutput(txHash)
             .orElse(BytesValue.wrap(new byte[0]));
 
     LOG.trace("Processed private transaction output");
@@ -143,7 +143,7 @@ public class EeaGetTransactionReceipt implements JsonRpcMethod {
             contractAddress,
             privateTransaction.getSender().toString(),
             privateTransaction.getTo().map(Address::toString).orElse(null),
-            events,
+            logs,
             output,
             blockhash,
             transactionHash,
@@ -156,7 +156,7 @@ public class EeaGetTransactionReceipt implements JsonRpcMethod {
   }
 
   private ReceiveResponse getReceiveResponseFromEnclave(
-      final Transaction transaction, final String publicKey) throws Exception {
+      final Transaction transaction, final String publicKey) {
     LOG.trace("Fetching transaction information from Enclave");
     final ReceiveRequest enclaveRequest =
         new ReceiveRequest(BytesValues.asBase64String(transaction.getPayload()), publicKey);

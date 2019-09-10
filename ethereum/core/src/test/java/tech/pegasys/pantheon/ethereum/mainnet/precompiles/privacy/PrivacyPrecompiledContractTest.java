@@ -33,7 +33,6 @@ import tech.pegasys.pantheon.ethereum.mainnet.SpuriousDragonGasCalculator;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateStateStorage;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateTransaction;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateTransactionProcessor;
-import tech.pegasys.pantheon.ethereum.privacy.PrivateTransactionStorage;
 import tech.pegasys.pantheon.ethereum.vm.BlockHashLookup;
 import tech.pegasys.pantheon.ethereum.vm.MessageFrame;
 import tech.pegasys.pantheon.ethereum.vm.OperationTracer;
@@ -56,7 +55,7 @@ public class PrivacyPrecompiledContractTest {
   private final String publicKey = "public key";
   private final BytesValue key = BytesValue.wrap(actual.getBytes(UTF_8));
   private PrivacyPrecompiledContract privacyPrecompiledContract;
-  private PrivacyPrecompiledContract brokenPrivateTransactionHandler;
+  private PrivacyPrecompiledContract failingPrivateTransactionHandler;
   private MessageFrame messageFrame;
   private final String DEFAULT_OUTPUT = "0x01";
 
@@ -120,15 +119,13 @@ public class PrivacyPrecompiledContractTest {
     when(worldStateArchive.getMutable()).thenReturn(mutableWorldState);
     when(worldStateArchive.getMutable(any())).thenReturn(Optional.of(mutableWorldState));
 
-    PrivateTransactionStorage privateTransactionStorage = mock(PrivateTransactionStorage.class);
-    PrivateTransactionStorage.Updater updater = mock(PrivateTransactionStorage.Updater.class);
-    when(updater.putTransactionLogs(nullable(Bytes32.class), any())).thenReturn(updater);
-    when(updater.putTransactionResult(nullable(Bytes32.class), any())).thenReturn(updater);
-    when(privateTransactionStorage.updater()).thenReturn(updater);
-
     PrivateStateStorage privateStateStorage = mock(PrivateStateStorage.class);
     PrivateStateStorage.Updater storageUpdater = mock(PrivateStateStorage.Updater.class);
-    when(storageUpdater.putPrivateAccountState(nullable(Bytes32.class), any()))
+    when(storageUpdater.putPrivacyGroupLatestRootHash(nullable(Bytes32.class), any()))
+        .thenReturn(storageUpdater);
+    when(storageUpdater.putTransactionLogs(nullable(Bytes32.class), any()))
+        .thenReturn(storageUpdater);
+    when(storageUpdater.putTransactionOutput(nullable(Bytes32.class), any()))
         .thenReturn(storageUpdater);
     when(privateStateStorage.updater()).thenReturn(storageUpdater);
 
@@ -138,16 +135,14 @@ public class PrivacyPrecompiledContractTest {
             publicKey,
             mockEnclave(),
             worldStateArchive,
-            privateTransactionStorage,
             privateStateStorage);
     privacyPrecompiledContract.setPrivateTransactionProcessor(mockPrivateTxProcessor());
-    brokenPrivateTransactionHandler =
+    failingPrivateTransactionHandler =
         new PrivacyPrecompiledContract(
             new SpuriousDragonGasCalculator(),
             publicKey,
             brokenMockEnclave(),
             worldStateArchive,
-            privateTransactionStorage,
             privateStateStorage);
     messageFrame = mock(MessageFrame.class);
   }
@@ -162,7 +157,7 @@ public class PrivacyPrecompiledContractTest {
 
   @Test
   public void enclaveIsDownWhileHandling() {
-    final BytesValue expected = brokenPrivateTransactionHandler.compute(key, messageFrame);
+    final BytesValue expected = failingPrivateTransactionHandler.compute(key, messageFrame);
 
     assertThat(expected).isEqualTo(BytesValue.EMPTY);
   }

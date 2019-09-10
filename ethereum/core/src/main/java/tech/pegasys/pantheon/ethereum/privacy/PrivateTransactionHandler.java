@@ -150,7 +150,7 @@ public class PrivateTransactionHandler {
 
   public long getSenderNonce(final Address sender, final String privacyGroupId) {
     return privateStateStorage
-        .getPrivateAccountState(BytesValues.fromBase64(privacyGroupId))
+        .getPrivacyGroupLatestRootHash(BytesValues.fromBase64(privacyGroupId))
         .map(
             lastRootHash ->
                 privateWorldStateArchive

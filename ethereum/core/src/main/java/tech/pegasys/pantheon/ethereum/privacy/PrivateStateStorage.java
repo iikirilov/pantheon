@@ -13,14 +13,23 @@
 package tech.pegasys.pantheon.ethereum.privacy;
 
 import tech.pegasys.pantheon.ethereum.core.Hash;
+import tech.pegasys.pantheon.ethereum.core.Log;
+import tech.pegasys.pantheon.ethereum.core.LogSeries;
 import tech.pegasys.pantheon.util.bytes.Bytes32;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PrivateStateStorage {
 
-  Optional<Hash> getPrivateAccountState(BytesValue privacyId);
+  boolean isPrivateStateAvailable(Bytes32 transactionHash);
+
+  Optional<List<Log>> getTransactionLogs(Bytes32 transactionHash);
+
+  Optional<BytesValue> getTransactionOutput(Bytes32 transactionHash);
+
+  Optional<Hash> getPrivacyGroupLatestRootHash(BytesValue privacyId);
 
   boolean isWorldStateAvailable(Bytes32 rootHash);
 
@@ -28,7 +37,12 @@ public interface PrivateStateStorage {
 
   interface Updater {
 
-    PrivateStateStorage.Updater putPrivateAccountState(BytesValue privacyId, Hash privateStateHash);
+    PrivateStateStorage.Updater putTransactionLogs(Bytes32 transactionHash, LogSeries logs);
+
+    PrivateStateStorage.Updater putTransactionOutput(Bytes32 transactionHash, BytesValue events);
+
+    PrivateStateStorage.Updater putPrivacyGroupLatestRootHash(
+        BytesValue privacyId, Hash privateStateHash);
 
     void commit();
   }

@@ -37,7 +37,6 @@ import tech.pegasys.pantheon.ethereum.mainnet.SpuriousDragonGasCalculator;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateStateStorage;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateTransaction;
 import tech.pegasys.pantheon.ethereum.privacy.PrivateTransactionProcessor;
-import tech.pegasys.pantheon.ethereum.privacy.PrivateTransactionStorage;
 import tech.pegasys.pantheon.ethereum.vm.BlockHashLookup;
 import tech.pegasys.pantheon.ethereum.vm.MessageFrame;
 import tech.pegasys.pantheon.ethereum.vm.OperationTracer;
@@ -84,8 +83,6 @@ public class PrivacyPrecompiledContractIntegrationTest {
 
   private static OrionTestHarness testHarness;
   private static WorldStateArchive worldStateArchive;
-  private static PrivateTransactionStorage privateTransactionStorage;
-  private static PrivateTransactionStorage.Updater updater;
   private static PrivateStateStorage privateStateStorage;
   private static PrivateStateStorage.Updater storageUpdater;
 
@@ -129,15 +126,14 @@ public class PrivacyPrecompiledContractIntegrationTest {
     when(mutableWorldState.updater()).thenReturn(mock(WorldUpdater.class));
     when(worldStateArchive.getMutable()).thenReturn(mutableWorldState);
     when(worldStateArchive.getMutable(any())).thenReturn(Optional.of(mutableWorldState));
-    privateTransactionStorage = mock(PrivateTransactionStorage.class);
-    updater = mock(PrivateTransactionStorage.Updater.class);
-    when(updater.putTransactionLogs(nullable(Bytes32.class), any())).thenReturn(updater);
-    when(updater.putTransactionResult(nullable(Bytes32.class), any())).thenReturn(updater);
-    when(privateTransactionStorage.updater()).thenReturn(updater);
 
     privateStateStorage = mock(PrivateStateStorage.class);
     storageUpdater = mock(PrivateStateStorage.Updater.class);
-    when(storageUpdater.putPrivateAccountState(nullable(Bytes32.class), any()))
+    when(storageUpdater.putPrivacyGroupLatestRootHash(nullable(Bytes32.class), any()))
+        .thenReturn(storageUpdater);
+    when(storageUpdater.putTransactionLogs(nullable(Bytes32.class), any()))
+        .thenReturn(storageUpdater);
+    when(storageUpdater.putTransactionOutput(nullable(Bytes32.class), any()))
         .thenReturn(storageUpdater);
     when(privateStateStorage.updater()).thenReturn(storageUpdater);
   }
@@ -167,7 +163,6 @@ public class PrivacyPrecompiledContractIntegrationTest {
             publicKeys.get(0),
             enclave,
             worldStateArchive,
-            privateTransactionStorage,
             privateStateStorage);
 
     privacyPrecompiledContract.setPrivateTransactionProcessor(mockPrivateTxProcessor());
